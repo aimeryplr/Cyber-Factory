@@ -1,4 +1,4 @@
-import Entity from "ServerScriptService/Contents/Entities/entities";
+import Entity from "ServerScriptService/Contents/Entities/entity";
 import Ressource from "ServerScriptService/Contents/Entities/ressource";
 import RessourceType from "ServerScriptService/Contents/Entities/ressourceEnum";
 
