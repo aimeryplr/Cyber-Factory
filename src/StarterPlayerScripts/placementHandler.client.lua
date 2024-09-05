@@ -6,9 +6,6 @@ local runService = game:GetService("RunService")
 local userInputService = game:GetService("UserInputService")
 local tweenService = game:GetService("TweenService")
 
---Event
-local spawnComponent = replicatedStorage.Event.bindable.spawnComponent
-
 --Key
 local terminateKey = Enum.UserInputType.MouseButton1
 local rotateKey = Enum.KeyCode.R
@@ -20,7 +17,6 @@ local PLACING_TRANSPARENCY = 0.3
 
 --Grid Parameters
 local gridBase = workspace:WaitForChild("plot")
-local objects = replicatedStorage.components.Grid
 local placedObjects = gridBase.PlacedObjects
 
 --object values
@@ -28,8 +24,6 @@ local object
 local size
 local rotation = math.rad(gridBase.Orientation.Y)
 local targetPos
-
-belts = require(replicatedStorage.components.gridModules.belts)
 
 --Bools
 local isPlacing = false
@@ -94,7 +88,7 @@ end
 
 --activate placing for an object
 local function activatePlacing(obj)
-	object = spawnComponent:Invoke(obj.name)
+	object = obj:Clone()
 	if object ~= nil then
 		calculateSize()
 		isPlacing = true
@@ -132,10 +126,10 @@ userInputService.InputBegan:Connect(function(input, gameProcessedEvent)
 		end
 		-- A modifier
 		if input.KeyCode == Enum.KeyCode.E and not isPlacing then
-			activatePlacing(belts[1].straight)
+			activatePlacing(replicatedStorage.Entities.GridEntities.conveyer)
 		end
 		if input.KeyCode == Enum.KeyCode.X and not isPlacing then
-			activatePlacing(belts[1].turn)
+			activatePlacing(replicatedStorage.Entities.GridEntities.conveyer)
 		end
 	end
 end)
