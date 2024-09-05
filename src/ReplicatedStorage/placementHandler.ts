@@ -51,14 +51,14 @@ class PlacementHandler {
     }
 
     calculateSize() {
-        if (this.currentTile == undefined) return;
+        if (this.currentTile === undefined) return;
         const x = math.floor(this.currentTile.Size.X / GRID_SIZE);
         const z = math.floor(this.currentTile.Size.Z / GRID_SIZE);
         this.size = new Vector2(x, z);
     }
 
     checkPlacement(pos: Vector3): boolean {
-        if (this.currentTile == undefined || this.size == undefined) return false;
+        if (this.currentTile === undefined || this.size === undefined) return false;
         const x = math.floor((pos.X - this.gridBase.Position.X) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.X / 2;
         const y = math.floor((pos.Z - this.gridBase.Position.Z) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.Z / 2;
 
@@ -69,7 +69,7 @@ class PlacementHandler {
     }
 
     isPlaceable(): boolean {
-        if (this.currentTile == undefined) return false;
+        if (this.currentTile === undefined) return false;
         return Workspace.GetPartsInPart(this.currentTile).size() === 0;
     }
 
@@ -86,7 +86,7 @@ class PlacementHandler {
     }
 
     setupObject() {
-        if (this.currentTile == undefined) return;
+        if (this.currentTile === undefined) return;
         this.currentTile.Anchored = true;
         this.currentTile.CanCollide = false;
         this.currentTile.Parent = this.placedObjects;
@@ -100,12 +100,12 @@ class PlacementHandler {
             this.isPlacing = true;
             this.setupObject();
             
-            RunService.BindToRenderStep("Input", Enum.RenderPriority.Input.Value, this.moveObj);
+            RunService.BindToRenderStep("Input", Enum.RenderPriority.Input.Value, () => {this.moveObj()});
         }
     }
 
     deactivatePlacing() {
-        if (this.currentTile == undefined) return;
+        if (this.currentTile === undefined) return;
         this.isPlacing = false;
         RunService.UnbindFromRenderStep("Input");
         this.rotation = 0;
@@ -114,7 +114,7 @@ class PlacementHandler {
     }
 
     rotate() {
-        if (this.size == undefined) return;
+        if (this.size === undefined) return;
         this.rotation += math.pi / 2;
         if (this.rotation === math.pi * 2) {
             this.rotation = 0;
