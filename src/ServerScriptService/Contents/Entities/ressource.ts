@@ -1,4 +1,4 @@
-import Entity from "./entities";
+import Entity from "./entity";
 import RessourceType from "./ressourceEnum";
 
 class Ressource extends Entity {
