@@ -1,8 +1,10 @@
 class Entity {
 	sellPrice: number;
+	name: string;
 
-	constructor(sellPrice: number) {
+	constructor(name: string, sellPrice: number) {
 		this.sellPrice = sellPrice;
+		this.name = name;
 	}
 }
 
