@@ -1,13 +1,11 @@
 import GridEntity from "./gridEntity";
 
-class Conveyer extends GridEntity {
+class Assembler extends GridEntity {
     speed: number;
-    direction: Vector2;
 
-    constructor(speed: number, direction: Vector2) {
+    constructor(speed: number) {
         super()
         this.speed = speed;
-        this.direction = direction;
     }
 
     tick(): void {

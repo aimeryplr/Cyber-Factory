@@ -1,4 +1,4 @@
-local bindableFunction = game:GetService("ReplicatedStorage").Event.bindable.spawnComponent
+--local bindableFunction = game:GetService("ReplicatedStorage").Event.bindable.spawnComponent
 
 function spawnItem(item) 	
 	local find = false
@@ -24,7 +24,7 @@ function spawnItem(item)
 	end
 end
 
-bindableFunction.OnInvoke = spawnItem
+--bindableFunction.OnInvoke = spawnItem
 
 
 
