@@ -1,7 +1,7 @@
 import Ressource from "../Entities/ressource";
 import GridEntity from "./gridEntity";
 
-class Crafter extends GridEntity {
+class Splitter extends GridEntity {
     //Settings
     speed: number;
     maxCapacity: number;
@@ -16,3 +16,5 @@ class Crafter extends GridEntity {
         return;
     }
 }
+
+export default Splitter

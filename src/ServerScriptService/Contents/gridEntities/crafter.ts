@@ -20,3 +20,5 @@ class Crafter extends GridEntity {
         return;
     }
 }
+
+export default Crafter;

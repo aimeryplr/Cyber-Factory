@@ -1,9 +1,12 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import { checkPlacementForObj, setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import Plot from "./plot";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild(
 	"placeTileCheck",
 ) as RemoteFunction;
+
+ const plots = new Array<Plot>();
 
 placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unknown, gridBase: unknown): boolean => {
 	const tile = ReplicatedStorage.FindFirstChild("Entities")
@@ -12,6 +15,7 @@ placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unkn
 	if (!tile) return false;
 	const isPlaceable = checkPlacementForObj(pos as Vector3, tile.Size as Vector3, gridBase as BasePart);
 	if (isPlaceable) {
+		
 		setupObject(tile, pos as Vector3, gridBase as BasePart);
 	}
 	return isPlaceable;

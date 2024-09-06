@@ -12,3 +12,5 @@ class Assembler extends GridEntity {
         return;
     }
 }
+
+export default Assembler;

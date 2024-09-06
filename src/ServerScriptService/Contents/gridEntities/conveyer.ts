@@ -14,3 +14,5 @@ class Conveyer extends GridEntity {
         return;
     }
 }
+
+export default Conveyer;
