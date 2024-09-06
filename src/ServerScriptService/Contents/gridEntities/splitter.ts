@@ -6,8 +6,8 @@ class Crafter extends GridEntity {
     speed: number;
     maxCapacity: number;
 
-    constructor(speed: number, maxCapacity: number) {
-        super()
+    constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
+        super(name, position);
         this.speed = speed;
         this.maxCapacity = maxCapacity;
     }

@@ -10,8 +10,8 @@ class Crafter extends GridEntity {
     currentCraft = undefined;
     ressources = new Array<Ressource>()
 
-    constructor(speed: number, maxCapacity: number) {
-        super()
+    constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
+        super(name, position);
         this.speed = speed;
         this.maxCapacity = maxCapacity;
     }
