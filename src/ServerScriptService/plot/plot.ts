@@ -1,6 +1,6 @@
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
 import GridTile from "ServerScriptService/Contents/gridEntities/gridTile";
-import { getClassByName } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
+import { getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
 
 class Plot {
 	private owner: number | undefined;
@@ -33,8 +33,13 @@ class Plot {
 		return this.gridBase;
 	}
 
-	public addGridTile(tileName: string, pos: Vector3): void {
-		const gridTile = getClassByName(tileName, pos);
+	public addGridTile(tileName: string, pos: Vector3, direction: Vector2): void {
+		const gridTileInformation = getGridEntityInformation(tileName);
+		if (!gridTileInformation) return;
+
+		const gridTile = getClassByName(gridTileInformation.category, gridTileInformation.name, pos, direction);
+		print(gridTile);
+
 		if (!gridTile) return;
 		if (gridTile instanceof GridEntity) {
 			this.gridEntities.push(gridTile);

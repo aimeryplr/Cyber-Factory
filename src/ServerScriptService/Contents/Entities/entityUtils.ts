@@ -1,4 +1,4 @@
-import ComponentList from "ServerScriptService/Contents/Entities/Components/componentsList";
+import componentList from "ServerScriptService/Contents/Entities/Components/componentsList";
 import { ReplicatedStorage } from "@rbxts/services";
 import Component from "./Components/component";
 
@@ -10,7 +10,7 @@ Function that return a map with the name, tier, buildRessources of a component :
 return : { name: string, category: string, tier: number, buildRessources: Map<RessourceType, number> }
 */
 function getComponentInformation(name: string, category?: string) {
-    const AllComponentList = new ComponentList().componentsList;
+    const AllComponentList = componentList;
     let component;
 
     if (category) {
@@ -27,7 +27,7 @@ function getComponentInformation(name: string, category?: string) {
     if (component) {
         return new Component(component.name, component.buildRessources, component.tier, component.category);
     } else {
-        return null;
+        return undefined;
     }
 }
 

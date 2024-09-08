@@ -26,6 +26,9 @@
 				"$className": "Folder",
 				"placeTileCheck": {
 					"$className": "RemoteFunction"
+				},
+				"setPlayerPlot": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

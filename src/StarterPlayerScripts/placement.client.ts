@@ -25,7 +25,7 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
                 placementHandler.desactivatePlacing();
             }
             if (input.KeyCode === Enum.KeyCode.E) {
-                const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer");
+                const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer_t1");
                 if (conveyer && conveyer.IsA("BasePart")) {
                     placementHandler.activatePlacing(conveyer);
                 }

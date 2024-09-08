@@ -10,7 +10,7 @@ const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("set
 
 const plotsManager = new PlotsManager();
 
-placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unknown, gridBase: unknown): boolean => {
+placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unknown, gridBase: unknown, orientation: unknown): boolean => {
 	const plot = plotsManager.getPlotByOwner(player.UserId);
 	const tile = ReplicatedStorage.FindFirstChild("Entities")
 		?.FindFirstChild("GridEntities")
@@ -23,7 +23,8 @@ placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unkn
 	const isPlaceable = checkPlacementForObj(pos as Vector3, tile.Size as Vector3, gridBase as BasePart);
 	if (isPlaceable) {
 		setupObject(tile, pos as Vector3, gridBase as BasePart);
-		plot.addGridTile(tileName as string, pos as Vector3);
+		const direction = new Vector2(math.cos(orientation as number), math.sin(orientation as number));
+		plot.addGridTile(tileName as string, pos as Vector3, direction);
 	}
 	return isPlaceable;
 };

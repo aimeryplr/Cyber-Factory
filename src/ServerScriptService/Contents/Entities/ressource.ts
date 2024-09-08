@@ -8,13 +8,13 @@ class Ressource extends Entity {
         let calculatedSellPrice = 0;
 
         // Le prix des ressources est fixe
-        if (ressourceType == RessourceType.Plastic) {
+        if (ressourceType === RessourceType.Plastic) {
             calculatedSellPrice = 5
         }
-        else if (ressourceType == RessourceType.Copper) {
+        else if (ressourceType === RessourceType.Copper) {
             calculatedSellPrice = 10
         }
-        else if (ressourceType == RessourceType.Gold) {
+        else if (ressourceType === RessourceType.Gold) {
             calculatedSellPrice = 15
         }
 

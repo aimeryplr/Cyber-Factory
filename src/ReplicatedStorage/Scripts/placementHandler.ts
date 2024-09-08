@@ -22,6 +22,7 @@ class PlacementHandler {
     size: Vector2 | undefined;
     rotation: number;
     targetPos: Vector3 | undefined;
+    selectionTile: SelectionBox | undefined;
 
     // Bools
     isPlacing = false;
@@ -82,9 +83,18 @@ class PlacementHandler {
             if (newPos !== undefined && this.targetPos === undefined) {
                 this.currentTile.Position = newPos;
             }
-            if (newPos !== undefined && this.checkPlacement(newPos)) {
+
+            //set target position
+            if (newPos !== undefined && this.checkPlacement(newPos) && this.selectionTile !== undefined) {
                 this.targetPos = newPos;
             }
+
+            //show if placement is possible with seleciton box
+            if (this.selectionTile !== undefined) {
+                this.selectionTile.SurfaceColor3 = this.isPlaceable() ? new Color3(0, 1, 0) :new Color3(1, 0, 0);
+            }
+
+            //lerp object to target position
             if (this.targetPos !== undefined) {
                 this.currentTile.CFrame = this.currentTile.CFrame.Lerp(new CFrame(this.targetPos).mul(CFrame.fromOrientation(0, this.rotation, 0)), LERP_SPEED);
             }
@@ -93,10 +103,19 @@ class PlacementHandler {
 
     private setupObject() {
         if (this.currentTile === undefined) return;
+
+        //setup object
         this.currentTile.Anchored = true;
         this.currentTile.CanCollide = false;
         this.currentTile.Parent = this.placedObjects;
         this.currentTile.Transparency = PLACING_TRANSPARENCY;
+
+        //add selectionBox
+        this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionTile")?.Clone() as SelectionBox;
+        if (this.selectionTile === undefined) return;
+
+        this.selectionTile.Parent = this.currentTile;
+        this.selectionTile.Adornee = this.currentTile;
     }
 
     activatePlacing(obj: BasePart) {
@@ -120,7 +139,7 @@ class PlacementHandler {
 
     placeObject() {
         if (this.currentTile === undefined || !this.isPlaceable() || !this.isPlacing) return;
-        if (placeTileCheck.InvokeServer(this.currentTile.Position, this.currentTile.Name, this.gridBase)) {
+        if (placeTileCheck.InvokeServer(this.currentTile.Position, this.currentTile.Name, this.gridBase, this.rotation)) {
             this.desactivatePlacing();
         }
     }

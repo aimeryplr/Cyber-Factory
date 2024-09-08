@@ -1,6 +1,7 @@
 import Assembler from "./assembler";
 import Conveyer from "./conveyer";
 import Crafter from "./crafter";
+import gridEntitiesList from "./gridEntitiesList";
 import GridTile from "./gridTile";
 import Splitter from "./splitter";
 
@@ -21,4 +22,19 @@ function getClassByName(className: string, ...args: unknown[]): GridTile | undef
     }
 }
 
-export {getClassByName};
+function getGridEntityInformation(name: string, category?: string): {name: string, category: string, tier: number, price: number} | undefined {
+    let gridEntity;
+
+    if (category) {
+        return gridEntitiesList.get(category)?.get(name);
+    } else {
+        for (const [_, _gridEntity] of gridEntitiesList) {
+            gridEntity = _gridEntity.get(name);
+            if (gridEntity) {
+                return gridEntity;
+            }
+        }
+    }
+}
+
+export {getClassByName, getGridEntityInformation};
