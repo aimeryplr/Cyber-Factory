@@ -4,8 +4,8 @@ class Conveyer extends GridEntity {
     speed: number;
     direction: Vector2;
 
-    constructor(speed: number, direction: Vector2) {
-        super()
+    constructor(name: String, position: Vector3, speed: number, direction: Vector2) {
+        super(name, position);
         this.speed = speed;
         this.direction = direction;
     }
@@ -14,3 +14,5 @@ class Conveyer extends GridEntity {
         return;
     }
 }
+
+export default Conveyer;

@@ -21,7 +21,13 @@
 					}
 				}
 			},
-			"$path": "out/ReplicatedStorage"
+			"$path": "out/ReplicatedStorage",
+			"Events": {
+				"$className": "Folder",
+				"placeTileCheck": {
+					"$className": "RemoteFunction"
+				}
+			}
 		},
 		"StarterPlayer": {
 			"$className": "StarterPlayer",

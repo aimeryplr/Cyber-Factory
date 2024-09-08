@@ -1,5 +1,8 @@
 // Services
-import { Players, ReplicatedStorage, RunService, UserInputService, TweenService, Workspace } from "@rbxts/services";
+import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
+
+//Event
+const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 
 // Parameters
 const GRID_SIZE = 3;
@@ -7,7 +10,7 @@ const LERP_SPEED = 0.5;
 const PLACING_TRANSPARENCY = 0.3;
 
 class PlacementHandler {
-    player: Player;
+    player: Player = Players.LocalPlayer;
     mouse: Mouse;
 
     // Grid Parameters
@@ -23,15 +26,15 @@ class PlacementHandler {
     // Bools
     isPlacing = false;
 
-    constructor(player: Player, gridBase: BasePart) {
-        this.player = player;
+    constructor(gridBase: BasePart) {
+        if (!gridBase) error("Grid base not found");
         this.gridBase = gridBase;
-        this.mouse = player.GetMouse()
+        this.mouse = this.player.GetMouse()
         this.placedObjects = this.gridBase.FindFirstChild("PlacedObjects") as Folder
         this.rotation = math.rad(this.gridBase.Orientation.Y)
     }
 
-    calculateObjectPos(obj: BasePart): Vector3 | undefined {
+    private calculateObjectPos(obj: BasePart): Vector3 | undefined {
         const plotOffset = new Vector2(this.gridBase.Position.X % GRID_SIZE, this.gridBase.Position.Z % GRID_SIZE);
 
         const mouseRay = this.mouse.UnitRay;
@@ -50,15 +53,15 @@ class PlacementHandler {
         return undefined;
     }
 
-    calculateSize() {
-        if (this.currentTile == undefined) return;
+    private calculateSize() {
+        if (this.currentTile === undefined) return;
         const x = math.floor(this.currentTile.Size.X / GRID_SIZE);
         const z = math.floor(this.currentTile.Size.Z / GRID_SIZE);
         this.size = new Vector2(x, z);
     }
 
-    checkPlacement(pos: Vector3): boolean {
-        if (this.currentTile == undefined || this.size == undefined) return false;
+    private checkPlacement(pos: Vector3): boolean {
+        if (this.currentTile === undefined || this.size === undefined) return false;
         const x = math.floor((pos.X - this.gridBase.Position.X) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.X / 2;
         const y = math.floor((pos.Z - this.gridBase.Position.Z) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.Z / 2;
 
@@ -69,13 +72,16 @@ class PlacementHandler {
     }
 
     isPlaceable(): boolean {
-        if (this.currentTile == undefined) return false;
+        if (this.currentTile === undefined) return false;
         return Workspace.GetPartsInPart(this.currentTile).size() === 0;
     }
 
-    moveObj() {
+    private moveObj() {
         if (this.currentTile) {
             const newPos = this.calculateObjectPos(this.currentTile);
+            if (newPos !== undefined && this.targetPos === undefined) {
+                this.currentTile.Position = newPos;
+            }
             if (newPos !== undefined && this.checkPlacement(newPos)) {
                 this.targetPos = newPos;
             }
@@ -85,8 +91,8 @@ class PlacementHandler {
         }
     }
 
-    setupObject() {
-        if (this.currentTile == undefined) return;
+    private setupObject() {
+        if (this.currentTile === undefined) return;
         this.currentTile.Anchored = true;
         this.currentTile.CanCollide = false;
         this.currentTile.Parent = this.placedObjects;
@@ -95,26 +101,39 @@ class PlacementHandler {
 
     activatePlacing(obj: BasePart) {
         this.currentTile = obj.Clone();
-        if (this.currentTile !== undefined) {
-            this.calculateSize();
-            this.isPlacing = true;
-            this.setupObject();
-            
-            RunService.BindToRenderStep("Input", Enum.RenderPriority.Input.Value, this.moveObj);
-        }
+        if(!this.currentTile) error("Object not found");
+
+        this.calculateSize();
+        this.isPlacing = true;
+        this.setupObject();
+        
+        RunService.BindToRenderStep("Input", Enum.RenderPriority.Input.Value, () => {this.moveObj()});
     }
 
-    deactivatePlacing() {
-        if (this.currentTile == undefined) return;
+    resetPlacing() {
         this.isPlacing = false;
         RunService.UnbindFromRenderStep("Input");
         this.rotation = 0;
-        this.currentTile.CanCollide = true;
-        this.currentTile.Transparency = 0;
+        this.targetPos = undefined;
+        this.size = undefined;
+    }
+
+    placeObject() {
+        if (this.currentTile === undefined || !this.isPlaceable() || !this.isPlacing) return;
+        if (placeTileCheck.InvokeServer(this.currentTile.Position, this.currentTile.Name, this.gridBase)) {
+            this.desactivatePlacing();
+        }
+    }
+
+    desactivatePlacing() {
+        if (this.currentTile === undefined || !this.isPlacing) return;
+        this.currentTile.Destroy();
+        this.resetPlacing();
     }
 
     rotate() {
-        if (this.size == undefined) return;
+        if (this.isPlacing === false) return;
+        if (this.size === undefined) return;
         this.rotation += math.pi / 2;
         if (this.rotation === math.pi * 2) {
             this.rotation = 0;
@@ -123,21 +142,30 @@ class PlacementHandler {
     }
 }
 
-/*
-UserInputService.InputBegan.Connect((input, gameProcessedEvent) => {
-    if (!gameProcessedEvent) {
-        if (input.UserInputType === terminateKey && isPlaceable()) {
-            deactivatePlacing();
-        }
-        if (input.KeyCode === rotateKey && isPlacing) {
-            rotate();
-        }
-        if (input.KeyCode === Enum.KeyCode.E && !isPlacing) {
-            const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer");
-            if (conveyer && conveyer.IsA("BasePart")) {
-                activatePlacing(conveyer);
-            }
-        }
+function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePart): boolean {
+    function calculateSize(size: Vector3): Vector2 | undefined {
+        const x = math.floor(size.X / GRID_SIZE);
+        const z = math.floor(size.Z / GRID_SIZE);
+        return new Vector2(x, z);
     }
-});
-*/
+
+    const size = calculateSize(tileSize);
+    if ( size === undefined) return false;
+    const x = math.floor((pos.X - gridBase.Position.X) / GRID_SIZE) * GRID_SIZE + gridBase.Size.X / 2;
+    const y = math.floor((pos.Z - gridBase.Position.Z) / GRID_SIZE) * GRID_SIZE + gridBase.Size.Z / 2;
+
+    if (x >= gridBase.Size.X - math.ceil(size.X / 2 - 1) * GRID_SIZE || x < math.floor(size.X / 2) * GRID_SIZE) return false;
+    if (y >= gridBase.Size.Z - math.ceil(size.Y / 2 - 1) * GRID_SIZE || y < math.floor(size.Y / 2) * GRID_SIZE) return false;
+
+    return true;
+}
+
+function setupObject(obj: BasePart, pos: Vector3, gridBase: BasePart) {
+    const newObject = obj.Clone();
+    newObject.Position = pos;
+    newObject.Anchored = true;
+    newObject.CanCollide = true;
+    newObject.Parent = gridBase.FindFirstChild("PlacedObjects")
+}
+
+export { PlacementHandler, checkPlacementForObj, setupObject };
