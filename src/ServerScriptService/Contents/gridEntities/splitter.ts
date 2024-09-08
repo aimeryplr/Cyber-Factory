@@ -1,13 +1,13 @@
 import Ressource from "../Entities/ressource";
 import GridEntity from "./gridEntity";
 
-class Crafter extends GridEntity {
+class Splitter extends GridEntity {
     //Settings
     speed: number;
     maxCapacity: number;
 
-    constructor(speed: number, maxCapacity: number) {
-        super()
+    constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
+        super(name, position);
         this.speed = speed;
         this.maxCapacity = maxCapacity;
     }
@@ -16,3 +16,5 @@ class Crafter extends GridEntity {
         return;
     }
 }
+
+export default Splitter

@@ -3,8 +3,8 @@ import GridEntity from "./gridEntity";
 class Assembler extends GridEntity {
     speed: number;
 
-    constructor(speed: number) {
-        super()
+    constructor(name: String, position: Vector3, speed: number) {
+        super(name, position);
         this.speed = speed;
     }
 
@@ -12,3 +12,5 @@ class Assembler extends GridEntity {
         return;
     }
 }
+
+export default Assembler;
