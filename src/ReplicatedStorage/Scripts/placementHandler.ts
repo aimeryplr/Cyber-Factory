@@ -1,5 +1,5 @@
 // Services
-import { Players, ReplicatedStorage, RunService, UserInputService, TweenService, Workspace } from "@rbxts/services";
+import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -79,6 +79,9 @@ class PlacementHandler {
     private moveObj() {
         if (this.currentTile) {
             const newPos = this.calculateObjectPos(this.currentTile);
+            if (newPos !== undefined && this.targetPos === undefined) {
+                this.currentTile.Position = newPos;
+            }
             if (newPos !== undefined && this.checkPlacement(newPos)) {
                 this.targetPos = newPos;
             }
@@ -111,6 +114,8 @@ class PlacementHandler {
         this.isPlacing = false;
         RunService.UnbindFromRenderStep("Input");
         this.rotation = 0;
+        this.targetPos = undefined;
+        this.size = undefined;
     }
 
     placeObject() {
