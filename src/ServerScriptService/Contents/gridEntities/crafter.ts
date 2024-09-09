@@ -19,6 +19,14 @@ class Crafter extends GridEntity {
     tick(): void {
         return;
     }
+
+    setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
+        return;
+    }
+
+    setOutput(nextTileEntity: GridEntity): void {
+        return;
+    }
 }
 
 export default Crafter;

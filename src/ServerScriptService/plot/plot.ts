@@ -33,12 +33,11 @@ class Plot {
 		return this.gridBase;
 	}
 
-	public addGridTile(tileName: string, pos: Vector3, direction: Vector2): void {
+	public addGridTile(tileName: string, pos: Vector3, direction: Vector2): GridTile | undefined {
 		const gridTileInformation = getGridEntityInformation(tileName);
 		if (!gridTileInformation) return;
 
-		const gridTile = getClassByName(gridTileInformation.category, gridTileInformation.name, pos, direction);
-		print(gridTile);
+		const gridTile = getClassByName(gridTileInformation.category, pos, direction, gridTileInformation.speed);
 
 		if (!gridTile) return;
 		if (gridTile instanceof GridEntity) {
@@ -46,6 +45,7 @@ class Plot {
 		} else {
 			this.gridTile.push(gridTile);
 		}
+		return gridTile;
 	}
 
 	public getGridTiles(): Array<GridTile> {

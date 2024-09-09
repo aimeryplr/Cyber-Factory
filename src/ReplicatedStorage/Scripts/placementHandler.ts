@@ -138,8 +138,8 @@ class PlacementHandler {
     }
 
     placeObject() {
-        if (this.currentTile === undefined || !this.isPlaceable() || !this.isPlacing) return;
-        if (placeTileCheck.InvokeServer(this.currentTile.Position, this.currentTile.Name, this.gridBase, this.rotation)) {
+        if (this.currentTile === undefined || !this.isPlacing) return;
+        if (placeTileCheck.InvokeServer(this.targetPos, this.currentTile.Name, this.gridBase, this.rotation)) {
             this.desactivatePlacing();
         }
     }
@@ -179,12 +179,13 @@ function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePar
     return true;
 }
 
-function setupObject(obj: BasePart, pos: Vector3, gridBase: BasePart) {
+function setupObject(obj: BasePart, pos: Vector3, gridBase: BasePart): BasePart {
     const newObject = obj.Clone();
     newObject.Position = pos;
     newObject.Anchored = true;
     newObject.CanCollide = true;
     newObject.Parent = gridBase.FindFirstChild("PlacedObjects")
+    return newObject;
 }
 
 export { PlacementHandler, checkPlacementForObj, setupObject };

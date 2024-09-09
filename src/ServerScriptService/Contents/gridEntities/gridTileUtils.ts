@@ -22,7 +22,7 @@ function getClassByName(className: string, ...args: unknown[]): GridTile | undef
     }
 }
 
-function getGridEntityInformation(name: string, category?: string): {name: string, category: string, tier: number, price: number} | undefined {
+function getGridEntityInformation(name: string, category?: string): {name: string, category: string, tier: number, price: number, speed?: number} | undefined {
     let gridEntity;
 
     if (category) {
