@@ -2,6 +2,7 @@ import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { checkPlacementForObj, setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
+import Seller from "ServerScriptService/Contents/gridEntities/seller";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild(
 	"placeTileCheck",

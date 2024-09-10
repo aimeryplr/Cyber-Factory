@@ -37,4 +37,10 @@ function getGridEntityInformation(name: string, category?: string): {name: strin
     }
 }
 
-export {getClassByName, getGridEntityInformation};
+function appendInputTiles(inputTiles: Array<GridTile>, newInputTiles: Array<GridTile>) {
+    for (const tile of newInputTiles) {
+        inputTiles.push(tile);
+    }
+}
+
+export {getClassByName, getGridEntityInformation, appendInputTiles};

@@ -1,21 +1,26 @@
+import Entity from "../Entities/entity";
 import Ressource from "../Entities/ressource";
 import RessourceType from "../Entities/ressourceEnum";
 import Conveyer from "./conveyer";
 import GridEntity from "./gridEntity";
 
+// Settings
+const MAX_INPUTS = 0;
+const MAX_OUTPUTS = 1;
+
 class Generator extends GridEntity {
     speed: number;
     ressource: RessourceType;
     ressourceCraftingProgress: number = 0;
-    outPutTile: GridEntity | undefined;
 
     constructor(name: String, position: Vector3, speed: number) {
-        super(name, position);
+        super(name, position, MAX_INPUTS, MAX_OUTPUTS);
         this.speed = speed;
         this.ressource = RessourceType.Plastic;
     }
 
     tick(): void {
+        /*
         if (this.ressourceCraftingProgress >= 100) {
             if (this.outPutTile) {
                 if (this.outPutTile instanceof Conveyer) {
@@ -31,7 +36,11 @@ class Generator extends GridEntity {
         } else {
             this.ressourceCraftingProgress += this.speed;
         }
-            
+        */
+    }
+
+    addEntity(entities: Array<Entity>): Array<Entity> {
+        return entities;
     }
 
     setRessourceType(ressource: RessourceType): void {
@@ -42,7 +51,7 @@ class Generator extends GridEntity {
         return;
     }
 
-    setOutput(nextTileEntity: GridEntity): void {
-        this.outPutTile = nextTileEntity;
+    setInput(previousTileEntity: GridEntity): void {
+        return
     }
 }
