@@ -4,12 +4,16 @@ import Crafter from "./crafter";
 import gridEntitiesList from "./gridEntitiesList";
 import GridTile from "./gridTile";
 import Splitter from "./splitter";
+import Generator from "./generator";
+import Seller from "./seller";
 
 const gridTileClasses: { [key: string]: new (...args: any[]) => any } = {
     "conveyer": Conveyer,
     "splitter": Splitter,
     "crafter" : Crafter,
-    "assembler" : Assembler
+    "assembler" : Assembler,
+    "generator" : Generator,
+    "seller" : Seller
 };
 
 function getClassByName(className: string, ...args: unknown[]): GridTile | undefined {
@@ -37,10 +41,4 @@ function getGridEntityInformation(name: string, category?: string): {name: strin
     }
 }
 
-function appendInputTiles(inputTiles: Array<GridTile>, newInputTiles: Array<GridTile>) {
-    for (const tile of newInputTiles) {
-        inputTiles.push(tile);
-    }
-}
-
-export {getClassByName, getGridEntityInformation, appendInputTiles};
+export {getClassByName, getGridEntityInformation};

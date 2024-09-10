@@ -21,11 +21,11 @@ class Assembler extends GridEntity {
         return entities;
     }
 
-    setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
+    setInput(previousTileEntity: GridEntity): void {
         return;
     }
-
-    setInput(previousTileEntity: GridEntity): void {
+    
+    setOutput(nextTileEntity: GridEntity): void {
         return;
     }
 }

@@ -1,6 +1,6 @@
 import Entity from "../Entities/entity";
-import { addSegment, removeSegment } from "./conveyerContents";
 import GridEntity from "./gridEntity";
+import { addSegment, moveItemsInArray, transferContent } from "./conveyerUtils";
 
 //Setings
 const MAX_CONTENT = 6;
@@ -13,31 +13,45 @@ class Conveyer extends GridEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
 
-    constructor(name: String, position: Vector3, direction: Vector2, speed: number) {
+    constructor(name: String, position: Vector3, speed: number, direction: Vector2) {
         super(name, position, MAX_INPUTS, MAX_OUTPUTS);
         this.speed = speed;
         this.direction = direction;
     }
 
     // Set the output of the conveyer if facing the right direction
-    setInput(nextTileEntity: GridEntity): void {
-        const touchPartDirection = new Vector2(nextTileEntity.position.X - this.position.X, nextTileEntity.position.Z - this.position.Z)
-        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) === this.direction.mul(-1)
+    setInput(previousTileEntity: GridEntity): void {
+        const touchPartDirection = new Vector2(previousTileEntity.position.X - this.position.X, previousTileEntity.position.Z - this.position.Z)
+        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction
         if (isTouchPartOutTileEntity) {
-            this.inputTiles[1] = nextTileEntity
+            this.inputTiles[0] = previousTileEntity
         }
     }
 
-    tick(): void { 
-        addSegment(this.content, removeSegment(this.content, MAX_CONTENT - this.speed, MAX_CONTENT), MAX_CONTENT - this.speed);
+    setOutput(nextTileEntity: GridEntity): void {
+        const touchPartDirection = new Vector2(nextTileEntity.position.X - this.position.X, nextTileEntity.position.Z - this.position.Z)
+        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) === this.direction
+        if (isTouchPartOutTileEntity) {
+            this.outputTiles[0] = nextTileEntity
+        }
+    }
+
+    tick(): void {
+        // send the item to the next gridEntity
+        if (this.outputTiles[0] !== undefined) {
+            addSegment(this.content, this.outputTiles[0].addEntity(this.content), MAX_CONTENT - this.speed);
+        };
+
+        // move all the items by the speed amount
         for (let i = MAX_CONTENT; i > 0; i--) {
-            //to do
+            moveItemsInArray(this.content, i - this.speed, this.speed);
         }
     }
     
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        //TODO
-        return entities;
+        const transferdEntities = transferContent(entities, this.content) as Array<Entity | undefined>;
+        print(transferdEntities, this.content)
+        return transferdEntities;
     }
 }
 

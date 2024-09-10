@@ -44,7 +44,16 @@ const gridEntitiesList: Map<string, Map<string, { name: string, category: string
             tier: 3,
             price: 1000,
         }]
-    ])]
+    ])],
+    ["seller", new Map([
+        ["seller", {
+            name: "seller",
+            category: "seller",
+            tier: 0,
+            speed: 1,
+            price: 1000,
+        }]])
+    ]
 ]);
 
 export default gridEntitiesList;

@@ -6,8 +6,14 @@ const MAX_INPUTS = 4;
 const MAX_OUTPUTS = 0;
 
 class Seller extends GridEntity {
-    constructor(name: String, position: Vector3, direction: Vector2) {
+    owner: number | undefined;
+
+    constructor(name: String, position: Vector3) {
         super(name, position, MAX_INPUTS, MAX_OUTPUTS);
+    
+    }
+    setOwner(player: number) {
+        this.owner = player;
     }
     
     tick(): void {
@@ -15,25 +21,38 @@ class Seller extends GridEntity {
     }
     
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        error("Method not implemented.");
-    }
-
-    setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
-        if (touchedPart.size() === 0) return;
-        // try to find the gridEntity that is touching the assembler from his basepart
-        for (let i = 0; i < gridEntities.size(); i++) {
-            for (let j = 0; j < touchedPart.size(); j++) {
-                const isTouchPartAGridEntity = gridEntities[i].position.X === touchedPart[j].Position.X - gridBasePosition.X && gridEntities[i].position.Z === touchedPart[j].Position.Z - gridBasePosition.Z
-                if (isTouchPartAGridEntity) {
-                    // try to set the output for every conveyer to the seller
-                    gridEntities[i].setInput(this);
+        //this code sucks
+        const player = this.getPlayer();
+        if (player && player.FindFirstChild("leaderstats")) {
+            const leaderstats = player.FindFirstChild("leaderstats");
+            if (leaderstats) {
+                const money = leaderstats.FindFirstChild("Money") as NumberValue;
+                if (money !== undefined) {
+                    for (let i = 0; i < entities.size(); i++) {
+                        const entity = entities[i];
+                        if (entity !== undefined) {
+                            money.Value += entity.sellPrice;
+                            entities[i] = undefined;
+                        }
+                    }
                 }
             }
         }
+        
+        return new Array<Entity | undefined>(entities.size(), undefined);
+    }
+
+    getPlayer(): Player | undefined {
+        if (this.owner === undefined) return undefined;
+        return game.GetService("Players").GetPlayerByUserId(this.owner) as Player;
+    }
+
+    setOutput(nextTileEntity: GridEntity): void {
+        return;
     }
 
     setInput(previousTileEntity: GridEntity): void {
-        return;
+        this.inputTiles.push(previousTileEntity);
     }
 }
 

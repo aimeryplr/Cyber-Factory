@@ -14,6 +14,7 @@ abstract class GridEntity extends GridTile {
     abstract tick(): void;
 
     abstract setInput(previousTileEntity: GridEntity): void;
+    abstract setOutput(nexTileEntity: GridEntity): void;
 
     // send an entity to the next GridEntity
     // return the cotent that could not be added to the next GridEntity
@@ -28,8 +29,10 @@ abstract class GridEntity extends GridTile {
                 const isTouchPartAGridEntity = gridEntities[i].position.X === touchedPart[j].Position.X - gridBasePosition.X && gridEntities[i].position.Z === touchedPart[j].Position.Z - gridBasePosition.Z
                 if (isTouchPartAGridEntity) {
                     // try to set the output for every conveyer
-                    this.setInput(gridEntities[i]);
+                    this.setOutput(gridEntities[i]);
                     gridEntities[i].setInput(this);
+                    this.setInput(gridEntities[i]);
+                    gridEntities[i].setOutput(this);
                 }
             }
         }

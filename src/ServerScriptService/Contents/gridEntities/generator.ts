@@ -20,23 +20,18 @@ class Generator extends GridEntity {
     }
 
     tick(): void {
-        /*
-        if (this.ressourceCraftingProgress >= 100) {
-            if (this.outPutTile) {
-                if (this.outPutTile instanceof Conveyer) {
-                    const addingSuccess = this.outPutTile.addEntity(new Ressource(this.ressource, this.ressource));
-                    if (addingSuccess) {
-                        print("Ressource added to conveyer");
-                        this.ressourceCraftingProgress = 0;
-                    } else {
-                        print("Ressource not added to conveyer");
-                    }
+        // send the ressource if the item is not full
+        if (this.ressourceCraftingProgress >= 20) {
+            if (this.outputTiles[0] !== undefined) {
+                const ressource = new Ressource(this.ressource, this.ressource);
+                const outpoutedRessource = this.outputTiles[0].addEntity([ressource]);
+                if (outpoutedRessource[0] === undefined) {
+                    this.ressourceCraftingProgress = 0;
                 }
             }
         } else {
             this.ressourceCraftingProgress += this.speed;
         }
-        */
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -47,11 +42,13 @@ class Generator extends GridEntity {
         this.ressource = ressource;
     }
 
-    setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
-        return;
-    }
-
     setInput(previousTileEntity: GridEntity): void {
         return
     }
+
+    setOutput(nextTileEntity: GridEntity): void {
+        this.outputTiles.push(nextTileEntity);
+    }
 }
+
+export default Generator;

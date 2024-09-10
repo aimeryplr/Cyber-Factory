@@ -1,6 +1,7 @@
+import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
 import GridTile from "ServerScriptService/Contents/gridEntities/gridTile";
-import { appendInputTiles, getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
+import { getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
 import Seller from "ServerScriptService/Contents/gridEntities/seller";
 
 class Plot {
@@ -56,15 +57,18 @@ class Plot {
 		return this.gridBase;
 	}
 
-	public addGridTile(tileName: string, pos: Vector3, direction: Vector2): GridTile | undefined {
+	public addGridTile(tileName: string, pos: Vector3, direction: Vector2, player: number): GridTile | undefined {
 		const gridTileInformation = getGridEntityInformation(tileName);
 		if (!gridTileInformation) return;
 
-		const gridTile = getClassByName(gridTileInformation.category, pos, direction, gridTileInformation.speed);
+		const gridTile = getClassByName(gridTileInformation.category, pos, gridTileInformation.speed, direction);
 
 		if (!gridTile) return;
 		if (gridTile instanceof GridEntity) {
-			if (gridTile instanceof Seller) this.sellers.push(gridTile);
+			if (gridTile instanceof Seller) {
+				this.sellers.push(gridTile);
+				gridTile.setOwner(player);
+			}
 			this.gridEntities.push(gridTile);
 		} else {
 			this.gridTile.push(gridTile);

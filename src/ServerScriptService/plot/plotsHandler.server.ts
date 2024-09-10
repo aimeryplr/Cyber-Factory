@@ -27,7 +27,7 @@ placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unkn
 		const obj = setupObject(tile, pos as Vector3, gridBase as BasePart);
 		const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
 		const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
-		const gridTile = plot.addGridTile(tileName as string, localPos as Vector3, direction);
+		const gridTile = plot.addGridTile(tileName as string, localPos as Vector3, direction, player.UserId);
 		if (gridTile instanceof GridEntity) {
 			gridTile.setAllNeighboursOutAndInTileEntity(plot.getGridEntities(), Workspace.GetPartsInPart(obj), (gridBase as BasePart).Position);
 		}
