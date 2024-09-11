@@ -5,6 +5,7 @@ import GridEntity from "./gridEntity";
 // Settings
 const MAX_INPUTS = 0;
 const MAX_OUTPUTS = 2;
+const category: string = "splitter";
 
 class Splitter extends GridEntity {
     //Settings
@@ -12,7 +13,7 @@ class Splitter extends GridEntity {
     maxCapacity: number;
 
     constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
         this.speed = speed;
         this.maxCapacity = maxCapacity;
     }

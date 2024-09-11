@@ -2,6 +2,7 @@ import { ReplicatedStorage, UserInputService, Workspace } from "@rbxts/services"
 import { PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
 
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
+const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
 //Keybinds
 const terminateKey = Enum.UserInputType.MouseButton1;
@@ -25,23 +26,29 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
                 placementHandler.desactivatePlacing();
             }
             if (input.KeyCode === Enum.KeyCode.E) {
-                const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer_t1");
+                const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer")?.FindFirstChild("conveyer_t1");
                 if (conveyer && conveyer.IsA("BasePart")) {
                     placementHandler.activatePlacing(conveyer);
                 }
             }
             if (input.KeyCode === Enum.KeyCode.F) {
-                const generator = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("generator_t1");
+                const generator = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("generator")?.FindFirstChild("generator_t1");
                 if (generator && generator.IsA("BasePart")) {
                     placementHandler.activatePlacing(generator);
                 }
             }
             if (input.KeyCode === Enum.KeyCode.G) {
-                const seller = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("seller");
+                const seller = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("seller")?.FindFirstChild("seller");
                 if (seller && seller.IsA("BasePart")) {
                     placementHandler.activatePlacing(seller);
                 }
             }
         }
+    });
+});
+
+setConveyerBeamsEvent.OnClientEvent.Connect((beams: Array<Beam>) => {
+    beams.forEach((beam) => {
+        beam.SetTextureOffset();
     });
 });

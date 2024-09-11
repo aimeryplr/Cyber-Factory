@@ -2,11 +2,13 @@ import Entity from "../Entities/entity";
 import GridTile from "./gridTile";
 
 abstract class GridEntity extends GridTile {
+    category: string;
     inputTiles: Array<GridEntity>;
     outputTiles: Array<GridEntity>;
 
-    constructor(name: String, position: Vector3, maxInputs: number, maxOutputs: number) {
+    constructor(name: String, position: Vector3, maxInputs: number, maxOutputs: number, category: string) {
         super(name, position);
+        this.category = category;
         this.inputTiles = new Array<GridEntity>(maxInputs)
         this.outputTiles = new Array<GridEntity>(maxOutputs)
     }
@@ -37,6 +39,15 @@ abstract class GridEntity extends GridTile {
             }
         }
     };
+
+    findThisPartInGridEntities(gridEntities: Array<BasePart>, gridBasePosition: Vector3): BasePart | undefined {
+        for (let i = 0; i < gridEntities.size(); i++) {
+            if (gridEntities[i].Position.X === this.position.X + gridBasePosition.X && gridEntities[i].Position.Z === this.position.Z + gridBasePosition.Z) {
+                return gridEntities[i];
+            }
+        }
+        return undefined;
+    }
 }
 
 export default GridEntity;

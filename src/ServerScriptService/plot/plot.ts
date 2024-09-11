@@ -1,8 +1,13 @@
+import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import Conveyer from "ServerScriptService/Contents/gridEntities/conveyer";
 import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
 import GridTile from "ServerScriptService/Contents/gridEntities/gridTile";
-import { getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
+import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
 import Seller from "ServerScriptService/Contents/gridEntities/seller";
+
+const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
 class Plot {
 	private owner: number | undefined;
@@ -57,17 +62,18 @@ class Plot {
 		return this.gridBase;
 	}
 
-	public addGridTile(tileName: string, pos: Vector3, direction: Vector2, player: number): GridTile | undefined {
-		const gridTileInformation = getGridEntityInformation(tileName);
-		if (!gridTileInformation) return;
-
-		const gridTile = getClassByName(gridTileInformation.category, pos, gridTileInformation.speed, direction);
-
-		if (!gridTile) return;
+	public addGridTile(gridTile: GridTile, player: number, obj: BasePart): GridTile | undefined {
 		if (gridTile instanceof GridEntity) {
+			gridTile.setAllNeighboursOutAndInTileEntity(this.getGridEntities(), Workspace.GetPartsInPart(obj), this.gridBase.Position);
+
 			if (gridTile instanceof Seller) {
 				this.sellers.push(gridTile);
 				gridTile.setOwner(player);
+			}
+
+			if (gridTile instanceof Conveyer) {
+				this.resetBeamsOffset();
+				this.modifyIfTurningConveyer(gridTile as Conveyer);
 			}
 			this.gridEntities.push(gridTile);
 		} else {
@@ -76,12 +82,43 @@ class Plot {
 		return gridTile;
 	}
 
+	// to optimize with pooling
+	// change the basepart depending if the conveyer is turning
+	modifyIfTurningConveyer(conveyer: Conveyer): void {
+		if (conveyer.inputTiles.isEmpty() || !(conveyer.inputTiles[0] instanceof Conveyer)) return;
+		const isTurningConveyer = math.abs(conveyer.direction.X) !== math.abs(conveyer.inputTiles[0].direction.X);
+		if (isTurningConveyer) {
+			const gridEntitiesPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
+			if (gridEntitiesPart?.isEmpty()) error("No objects found in the plot");
+			conveyer.findThisPartInGridEntities(gridEntitiesPart, this.gridBase.Position)?.Destroy();
+			print(conveyer.name + "T");
+			const turningConveyer = findBasepartByName(conveyer.name + "T",conveyer.category);
+			if (turningConveyer) {
+				setupObject(turningConveyer, conveyer.position.add(this.gridBase.Position), 0, this.gridBase);
+			}
+		}
+	}
+
 	public getGridTiles(): Array<GridTile> {
 		return this.gridTile;
 	}
 
 	public getGridEntities(): Array<GridEntity> {
 		return this.gridEntities;
+	}
+
+	public resetBeamsOffset(): void {
+		const beams = new Array<Beam>();
+		this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren().forEach((child) => {
+			child.GetChildren().forEach((part) => {
+				if (part.IsA("Beam")) {
+					beams.push(part as Beam);
+				}
+			});
+		})
+		Players.GetPlayers().forEach((player) => {
+			setConveyerBeamsEvent.FireClient(player, beams);
+		});
 	}
 }
 

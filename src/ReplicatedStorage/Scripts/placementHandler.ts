@@ -56,8 +56,8 @@ class PlacementHandler {
 
     private calculateSize() {
         if (this.currentTile === undefined) return;
-        const x = math.floor(this.currentTile.Size.X / GRID_SIZE);
-        const z = math.floor(this.currentTile.Size.Z / GRID_SIZE);
+        const x = math.round(this.currentTile.Size.X / GRID_SIZE);
+        const z = math.round(this.currentTile.Size.Z / GRID_SIZE);
         this.size = new Vector2(x, z);
     }
 
@@ -153,8 +153,8 @@ class PlacementHandler {
     rotate() {
         if (this.isPlacing === false) return;
         if (this.size === undefined) return;
-        this.rotation += math.pi / 2;
-        if (this.rotation === math.pi * 2) {
+        this.rotation -= math.pi / 2;
+        if (this.rotation === -math.pi * 2) {
             this.rotation = 0;
         }
         this.size = new Vector2(this.size.Y, this.size.X);
@@ -163,8 +163,8 @@ class PlacementHandler {
 
 function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePart): boolean {
     function calculateSize(size: Vector3): Vector2 | undefined {
-        const x = math.floor(size.X / GRID_SIZE);
-        const z = math.floor(size.Z / GRID_SIZE);
+        const x = math.round(size.X / GRID_SIZE);
+        const z = math.round(size.Z / GRID_SIZE);
         return new Vector2(x, z);
     }
 
@@ -179,9 +179,10 @@ function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePar
     return true;
 }
 
-function setupObject(obj: BasePart, pos: Vector3, gridBase: BasePart): BasePart {
+function setupObject(obj: BasePart, pos: Vector3, orientation: number, gridBase: BasePart): BasePart {
     const newObject = obj.Clone();
     newObject.Position = pos;
+    newObject.Orientation = new Vector3(0, math.deg(orientation), 0);
     newObject.Anchored = true;
     newObject.CanCollide = true;
     newObject.Parent = gridBase.FindFirstChild("PlacedObjects")

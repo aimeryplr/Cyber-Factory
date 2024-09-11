@@ -4,12 +4,14 @@ import GridEntity from "./gridEntity";
 // Settings
 const MAX_INPUTS = 2;
 const MAX_OUTPUTS = 1;
+const category: string = "assembler";
+
 
 class Assembler extends GridEntity {
     speed: number;
 
     constructor(name: String, position: Vector3, speed: number) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
         this.speed = speed;
     }
 

@@ -4,12 +4,13 @@ import GridEntity from "./gridEntity";
 // Settings
 const MAX_INPUTS = 4;
 const MAX_OUTPUTS = 0;
+const category: string = "seller";
 
 class Seller extends GridEntity {
     owner: number | undefined;
 
     constructor(name: String, position: Vector3) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
     
     }
     setOwner(player: number) {

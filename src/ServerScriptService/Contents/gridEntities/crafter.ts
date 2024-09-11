@@ -5,6 +5,7 @@ import GridEntity from "./gridEntity";
 // Settings
 const MAX_INPUTS = 3;
 const MAX_OUTPUTS = 1;
+const category: string = "crafter";
 
 class Crafter extends GridEntity {
     //Settings
@@ -16,7 +17,7 @@ class Crafter extends GridEntity {
     ressources = new Array<Ressource>()
 
     constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
         this.speed = speed;
         this.maxCapacity = maxCapacity;
     }

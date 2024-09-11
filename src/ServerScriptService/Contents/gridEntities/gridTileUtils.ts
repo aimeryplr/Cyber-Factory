@@ -6,6 +6,8 @@ import GridTile from "./gridTile";
 import Splitter from "./splitter";
 import Generator from "./generator";
 import Seller from "./seller";
+import { ReplicatedStorage } from "@rbxts/services";
+import GridEntity from "./gridEntity";
 
 const gridTileClasses: { [key: string]: new (...args: any[]) => any } = {
     "conveyer": Conveyer,
@@ -16,13 +18,12 @@ const gridTileClasses: { [key: string]: new (...args: any[]) => any } = {
     "seller" : Seller
 };
 
-function getClassByName(className: string, ...args: unknown[]): GridTile | undefined {
+function getClassByName(className: string, ...args: unknown[]): GridEntity {
     const ClassConstructor = gridTileClasses[className];
     if (ClassConstructor) {
-        return new ClassConstructor(className, ...args);
+        return new ClassConstructor(...args);
     } else {
-        warn(`Class ${className} not found`);
-        return undefined;
+        error(`Class ${className} not found`);
     }
 }
 
@@ -41,4 +42,8 @@ function getGridEntityInformation(name: string, category?: string): {name: strin
     }
 }
 
-export {getClassByName, getGridEntityInformation};
+function findBasepartByName(name: string, category: string): BasePart | undefined {
+    return ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild(category)?.FindFirstChild(name) as BasePart;
+}
+
+export {getClassByName, getGridEntityInformation, findBasepartByName};
