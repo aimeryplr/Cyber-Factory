@@ -20,7 +20,9 @@ class Conveyer extends GridEntity {
         this.direction = direction;
     }
 
-    // Set the output of the conveyer if facing the right direction
+    /**
+     * @param previousTileEntity the entity connected on the side or behind this conveyer
+     */
     setInput(previousTileEntity: GridEntity): void {
         const touchPartDirection = new Vector2(previousTileEntity.position.X - this.position.X, previousTileEntity.position.Z - this.position.Z)
         const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction
@@ -37,6 +39,9 @@ class Conveyer extends GridEntity {
         }
     }
 
+    /**
+     * move all items on the conveyer
+     */
     tick(): void {
         // send the item to the next gridEntity
         if (this.outputTiles[0] !== undefined) {

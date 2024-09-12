@@ -2,7 +2,7 @@ import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { checkPlacementForObj, setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
-import { findBasepartByName, getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
+import { findBasepartByName, getClassByName, getGridEntityInformation } from "ServerScriptService/Contents/gridEntities/gridEntityUtils";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild(
 	"placeTileCheck",
@@ -27,7 +27,7 @@ placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unkn
 	const isPlaceable = checkPlacementForObj(pos as Vector3, tile.Size as Vector3, gridBase as BasePart);
 	if (isPlaceable) {
 		const obj = setupObject(tile, pos as Vector3, orientation as number, gridBase as BasePart);
-		plot.addGridTile(gridEntity, player.UserId, obj);
+		plot.addGridTile(gridEntity, obj, player.UserId);
 	}
 	return isPlaceable;
 };

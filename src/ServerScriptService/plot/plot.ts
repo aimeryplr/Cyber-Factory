@@ -4,11 +4,14 @@ import Conveyer from "ServerScriptService/Contents/gridEntities/conveyer";
 import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
 import GridTile from "ServerScriptService/Contents/gridEntities/gridTile";
-import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/gridTileUtils";
+import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/gridEntityUtils";
 import Seller from "ServerScriptService/Contents/gridEntities/seller";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
+/**
+ * holds all classes of the player's plot
+ */
 class Plot {
 	private owner: number | undefined;
 	private gridBase: BasePart;
@@ -22,6 +25,9 @@ class Plot {
 		this.owner = undefined;
 	}
 
+	/**
+	 * update all plot's gridEntities by going in the sellers and then through all inputTiles
+	 */
 	public update(): void {
 		// Initialize inputTiles with the last tiles of each conveyor (A3, B3, C3)
 		let inputTiles: Array<GridEntity> = this.sellers;
@@ -62,13 +68,18 @@ class Plot {
 		return this.gridBase;
 	}
 
-	public addGridTile(gridTile: GridTile, player: number, obj: BasePart): GridTile | undefined {
+	/** 
+	 * adds the tile to the plots tables. proceed to check neighbours of the tile.
+	 * @param player must be not null when adding a seller
+	 * @returns the gridTile if it has been added
+	 */
+	public addGridTile(gridTile: GridTile, obj: BasePart, player?: number,): GridTile | undefined {
 		if (gridTile instanceof GridEntity) {
 			gridTile.setAllNeighboursOutAndInTileEntity(this.getGridEntities(), Workspace.GetPartsInPart(obj), this.gridBase.Position);
 
 			if (gridTile instanceof Seller) {
 				this.sellers.push(gridTile);
-				gridTile.setOwner(player);
+				if (player !== undefined) gridTile.setOwner(player);
 			}
 
 			if (gridTile instanceof Conveyer) {
@@ -83,16 +94,19 @@ class Plot {
 	}
 
 	// to optimize with pooling
-	// change the basepart depending if the conveyer is turning
+	/**
+	 * change the basepart depending if the conveyer is turning
+	 */
 	modifyIfTurningConveyer(conveyer: Conveyer): void {
 		if (conveyer.inputTiles.isEmpty() || !(conveyer.inputTiles[0] instanceof Conveyer)) return;
 		const isTurningConveyer = math.abs(conveyer.direction.X) !== math.abs(conveyer.inputTiles[0].direction.X);
+
 		if (isTurningConveyer) {
 			const gridEntitiesPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
-			if (gridEntitiesPart?.isEmpty()) error("No objects found in the plot");
+			
 			conveyer.findThisPartInGridEntities(gridEntitiesPart, this.gridBase.Position)?.Destroy();
-			print(conveyer.name + "T");
 			const turningConveyer = findBasepartByName(conveyer.name + "T",conveyer.category);
+		
 			if (turningConveyer) {
 				setupObject(turningConveyer, conveyer.position.add(this.gridBase.Position), 0, this.gridBase);
 			}
@@ -107,6 +121,10 @@ class Plot {
 		return this.gridEntities;
 	}
 
+	/**
+	 * reset the animation for all conveyer.
+	 * Must use when adding a new conveyer to sync it with the rest
+	 */
 	public resetBeamsOffset(): void {
 		const beams = new Array<Beam>();
 		this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren().forEach((child) => {

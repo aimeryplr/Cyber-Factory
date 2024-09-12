@@ -18,12 +18,24 @@ abstract class GridEntity extends GridTile {
     abstract setInput(previousTileEntity: GridEntity): void;
     abstract setOutput(nexTileEntity: GridEntity): void;
 
-    // send an entity to the next GridEntity
     // return the cotent that could not be added to the next GridEntity
     // return empty array if all entities are added to the next GridEntity
-    abstract addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined>;
+    /**
+     * send an entity to the next GridEntity
+     * @param entities the entities to send
+     * @returns the entities that could not be added to the next GridEntity
+     * @example 
+     * const entities = [entity1, entity2, entity3]
+     * const entitiesNotAdded = addEntity(entities)
+     * print(entitiesNotAdded) // [entity1, entity2, entity3]
+     * // no entities were send here
+     */
+    abstract addEntity(entities: Array<Entity|undefined>): Array<Entity|undefined>;
 
-    // Set the output for all entityGrid that are touching the conveyer
+    /** Go through all connected part and try to set the input and output
+     * @param touchedPart list of part touching this
+     * @param gridEntities list of entities in the plot
+     */
     setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
         if (touchedPart.size() === 0) return;
         for (let i = 0; i < gridEntities.size(); i++) {
