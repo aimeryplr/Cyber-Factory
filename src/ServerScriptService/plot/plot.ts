@@ -90,6 +90,7 @@ class Plot {
 		} else {
 			this.gridTile.push(gridTile);
 		}
+		print(this.gridEntities)
 		return gridTile;
 	}
 
@@ -105,10 +106,14 @@ class Plot {
 			const gridEntitiesPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
 			
 			conveyer.findThisPartInGridEntities(gridEntitiesPart, this.gridBase.Position)?.Destroy();
-			const turningConveyer = findBasepartByName(conveyer.name + "T",conveyer.category);
+			
+			const isTurningLeft = conveyer.inputTiles[0].direction.X === -conveyer.direction.Y && conveyer.inputTiles[0].direction.Y === conveyer.direction.X;
+			const turningConveyer = findBasepartByName(conveyer.name + (isTurningLeft ? "T" : "TR"), conveyer.category);
 		
 			if (turningConveyer) {
-				setupObject(turningConveyer, conveyer.position.add(this.gridBase.Position), 0, this.gridBase);
+				const newPostion = conveyer.position.add(this.gridBase.Position).sub(new Vector3(0, this.gridBase.Size.Y / 2, 0));
+				const orientation = math.atan2(conveyer.direction.Y, conveyer.direction.X) + (isTurningLeft ? 0 : math.pi / 2);
+				setupObject(turningConveyer, newPostion, orientation, this.gridBase);
 			}
 		}
 	}

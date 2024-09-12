@@ -45,7 +45,7 @@ class PlacementHandler {
 
         if (hit === this.gridBase) {
             let x = math.floor((position.X - plotOffset.X) / GRID_SIZE) * GRID_SIZE + plotOffset.X;
-            const y = 2 * this.gridBase.Size.Y + this.gridBase.Position.Y;
+            const y = this.gridBase.Size.Y / 2 + this.gridBase.Position.Y + obj.Size.Y / 2;
             let z = math.floor((position.Z - plotOffset.Y) / GRID_SIZE) * GRID_SIZE + plotOffset.Y;
             if (this.size && this.size.X % 2 === 1) x += GRID_SIZE / 2;
             if (this.size && this.size.Y % 2 === 1) z += GRID_SIZE / 2;
@@ -139,7 +139,7 @@ class PlacementHandler {
 
     placeObject() {
         if (this.currentTile === undefined || !this.isPlacing) return;
-        if (placeTileCheck.InvokeServer(this.targetPos, this.currentTile.Name, this.gridBase, this.rotation)) {
+        if (placeTileCheck.InvokeServer(this.targetPos, this.currentTile.Name, this.gridBase, -this.rotation)) {
             this.desactivatePlacing();
         }
     }
@@ -179,14 +179,19 @@ function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePar
     return true;
 }
 
+/**
+ * Setup the object in the grid
+ * @param orientation in radians
+ * @returns the object
+*/
 function setupObject(obj: BasePart, pos: Vector3, orientation: number, gridBase: BasePart): BasePart {
     const newObject = obj.Clone();
     newObject.Position = pos;
-    newObject.Orientation = new Vector3(0, math.deg(orientation), 0);
+    newObject.Orientation = new Vector3(0, -math.deg(orientation), 0);
     newObject.Anchored = true;
     newObject.CanCollide = true;
     newObject.Parent = gridBase.FindFirstChild("PlacedObjects")
     return newObject;
 }
 
-export { PlacementHandler, checkPlacementForObj, setupObject };
+export { PlacementHandler, checkPlacementForObj, setupObject, GRID_SIZE };

@@ -1,6 +1,7 @@
 import Entity from "../Entities/entity";
 import GridEntity from "./gridEntity";
 import { addSegment, moveItemsInArray, transferContent } from "./conveyerUtils";
+import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
 
 //Setings
 const MAX_CONTENT = 6;
@@ -20,19 +21,25 @@ class Conveyer extends GridEntity {
         this.direction = direction;
     }
 
+    // change to set the input and output mutual
     /**
      * @param previousTileEntity the entity connected on the side or behind this conveyer
      */
     setInput(previousTileEntity: GridEntity): void {
-        const touchPartDirection = new Vector2(previousTileEntity.position.X - this.position.X, previousTileEntity.position.Z - this.position.Z)
-        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction
-        if (isTouchPartOutTileEntity) {
+        const touchPartDirection = new Vector2(this.position.X - previousTileEntity.position.X, this.position.Z - previousTileEntity.position.Z)
+        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction.mul(-1)
+        if (previousTileEntity instanceof Conveyer && isTouchPartOutTileEntity && previousTileEntity.outputTiles[0] === undefined) {
+            if (previousTileEntity.position.add(new Vector3(previousTileEntity.direction.X, 0, previousTileEntity.direction.Y).mul(GRID_SIZE)) === this.position) {
+                this.inputTiles[0] = previousTileEntity
+            }
+        }
+        else if (isTouchPartOutTileEntity) {
             this.inputTiles[0] = previousTileEntity
         }
     }
 
     setOutput(nextTileEntity: GridEntity): void {
-        const touchPartDirection = new Vector2(nextTileEntity.position.X - this.position.X, nextTileEntity.position.Z - this.position.Z)
+        const touchPartDirection = new Vector2(this.position.X - nextTileEntity.position.X, this.position.Z - nextTileEntity.position.Z)
         const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) === this.direction
         if (isTouchPartOutTileEntity) {
             this.outputTiles[0] = nextTileEntity

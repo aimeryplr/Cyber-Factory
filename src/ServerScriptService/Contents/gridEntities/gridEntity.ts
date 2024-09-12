@@ -43,14 +43,18 @@ abstract class GridEntity extends GridTile {
                 const isTouchPartAGridEntity = gridEntities[i].position.X === touchedPart[j].Position.X - gridBasePosition.X && gridEntities[i].position.Z === touchedPart[j].Position.Z - gridBasePosition.Z
                 if (isTouchPartAGridEntity) {
                     // try to set the output for every conveyer
-                    this.setOutput(gridEntities[i]);
-                    gridEntities[i].setInput(this);
-                    this.setInput(gridEntities[i]);
-                    gridEntities[i].setOutput(this);
+                    this.flowEntities(gridEntities[i]);
                 }
             }
         }
     };
+
+    flowEntities(gridEntity: GridEntity): void {
+        this.setOutput(gridEntity);
+        gridEntity.setInput(this);
+        this.setInput(gridEntity);
+        gridEntity.setOutput(this);
+    }
 
     findThisPartInGridEntities(gridEntities: Array<BasePart>, gridBasePosition: Vector3): BasePart | undefined {
         for (let i = 0; i < gridEntities.size(); i++) {

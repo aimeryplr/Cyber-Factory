@@ -55,6 +55,11 @@ class Seller extends GridEntity {
     setInput(previousTileEntity: GridEntity): void {
         this.inputTiles.push(previousTileEntity);
     }
+
+    flowEntities(gridEntity: GridEntity): void {
+        this.setInput(gridEntity);
+        gridEntity.setOutput(this);
+    }
 }
 
 export default Seller;

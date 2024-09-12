@@ -50,6 +50,11 @@ class Generator extends GridEntity {
     setOutput(nextTileEntity: GridEntity): void {
         this.outputTiles.push(nextTileEntity);
     }
+
+    flowEntities(gridEntity: GridEntity): void {
+        this.setOutput(gridEntity);
+        gridEntity.setInput(this);
+    }
 }
 
 export default Generator;
