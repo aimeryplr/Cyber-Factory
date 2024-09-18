@@ -1,5 +1,9 @@
+import TileGrid from "ServerScriptService/plot/gridTile";
 import Entity from "../Entities/entity";
 import Tile from "./tile";
+import Seller from "./seller";
+
+const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
 abstract class TileEntity extends Tile {
     category: string;
@@ -8,6 +12,9 @@ abstract class TileEntity extends Tile {
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
 
+    maxInputs: number;
+    maxOutputs: number;
+
     constructor(name: String, position: Vector3, size: Vector2, direction: Vector2, speed:number, maxInputs: number, maxOutputs: number, category: string) {
         super(name, position, size);
         this.category = category;
@@ -15,12 +22,20 @@ abstract class TileEntity extends Tile {
         this.outputTiles = new Array<TileEntity>(maxOutputs)
         this.speed = speed;
         this.direction = direction;
+
+        this.maxInputs = maxInputs;
+        this.maxOutputs = maxOutputs;
     }
 
     abstract tick(): void;
 
-    abstract setInput(previousTileEntity: TileEntity): void;
-    abstract setOutput(nexTileEntity: TileEntity): void;
+    setInput(previousTileEntity: TileEntity): void {
+        this.inputTiles.push(previousTileEntity);
+    };
+
+    setOutput(nexTileEntity: TileEntity): void {
+        this.outputTiles.push(nexTileEntity);
+    };
 
     // return the cotent that could not be added to the next GridEntity
     // return empty array if all entities are added to the next GridEntity
@@ -40,24 +55,45 @@ abstract class TileEntity extends Tile {
      * @param touchedPart list of part touching this
      * @param gridEntities list of entities in the plot
      */
-    setAllNeighboursOutAndInTileEntity(gridEntities: Array<TileEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
-        if (touchedPart.size() === 0) return;
-        for (let i = 0; i < gridEntities.size(); i++) {
-            for (let j = 0; j < touchedPart.size(); j++) {
-                const isTouchPartAGridEntity = gridEntities[i].position.X === touchedPart[j].Position.X - gridBasePosition.X && gridEntities[i].position.Z === touchedPart[j].Position.Z - gridBasePosition.Z
-                if (isTouchPartAGridEntity) {
-                    // try to set the output for every conveyer
-                    this.flowEntities(gridEntities[i]);
+    setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
+        const occupiedTiles = tileGrid.getOccupiedTilesIndexes(this);
+        for (const occupiedTile of occupiedTiles) {
+
+            for (const direction of allDirections) {
+                const neighbourTile = tileGrid.getTile(occupiedTile.X + direction.X, occupiedTile.Y + direction.Y);
+                
+                const isNeighbourTile = neighbourTile && neighbourTile !== this && neighbourTile instanceof TileEntity
+                if (!isNeighbourTile) continue;
+
+                if (direction === this.direction && this.name !== "seller") {
+                    this.connectOutput(neighbourTile);
+                } else {
+                    this.connectInput(neighbourTile, direction);
                 }
             }
         }
     };
 
-    flowEntities(gridEntity: TileEntity): void {
-        this.setOutput(gridEntity);
-        gridEntity.setInput(this);
-        this.setInput(gridEntity);
-        gridEntity.setOutput(this);
+    connectOutput(neighbourTile: TileEntity): void {
+        if (neighbourTile.direction !== this.direction.mul(-1)) {
+            const hasAnyOutputAndInput = this.outputTiles.size() < this.maxOutputs && neighbourTile.inputTiles.size() < neighbourTile.maxInputs
+            if (hasAnyOutputAndInput) {
+                this.outputTiles.push(neighbourTile);
+                neighbourTile.setInput(this);
+            }
+        }
+    }
+
+
+    connectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): void {
+        print(neighbourTile)
+        if (neighbourTile.direction === neighbourTileDirection.mul(-1)) {
+            const hasAnyOutputAndInput = this.inputTiles.size() < this.maxInputs && neighbourTile.outputTiles.size() < neighbourTile.maxOutputs
+            if (hasAnyOutputAndInput) {
+                this.inputTiles.push(neighbourTile);
+                neighbourTile.setOutput(this);
+            }
+        }
     }
 
     findThisPartInGridEntities(gridEntities: Array<BasePart>, gridBasePosition: Vector3): BasePart | undefined {

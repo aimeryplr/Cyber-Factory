@@ -1,8 +1,7 @@
 import Entity from "../Entities/entity";
 import TileEntity from "./tileEntity";
 import { addSegment, moveItemsInArray, transferContent } from "./conveyerUtils";
-import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
-
+ 
 //Setings
 const MAX_CONTENT = 6;
 const MAX_INPUTS = 1;
@@ -15,31 +14,6 @@ class Conveyer extends TileEntity {
 
     constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
         super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
-    }
-
-    // change to set the input and output mutual only working for conveyers and check if the input is already used
-    /**
-     * @param previousTileEntity the entity connected on the side or behind this conveyer
-     */
-    setInput(previousTileEntity: TileEntity): void {
-        const touchPartDirection = new Vector2(this.position.X - previousTileEntity.position.X, this.position.Z - previousTileEntity.position.Z)
-        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction.mul(-1)
-        if (previousTileEntity instanceof Conveyer && isTouchPartOutTileEntity && previousTileEntity.outputTiles[0] === undefined) {
-            if (previousTileEntity.position.add(new Vector3(previousTileEntity.direction.X, 0, previousTileEntity.direction.Y).mul(GRID_SIZE)) === this.position) {
-                this.inputTiles[0] = previousTileEntity
-            }
-        }
-        else if (isTouchPartOutTileEntity) {
-            this.inputTiles[0] = previousTileEntity
-        }
-    }
-
-    setOutput(nextTileEntity: TileEntity): void {
-        const touchPartDirection = new Vector2(this.position.X - nextTileEntity.position.X, this.position.Z - nextTileEntity.position.Z)
-        const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) === this.direction
-        if (isTouchPartOutTileEntity) {
-            this.outputTiles[0] = nextTileEntity
-        }
     }
 
     /**

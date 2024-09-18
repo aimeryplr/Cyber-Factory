@@ -15,6 +15,7 @@ class Generator extends TileEntity {
 
     constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
         super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
+        this.ressource = RessourceType.Gold;
     }
 
     tick(): void {
@@ -40,19 +41,6 @@ class Generator extends TileEntity {
 
     setRessourceType(ressource: RessourceType): void {
         this.ressource = ressource;
-    }
-
-    setInput(previousTileEntity: TileEntity): void {
-        return
-    }
-
-    setOutput(nextTileEntity: TileEntity): void {
-        this.outputTiles.push(nextTileEntity);
-    }
-
-    flowEntities(gridEntity: TileEntity): void {
-        this.setOutput(gridEntity);
-        gridEntity.setInput(this);
     }
 }
 

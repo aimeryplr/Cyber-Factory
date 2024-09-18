@@ -36,6 +36,7 @@ class PlacementHandler {
     }
 
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {
+        print
         const plotOffset = new Vector2(this.gridBase.Position.X % GRID_SIZE, this.gridBase.Position.Z % GRID_SIZE);
 
         const mouseRay = this.mouse.UnitRay;
@@ -139,7 +140,7 @@ class PlacementHandler {
 
     placeObject() {
         if (this.currentTile === undefined || !this.isPlacing) return;
-        if (placeTileCheck.InvokeServer(this.targetPos, this.currentTile.Name, this.gridBase, -this.rotation)) {
+        if (placeTileCheck.InvokeServer(this.currentTile.Name, this.targetPos, -this.rotation , this.size, this.gridBase)) {
             this.desactivatePlacing();
         }
     }
@@ -161,24 +162,6 @@ class PlacementHandler {
     }
 }
 
-function checkPlacementForObj(pos: Vector3, tileSize: Vector3, gridBase: BasePart): boolean {
-    function calculateSize(size: Vector3): Vector2 | undefined {
-        const x = math.round(size.X / GRID_SIZE);
-        const z = math.round(size.Z / GRID_SIZE);
-        return new Vector2(x, z);
-    }
-
-    const size = calculateSize(tileSize);
-    if ( size === undefined) return false;
-    const x = math.floor((pos.X - gridBase.Position.X) / GRID_SIZE) * GRID_SIZE + gridBase.Size.X / 2;
-    const y = math.floor((pos.Z - gridBase.Position.Z) / GRID_SIZE) * GRID_SIZE + gridBase.Size.Z / 2;
-
-    if (x >= gridBase.Size.X - math.ceil(size.X / 2 - 1) * GRID_SIZE || x < math.floor(size.X / 2) * GRID_SIZE) return false;
-    if (y >= gridBase.Size.Z - math.ceil(size.Y / 2 - 1) * GRID_SIZE || y < math.floor(size.Y / 2) * GRID_SIZE) return false;
-
-    return true;
-}
-
 /**
  * Setup the object in the grid
  * @param orientation in radians
@@ -194,4 +177,4 @@ function setupObject(obj: BasePart, pos: Vector3, orientation: number, gridBase:
     return newObject;
 }
 
-export { PlacementHandler, checkPlacementForObj, setupObject, GRID_SIZE };
+export { PlacementHandler, setupObject, GRID_SIZE };

@@ -22,14 +22,6 @@ class Splitter extends TileEntity {
     addEntity(entities: Array<Entity>): Array<Entity> {
         return entities;
     }
-
-    setInput(previousTileEntity: TileEntity): void {
-        return;
-    }
-
-    setOutput(nextTileEntity: TileEntity): void {
-        return;
-    }
 }
 
 export default Splitter

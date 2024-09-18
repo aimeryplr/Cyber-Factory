@@ -1,5 +1,5 @@
 import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { checkPlacementForObj, setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
 import TileEntity from "ServerScriptService/Contents/gridEntities/tileEntity";
 import { findBasepartByName, getClassByName, getGridEntityInformation, objSizeToTileSize } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
@@ -12,19 +12,19 @@ const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("set
 
 const plotsManager = new PlotsManager();
 
-placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unknown, gridBase: unknown, orientation: unknown): boolean => {
+placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
 	const plot = plotsManager.getPlotByOwner(player.UserId);
 	const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
 	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
 	const tileObject = findBasepartByName(tileName as string);
-	const tileEntity = getObjectFromName(tileName as string, localPos as Vector3, direction, objSizeToTileSize(tileObject.Size));
+	const tileEntity = getObjectFromName(tileName as string, localPos as Vector3, direction, size as Vector2);
 
 	//check if player owns a plot and if the tile exists
 	if (!tileObject || !plot || !tileEntity) {
 		error("Tile not found or player does not own a plot or gridTile not found");
 	}
 
-	const isPlaceable = checkPlacementForObj(pos as Vector3, tileObject.Size as Vector3, gridBase as BasePart);
+	const isPlaceable = plot.getGridTiles().checkPlacement(tileEntity);
 	if (isPlaceable) {
 		const obj = setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
 		plot.addGridTile(tileEntity, obj, player.UserId);
@@ -47,5 +47,5 @@ function getObjectFromName(tileName: string, pos: Vector3, direction: Vector2, s
 	const gridTileInformation = getGridEntityInformation(tileName);
 	if (!gridTileInformation) error("Tile not found");
 
-	return getClassByName(gridTileInformation.category, tileName, pos, direction, size, gridTileInformation.speed);
+	return getClassByName(gridTileInformation.category, tileName, pos, size, direction, gridTileInformation.speed);
 }

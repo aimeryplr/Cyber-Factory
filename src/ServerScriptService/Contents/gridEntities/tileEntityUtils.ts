@@ -70,18 +70,22 @@ function findBasepartByName(name: string, category?: string): BasePart {
         }
         return tileObj;
     } else {
-        ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.GetChildren().forEach((category) => {
+        const categories = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.GetChildren()
+        if (!categories) error(`no categories found`);
+
+        for (const category of categories) {
             const tileObj = category.FindFirstChild(name) as BasePart;
-            if (tileObj) {
+            if (tileObj !== undefined) {
                 return tileObj;
             }
-        });
+        }
     }
     error(`tileObj ${name} not found`);
 }
 
-function objSizeToTileSize(size: Vector3) {
-    return new Vector2(math.floor(size.X / GRID_SIZE), math.floor(size.Z / GRID_SIZE))
+function objSizeToTileSize(size: Vector3 | Vector2) {
+    if (size instanceof Vector3) size = new Vector2((size as Vector3).X, (size as Vector3).Z);
+    return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE));
 }
 
 export {getClassByName, getGridEntityInformation, findBasepartByName, objSizeToTileSize};

@@ -7,7 +7,7 @@ import Tile from "ServerScriptService/Contents/gridEntities/tile";
 import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
 import Seller from "ServerScriptService/Contents/gridEntities/seller";
 import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
-import GridTile from "./gridTile";
+import TileGrid from "./gridTile";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
@@ -19,13 +19,13 @@ class Plot {
 	private owner: number | undefined;
 	private gridBase: BasePart;
 
-    private gridEntities = new Array<TileEntity>();
-    private gridTile: GridTile;
+	private gridEntities = new Array<TileEntity>();
+	private tileGrid: TileGrid;
 	private sellers = new Array<Seller>();
 
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
-		this.gridTile = new GridTile(gridBase.Size.X, gridBase.Size.Z);
+		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(gridBase.Size));
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Plot {
 		}
 	}
 
-	public setOwner(userID: number) :void {
+	public setOwner(userID: number): void {
 		this.owner = userID;
 	}
 
@@ -77,8 +77,9 @@ class Plot {
 	 * @returns the gridTile if it has been added
 	 */
 	public addGridTile(tile: Tile, obj: BasePart, player?: number,): Tile | undefined {
+		this.tileGrid.setTile(tile);
 		if (tile instanceof TileEntity) {
-			tile.setAllNeighboursOutAndInTileEntity(this.getGridEntities(), Workspace.GetPartsInPart(obj), this.gridBase.Position);
+			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
 
 			if (tile instanceof Seller) {
 				this.sellers.push(tile);
@@ -90,10 +91,7 @@ class Plot {
 				this.modifyIfTurningConveyer(tile as Conveyer);
 			}
 			this.gridEntities.push(tile);
-		} else {
-			this.gridTile.push(tile);
 		}
-		print(this.gridEntities)
 		return tile;
 	}
 
@@ -107,12 +105,12 @@ class Plot {
 
 		if (isTurningConveyer) {
 			const gridEntitiesPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
-			
+
 			conveyer.findThisPartInGridEntities(gridEntitiesPart, this.gridBase.Position)?.Destroy();
-			
+
 			const isTurningLeft = conveyer.inputTiles[0].direction.X === -conveyer.direction.Y && conveyer.inputTiles[0].direction.Y === conveyer.direction.X;
 			const turningConveyer = findBasepartByName(conveyer.name + (isTurningLeft ? "T" : "TR"), conveyer.category);
-		
+
 			if (turningConveyer) {
 				const newPostion = conveyer.position.add(this.gridBase.Position).sub(new Vector3(0, this.gridBase.Size.Y / 2, 0));
 				const orientation = math.atan2(conveyer.direction.Y, conveyer.direction.X) + (isTurningLeft ? 0 : math.pi / 2);
@@ -121,8 +119,8 @@ class Plot {
 		}
 	}
 
-	public getGridTiles(): Array<Array<Tile | undefined>> {
-		return this.gridTile;
+	public getGridTiles(): TileGrid {
+		return this.tileGrid;
 	}
 
 	public getGridEntities(): Array<TileEntity> {
