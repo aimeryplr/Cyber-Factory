@@ -2,12 +2,15 @@ import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import Conveyer from "ServerScriptService/Contents/gridEntities/conveyer";
 import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
-import GridEntity from "ServerScriptService/Contents/gridEntities/gridEntity";
-import GridTile from "ServerScriptService/Contents/gridEntities/gridTile";
-import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/gridEntityUtils";
+import TileEntity from "ServerScriptService/Contents/gridEntities/tileEntity";
+import Tile from "ServerScriptService/Contents/gridEntities/tile";
+import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
 import Seller from "ServerScriptService/Contents/gridEntities/seller";
+import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
+import GridTile from "./gridTile";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
+
 
 /**
  * holds all classes of the player's plot
@@ -16,13 +19,13 @@ class Plot {
 	private owner: number | undefined;
 	private gridBase: BasePart;
 
-    private gridEntities = new Array<GridEntity>();
-    private gridTile = new Array<GridTile>();
+    private gridEntities = new Array<TileEntity>();
+    private gridTile: GridTile;
 	private sellers = new Array<Seller>();
 
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
-		this.owner = undefined;
+		this.gridTile = new GridTile(gridBase.Size.X, gridBase.Size.Z);
 	}
 
 	/**
@@ -30,12 +33,12 @@ class Plot {
 	 */
 	public update(): void {
 		// Initialize inputTiles with the last tiles of each conveyor (A3, B3, C3)
-		let inputTiles: Array<GridEntity> = this.sellers;
+		let inputTiles: Array<TileEntity> = this.sellers;
 
 		// Process the tiles backwards through the conveyors
 		while (inputTiles.size() > 0) {
 			// Create an array to store the new input tiles for the next round
-			let newInputTiles = new Array<GridEntity>;
+			let newInputTiles = new Array<TileEntity>;
 
 			// Process each tile in the current inputTiles array
 			for (let i = 0; i < inputTiles.size(); i++) {
@@ -73,25 +76,25 @@ class Plot {
 	 * @param player must be not null when adding a seller
 	 * @returns the gridTile if it has been added
 	 */
-	public addGridTile(gridTile: GridTile, obj: BasePart, player?: number,): GridTile | undefined {
-		if (gridTile instanceof GridEntity) {
-			gridTile.setAllNeighboursOutAndInTileEntity(this.getGridEntities(), Workspace.GetPartsInPart(obj), this.gridBase.Position);
+	public addGridTile(tile: Tile, obj: BasePart, player?: number,): Tile | undefined {
+		if (tile instanceof TileEntity) {
+			tile.setAllNeighboursOutAndInTileEntity(this.getGridEntities(), Workspace.GetPartsInPart(obj), this.gridBase.Position);
 
-			if (gridTile instanceof Seller) {
-				this.sellers.push(gridTile);
-				if (player !== undefined) gridTile.setOwner(player);
+			if (tile instanceof Seller) {
+				this.sellers.push(tile);
+				if (player !== undefined) tile.setOwner(player);
 			}
 
-			if (gridTile instanceof Conveyer) {
+			if (tile instanceof Conveyer) {
 				this.resetBeamsOffset();
-				this.modifyIfTurningConveyer(gridTile as Conveyer);
+				this.modifyIfTurningConveyer(tile as Conveyer);
 			}
-			this.gridEntities.push(gridTile);
+			this.gridEntities.push(tile);
 		} else {
-			this.gridTile.push(gridTile);
+			this.gridTile.push(tile);
 		}
 		print(this.gridEntities)
-		return gridTile;
+		return tile;
 	}
 
 	// to optimize with pooling
@@ -118,11 +121,11 @@ class Plot {
 		}
 	}
 
-	public getGridTiles(): Array<GridTile> {
+	public getGridTiles(): Array<Array<Tile | undefined>> {
 		return this.gridTile;
 	}
 
-	public getGridEntities(): Array<GridEntity> {
+	public getGridEntities(): Array<TileEntity> {
 		return this.gridEntities;
 	}
 

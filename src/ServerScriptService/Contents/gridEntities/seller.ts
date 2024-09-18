@@ -1,18 +1,18 @@
 import Entity from "../Entities/entity";
-import GridEntity from "./gridEntity";
+import TileEntity from "./tileEntity";
 
 // Settings
 const MAX_INPUTS = 4;
 const MAX_OUTPUTS = 0;
 const category: string = "seller";
 
-class Seller extends GridEntity {
+class Seller extends TileEntity {
     owner: number | undefined;
 
-    constructor(name: String, position: Vector3) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
-    
+    constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
+        super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
     }
+    
     setOwner(player: number) {
         this.owner = player;
     }
@@ -48,15 +48,15 @@ class Seller extends GridEntity {
         return game.GetService("Players").GetPlayerByUserId(this.owner) as Player;
     }
 
-    setOutput(nextTileEntity: GridEntity): void {
+    setOutput(nextTileEntity: TileEntity): void {
         return;
     }
 
-    setInput(previousTileEntity: GridEntity): void {
+    setInput(previousTileEntity: TileEntity): void {
         this.inputTiles.push(previousTileEntity);
     }
 
-    flowEntities(gridEntity: GridEntity): void {
+    flowEntities(gridEntity: TileEntity): void {
         this.setInput(gridEntity);
         gridEntity.setOutput(this);
     }

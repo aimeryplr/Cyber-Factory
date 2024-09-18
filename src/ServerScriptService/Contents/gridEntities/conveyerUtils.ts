@@ -1,6 +1,6 @@
-import GridTile from "./gridTile";
+import Tile from "./tile";
 
-function appendInputTiles(inputTiles: Array<GridTile>, newInputTiles: Array<GridTile>) {
+function appendInputTiles(inputTiles: Array<Tile>, newInputTiles: Array<Tile>) {
     for (const tile of newInputTiles) {
         inputTiles.push(tile);
     }

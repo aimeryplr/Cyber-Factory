@@ -1,22 +1,26 @@
 import Entity from "../Entities/entity";
-import GridTile from "./gridTile";
+import Tile from "./tile";
 
-abstract class GridEntity extends GridTile {
+abstract class TileEntity extends Tile {
     category: string;
-    inputTiles: Array<GridEntity>;
-    outputTiles: Array<GridEntity>;
+    direction: Vector2;
+    speed: number
+    inputTiles: Array<TileEntity>;
+    outputTiles: Array<TileEntity>;
 
-    constructor(name: String, position: Vector3, maxInputs: number, maxOutputs: number, category: string) {
-        super(name, position);
+    constructor(name: String, position: Vector3, size: Vector2, direction: Vector2, speed:number, maxInputs: number, maxOutputs: number, category: string) {
+        super(name, position, size);
         this.category = category;
-        this.inputTiles = new Array<GridEntity>(maxInputs)
-        this.outputTiles = new Array<GridEntity>(maxOutputs)
+        this.inputTiles = new Array<TileEntity>(maxInputs)
+        this.outputTiles = new Array<TileEntity>(maxOutputs)
+        this.speed = speed;
+        this.direction = direction;
     }
 
     abstract tick(): void;
 
-    abstract setInput(previousTileEntity: GridEntity): void;
-    abstract setOutput(nexTileEntity: GridEntity): void;
+    abstract setInput(previousTileEntity: TileEntity): void;
+    abstract setOutput(nexTileEntity: TileEntity): void;
 
     // return the cotent that could not be added to the next GridEntity
     // return empty array if all entities are added to the next GridEntity
@@ -36,7 +40,7 @@ abstract class GridEntity extends GridTile {
      * @param touchedPart list of part touching this
      * @param gridEntities list of entities in the plot
      */
-    setAllNeighboursOutAndInTileEntity(gridEntities: Array<GridEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
+    setAllNeighboursOutAndInTileEntity(gridEntities: Array<TileEntity>, touchedPart: Array<BasePart>, gridBasePosition: Vector3): void {
         if (touchedPart.size() === 0) return;
         for (let i = 0; i < gridEntities.size(); i++) {
             for (let j = 0; j < touchedPart.size(); j++) {
@@ -49,7 +53,7 @@ abstract class GridEntity extends GridTile {
         }
     };
 
-    flowEntities(gridEntity: GridEntity): void {
+    flowEntities(gridEntity: TileEntity): void {
         this.setOutput(gridEntity);
         gridEntity.setInput(this);
         this.setInput(gridEntity);
@@ -66,4 +70,4 @@ abstract class GridEntity extends GridTile {
     }
 }
 
-export default GridEntity;
+export default TileEntity;

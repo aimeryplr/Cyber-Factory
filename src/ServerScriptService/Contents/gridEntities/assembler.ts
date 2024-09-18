@@ -1,5 +1,5 @@
 import Entity from "../Entities/entity";
-import GridEntity from "./gridEntity";
+import TileEntity from "./tileEntity";
 
 // Settings
 const MAX_INPUTS = 2;
@@ -7,12 +7,9 @@ const MAX_OUTPUTS = 1;
 const category: string = "assembler";
 
 
-class Assembler extends GridEntity {
-    speed: number;
-
-    constructor(name: String, position: Vector3, speed: number) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
-        this.speed = speed;
+class Assembler extends TileEntity {
+    constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
+        super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
     }
 
     tick(): void {
@@ -23,11 +20,11 @@ class Assembler extends GridEntity {
         return entities;
     }
 
-    setInput(previousTileEntity: GridEntity): void {
+    setInput(previousTileEntity: TileEntity): void {
         return;
     }
     
-    setOutput(nextTileEntity: GridEntity): void {
+    setOutput(nextTileEntity: TileEntity): void {
         return;
     }
 }

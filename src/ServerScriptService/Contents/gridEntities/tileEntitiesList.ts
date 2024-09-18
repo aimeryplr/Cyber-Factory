@@ -1,4 +1,4 @@
-const gridEntitiesList: Map<string, Map<string, { name: string, category: string, tier: number, price: number }>> = new Map([
+const tileEntitiesList: Map<string, Map<string, { name: string, category: string, tier: number, price: number }>> = new Map([
     ["conveyer", new Map([
         ["conveyer_t1", {
             name: "conveyer_t1",
@@ -56,4 +56,4 @@ const gridEntitiesList: Map<string, Map<string, { name: string, category: string
     ]
 ]);
 
-export default gridEntitiesList;
+export default tileEntitiesList;

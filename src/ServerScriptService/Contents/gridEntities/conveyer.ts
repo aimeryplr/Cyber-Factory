@@ -1,5 +1,5 @@
 import Entity from "../Entities/entity";
-import GridEntity from "./gridEntity";
+import TileEntity from "./tileEntity";
 import { addSegment, moveItemsInArray, transferContent } from "./conveyerUtils";
 import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
 
@@ -9,23 +9,19 @@ const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 1;
 const category: string = "conveyer";
 
-class Conveyer extends GridEntity {
-    speed: number;
-    direction: Vector2;
+class Conveyer extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
 
-    constructor(name: String, position: Vector3, speed: number, direction: Vector2) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
-        this.speed = speed;
-        this.direction = direction;
+    constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
+        super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
     }
 
-    // change to set the input and output mutual
+    // change to set the input and output mutual only working for conveyers and check if the input is already used
     /**
      * @param previousTileEntity the entity connected on the side or behind this conveyer
      */
-    setInput(previousTileEntity: GridEntity): void {
+    setInput(previousTileEntity: TileEntity): void {
         const touchPartDirection = new Vector2(this.position.X - previousTileEntity.position.X, this.position.Z - previousTileEntity.position.Z)
         const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) !== this.direction.mul(-1)
         if (previousTileEntity instanceof Conveyer && isTouchPartOutTileEntity && previousTileEntity.outputTiles[0] === undefined) {
@@ -38,7 +34,7 @@ class Conveyer extends GridEntity {
         }
     }
 
-    setOutput(nextTileEntity: GridEntity): void {
+    setOutput(nextTileEntity: TileEntity): void {
         const touchPartDirection = new Vector2(this.position.X - nextTileEntity.position.X, this.position.Z - nextTileEntity.position.Z)
         const isTouchPartOutTileEntity = touchPartDirection.div(touchPartDirection.Magnitude) === this.direction
         if (isTouchPartOutTileEntity) {

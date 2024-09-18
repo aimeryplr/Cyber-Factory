@@ -1,25 +1,20 @@
+import Component from "../Entities/Components/component";
 import Entity from "../Entities/entity";
 import Ressource from "../Entities/ressource";
-import GridEntity from "./gridEntity";
+import TileEntity from "./tileEntity";
 
 // Settings
 const MAX_INPUTS = 3;
 const MAX_OUTPUTS = 1;
 const category: string = "crafter";
 
-class Crafter extends GridEntity {
-    //Settings
-    speed: number;
-    maxCapacity: number;
-
+class Crafter extends TileEntity {
     // mettre type component
-    currentCraft = undefined;
+    currentCraft: Component | undefined;
     ressources = new Array<Ressource>()
 
-    constructor(name: String, position: Vector3, speed: number, maxCapacity: number) {
-        super(name, position, MAX_INPUTS, MAX_OUTPUTS, category);
-        this.speed = speed;
-        this.maxCapacity = maxCapacity;
+    constructor(name: String, position: Vector3, size: Vector2, speed: number, direction: Vector2) {
+        super(name, position, size, direction, speed, MAX_INPUTS, MAX_OUTPUTS, category);
     }
 
     tick(): void {
@@ -30,11 +25,11 @@ class Crafter extends GridEntity {
         return entities;
     }
 
-    setInput(previousTileEntity: GridEntity): void {
+    setInput(previousTileEntity: TileEntity): void {
         return;
     }
 
-    setOutput(nextTileEntity: GridEntity): void {
+    setOutput(nextTileEntity: TileEntity): void {
         return;
     }
 }
