@@ -4,10 +4,8 @@ import PlotsManager from "./plotsManager";
 import TileEntity from "ServerScriptService/Contents/gridEntities/tileEntity";
 import { findBasepartByName, getClassByName, getGridEntityInformation, objSizeToTileSize } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
 
-const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild(
-	"placeTileCheck",
-) as RemoteFunction;
-
+const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
+const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 
 const plotsManager = new PlotsManager();
@@ -31,6 +29,16 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 	}
 	return isPlaceable;
 };
+
+removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => {
+	const plot = plotsManager.getPlotByOwner((player as Player).UserId);
+
+	if (plot) {
+		plot.removeGridTile(tile as BasePart);
+		(tile as BasePart).Destroy();
+	}
+})
+
 
 plotsManager.getPlots().forEach((plot) => {
 	plot.getGridBase().Touched.Connect((part) => {

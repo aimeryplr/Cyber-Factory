@@ -3,11 +3,18 @@ import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/servic
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
+const removeTileEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 
 // Parameters
 const GRID_SIZE = 3;
 const LERP_SPEED = 0.5;
 const PLACING_TRANSPARENCY = 0.3;
+
+enum placementType {
+    PLACING,
+    DESTROYING,
+    NONE
+} 
 
 class PlacementHandler {
     player: Player = Players.LocalPlayer;
@@ -25,7 +32,7 @@ class PlacementHandler {
     selectionTile: SelectionBox | undefined;
 
     // Bools
-    isPlacing = false;
+    placementStatus = placementType.NONE;
 
     constructor(gridBase: BasePart) {
         if (!gridBase) error("Grid base not found");
@@ -36,7 +43,6 @@ class PlacementHandler {
     }
 
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {
-        print
         const plotOffset = new Vector2(this.gridBase.Position.X % GRID_SIZE, this.gridBase.Position.Z % GRID_SIZE);
 
         const mouseRay = this.mouse.UnitRay;
@@ -92,7 +98,7 @@ class PlacementHandler {
 
             //show if placement is possible with seleciton box
             if (this.selectionTile !== undefined) {
-                this.selectionTile.SurfaceColor3 = this.isPlaceable() ? new Color3(0, 1, 0) :new Color3(1, 0, 0);
+                this.selectionTile.SurfaceColor3 = new Color3(0, 1, 0);
             }
 
             //lerp object to target position
@@ -124,35 +130,86 @@ class PlacementHandler {
         if(!this.currentTile) error("Object not found");
 
         this.calculateSize();
-        this.isPlacing = true;
+        this.placementStatus = placementType.PLACING;
         this.setupObject();
         
-        RunService.BindToRenderStep("Input", Enum.RenderPriority.Input.Value, () => {this.moveObj()});
+        RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => {this.moveObj()});
     }
 
-    resetPlacing() {
-        this.isPlacing = false;
-        RunService.UnbindFromRenderStep("Input");
+    resetMode() {
+        this.placementStatus = placementType.NONE;
+        RunService.UnbindFromRenderStep("place");
+        RunService.UnbindFromRenderStep("destroy");
         this.rotation = 0;
         this.targetPos = undefined;
         this.size = undefined;
     }
 
     placeObject() {
-        if (this.currentTile === undefined || !this.isPlacing) return;
+        if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
         if (placeTileCheck.InvokeServer(this.currentTile.Name, this.targetPos, -this.rotation , this.size, this.gridBase)) {
             this.desactivatePlacing();
         }
     }
 
     desactivatePlacing() {
-        if (this.currentTile === undefined || !this.isPlacing) return;
+        if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
         this.currentTile.Destroy();
-        this.resetPlacing();
+        this.resetMode();
     }
 
+    setupDestroying() {
+        if (this.placementStatus !== placementType.DESTROYING) return;
+
+        const mouseRay = this.mouse.UnitRay;
+        const hit = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(100));
+
+        if (hit && hit.Instance && hit.Instance.Parent === this.placedObjects) {
+            if (hit.Instance !== this.currentTile) {
+                this.currentTile = hit.Instance;
+                this.setupDestroySelectionTile(hit.Instance);
+            }
+        } else {
+            this.currentTile = undefined;
+            this.resetSelectionTile();
+        }
+    }
+
+    destroyObject() {
+        if (this.currentTile === undefined || this.placementStatus !== placementType.DESTROYING) return;
+        this.resetSelectionTile();
+        removeTileEvent.FireServer(this.currentTile);
+    }
+
+    resetSelectionTile() {
+        if (this.selectionTile === undefined) error("Selection tile not initialized");
+        this.selectionTile.Visible = false;
+        this.selectionTile.Parent = undefined;
+        this.selectionTile.Adornee = undefined;
+    }
+
+    setupDestroySelectionTile(hit: BasePart) {
+        if (this.selectionTile === undefined) error("Selection tile not initialized");
+        this.selectionTile.Visible = true;
+        this.selectionTile.Parent = hit;
+        this.selectionTile.Adornee = hit;
+    }
+
+    activateDestroying() {
+        if (this.placementStatus === placementType.DESTROYING) return;
+        if (this.placementStatus === placementType.PLACING) this.desactivatePlacing();
+        this.placementStatus = placementType.DESTROYING;
+
+        this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionTile")?.Clone() as SelectionBox;
+        this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0);
+        if (!this.selectionTile) error("Selection tile not found");
+
+        RunService.BindToRenderStep("destroy", Enum.RenderPriority.Input.Value, () => {this.setupDestroying()});
+    }
+
+
     rotate() {
-        if (this.isPlacing === false) return;
+        if (this.placementStatus === placementType.NONE) return;
         if (this.size === undefined) return;
         this.rotation -= math.pi / 2;
         if (this.rotation === -math.pi * 2) {

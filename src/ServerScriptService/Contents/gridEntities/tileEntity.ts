@@ -86,7 +86,6 @@ abstract class TileEntity extends Tile {
 
 
     connectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): void {
-        print(neighbourTile)
         if (neighbourTile.direction === neighbourTileDirection.mul(-1)) {
             const hasAnyOutputAndInput = this.inputTiles.size() < this.maxInputs && neighbourTile.outputTiles.size() < neighbourTile.maxOutputs
             if (hasAnyOutputAndInput) {

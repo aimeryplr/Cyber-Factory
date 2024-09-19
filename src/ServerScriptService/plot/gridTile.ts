@@ -76,6 +76,20 @@ class TileGrid {
             }
         }
     }
+
+    removeTile(tile: Tile) {
+        for (let i = math.ceil(-tile.size.Y / 2); i < math.ceil(tile.size.Y / 2); i++) {
+            for (let j = math.ceil(-tile.size.X / 2); j < math.ceil(tile.size.X / 2); j++) {
+                const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
+
+                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+
+                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
+                if (isInBounds) this.tileGrid[y][x] = undefined;
+            }
+        }
+    }
     
     /**
      * @returns true if the tile can be placed

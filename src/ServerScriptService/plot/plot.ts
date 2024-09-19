@@ -19,7 +19,6 @@ class Plot {
 	private owner: number | undefined;
 	private gridBase: BasePart;
 
-	private gridEntities = new Array<TileEntity>();
 	private tileGrid: TileGrid;
 	private sellers = new Array<Seller>();
 
@@ -90,10 +89,38 @@ class Plot {
 				this.resetBeamsOffset();
 				this.modifyIfTurningConveyer(tile as Conveyer);
 			}
-			this.gridEntities.push(tile);
 		}
 		return tile;
 	}
+
+	public removeGridTile(tile: BasePart): void {
+		const localPosition = tile.Position.sub(this.gridBase.Position);
+		const tileEntity = this.tileGrid.getTileFromPosition(localPosition);
+		
+		if (tileEntity === undefined) error("Tile not found when removing it");
+
+
+		if (tileEntity instanceof TileEntity) {
+			this.removeConectedTiles(tileEntity);
+
+			if (tileEntity instanceof Seller) {
+				this.sellers.remove(this.sellers.indexOf(tileEntity));
+			}
+		}
+
+		this.tileGrid.removeTile(tileEntity);
+	}
+
+	removeConectedTiles(tileEntity: TileEntity) {
+		tileEntity.inputTiles.forEach((inputTile) => {
+			inputTile.outputTiles.remove(inputTile.outputTiles.indexOf(tileEntity));
+		});
+		
+		tileEntity.outputTiles.forEach((outputTiles) => {
+			outputTiles.inputTiles.remove(outputTiles.inputTiles.indexOf(tileEntity));
+		});
+	}
+
 
 	// to optimize with pooling
 	/**
@@ -121,10 +148,6 @@ class Plot {
 
 	public getGridTiles(): TileGrid {
 		return this.tileGrid;
-	}
-
-	public getGridEntities(): Array<TileEntity> {
-		return this.gridEntities;
 	}
 
 	/**
