@@ -1,44 +1,13 @@
 import TileGrid from "ServerScriptService/plot/gridTile";
 import Entity from "../Entities/entity";
 import Tile from "./tile";
-import Seller from "./seller";
+import Seller from "./tileEntitiesInterface/seller";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
-abstract class TileEntity extends Tile {
-    category: string;
-    direction: Vector2;
-    speed: number
-    inputTiles: Array<TileEntity>;
-    outputTiles: Array<TileEntity>;
+interface TileEntityInterface {
+    tick(tileEntity: TileEntity): void;
 
-    maxInputs: number;
-    maxOutputs: number;
-
-    constructor(name: String, position: Vector3, size: Vector2, direction: Vector2, speed:number, maxInputs: number, maxOutputs: number, category: string) {
-        super(name, position, size);
-        this.category = category;
-        this.inputTiles = new Array<TileEntity>(maxInputs)
-        this.outputTiles = new Array<TileEntity>(maxOutputs)
-        this.speed = speed;
-        this.direction = direction;
-
-        this.maxInputs = maxInputs;
-        this.maxOutputs = maxOutputs;
-    }
-
-    abstract tick(): void;
-
-    setInput(previousTileEntity: TileEntity): void {
-        this.inputTiles.push(previousTileEntity);
-    };
-
-    setOutput(nexTileEntity: TileEntity): void {
-        this.outputTiles.push(nexTileEntity);
-    };
-
-    // return the cotent that could not be added to the next GridEntity
-    // return empty array if all entities are added to the next GridEntity
     /**
      * send an entity to the next GridEntity
      * @param entities the entities to send
@@ -49,13 +18,77 @@ abstract class TileEntity extends Tile {
      * print(entitiesNotAdded) // [entity1, entity2, entity3]
      * // no entities were send here
      */
-    abstract addEntity(entities: Array<Entity|undefined>): Array<Entity|undefined>;
+    addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined>;
+
+    getMaxInputs(): number;
+    getMaxOutputs(): number;
+    getCategory(): string;
+}
+
+class TileEntity extends Tile {
+    category: string;
+    direction: Vector2;
+    speed: number
+    inputTiles: Array<TileEntity>;
+    outputTiles: Array<TileEntity>;
+    interface: TileEntityInterface;
+
+    maxInputs: number;
+    maxOutputs: number;
+
+    constructor(name: String, position: Vector3, size: Vector2, direction: Vector2, tileEntityInterface: TileEntityInterface, speed: number, category: string) {
+        super(name, position, size);
+        this.interface = tileEntityInterface;
+        this.category = category;
+        this.speed = speed;
+        this.direction = direction;
+        
+
+        this.maxInputs = tileEntityInterface.getMaxInputs();
+        this.maxOutputs = tileEntityInterface.getMaxOutputs();
+        this.inputTiles = new Array<TileEntity>(this.maxInputs);
+        this.outputTiles = new Array<TileEntity>(this.maxOutputs);
+    }
+
+    setInput(previousTileEntity: TileEntity): void {
+        this.inputTiles.push(previousTileEntity);
+    };
+
+    setOutput(nexTileEntity: TileEntity): void {
+        this.outputTiles.push(nexTileEntity);
+    };
 
     /** Go through all connected part and try to set the input and output
      * @param touchedPart list of part touching this
      * @param gridEntities list of entities in the plot
      */
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
+        for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
+            if (direction === this.direction && !(this.interface instanceof Seller)) {
+                this.connectOutput(neighbourTile);
+            } else {
+                this.connectInput(neighbourTile, direction);
+            }
+        }
+    };
+
+    private connectOutput(neighbourTile: TileEntity) {
+        if (this.canConnectOutput(neighbourTile)) {
+            this.outputTiles.push(neighbourTile);
+            neighbourTile.setInput(this);
+        }
+    }
+
+    private connectInput(neighbourTile: TileEntity, direction: Vector2) {
+        if (this.canConnectInput(neighbourTile, direction)) {
+            this.inputTiles.push(neighbourTile);
+            neighbourTile.setOutput(this);
+        }
+    }
+
+    getAllNeighbours(tileGrid: TileGrid): Map<TileEntity, Vector2> {
+        const neighbours = new Map<TileEntity, Vector2>();
+
         const occupiedTiles = tileGrid.getOccupiedTilesIndexes(this);
         for (const occupiedTile of occupiedTiles) {
 
@@ -63,36 +96,37 @@ abstract class TileEntity extends Tile {
                 const neighbourTile = tileGrid.getTile(occupiedTile.X + direction.X, occupiedTile.Y + direction.Y);
                 
                 const isNeighbourTile = neighbourTile && neighbourTile !== this && neighbourTile instanceof TileEntity
-                if (!isNeighbourTile) continue;
-
-                if (direction === this.direction && this.name !== "seller") {
-                    this.connectOutput(neighbourTile);
-                } else {
-                    this.connectInput(neighbourTile, direction);
+                if (isNeighbourTile) {
+                    neighbours.set(neighbourTile, direction);
                 }
             }
         }
-    };
+        return neighbours;
+    }
 
-    connectOutput(neighbourTile: TileEntity): void {
+    private hasEnoughOutput(): boolean {
+        return this.outputTiles.size() < this.maxOutputs;
+    }
+
+    protected hasEnoughInput(): boolean {
+        return this.inputTiles.size() < this.maxInputs;
+    }
+
+    canConnectOutput(neighbourTile: TileEntity): boolean {
         if (neighbourTile.direction !== this.direction.mul(-1)) {
-            const hasAnyOutputAndInput = this.outputTiles.size() < this.maxOutputs && neighbourTile.inputTiles.size() < neighbourTile.maxInputs
-            if (hasAnyOutputAndInput) {
-                this.outputTiles.push(neighbourTile);
-                neighbourTile.setInput(this);
-            }
+            const hasAnyOutputAndInput = this.hasEnoughOutput() && neighbourTile.hasEnoughInput();
+            return hasAnyOutputAndInput
         }
+        return false;
     }
 
 
-    connectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): void {
+    canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
         if (neighbourTile.direction === neighbourTileDirection.mul(-1)) {
-            const hasAnyOutputAndInput = this.inputTiles.size() < this.maxInputs && neighbourTile.outputTiles.size() < neighbourTile.maxOutputs
-            if (hasAnyOutputAndInput) {
-                this.inputTiles.push(neighbourTile);
-                neighbourTile.setOutput(this);
-            }
+            const hasAnyOutputAndInput = this.hasEnoughInput() && neighbourTile.hasEnoughOutput();
+            return hasAnyOutputAndInput
         }
+        return false;
     }
 
     findThisPartInGridEntities(gridEntities: Array<BasePart>, gridBasePosition: Vector3): BasePart | undefined {
@@ -105,4 +139,4 @@ abstract class TileEntity extends Tile {
     }
 }
 
-export default TileEntity;
+export {TileEntity, TileEntityInterface};

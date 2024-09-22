@@ -126,6 +126,7 @@ class PlacementHandler {
     }
 
     activatePlacing(obj: BasePart) {
+        if (this.placementStatus !== placementType.NONE) this.resetMode();
         this.currentTile = obj.Clone();
         if(!this.currentTile) error("Object not found");
 
@@ -143,6 +144,7 @@ class PlacementHandler {
         this.rotation = 0;
         this.targetPos = undefined;
         this.size = undefined;
+        this.currentTile?.Destroy();
     }
 
     placeObject() {

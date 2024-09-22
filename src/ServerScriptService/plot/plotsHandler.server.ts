@@ -1,8 +1,9 @@
-import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
+import { Players, ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
-import TileEntity from "ServerScriptService/Contents/gridEntities/tileEntity";
-import { findBasepartByName, getClassByName, getGridEntityInformation, objSizeToTileSize } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
+import {TileEntity} from "ServerScriptService/Contents/gridEntities/tileEntity";
+import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
+import { getGridEntityInformation, getInterfaceByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
@@ -15,7 +16,9 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 	const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
 	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
 	const tileObject = findBasepartByName(tileName as string);
-	const tileEntity = getObjectFromName(tileName as string, localPos as Vector3, direction, size as Vector2);
+	const tileInformation = getGridEntityInformation(tileName as string);
+	const tileEntityInterface = getInterfaceByCategory(tileInformation.category);
+	const tileEntity = new TileEntity(tileName as string, localPos as Vector3, size as Vector2, direction, tileEntityInterface, tileInformation.speed as number, tileInformation.category);
 
 	//check if player owns a plot and if the tile exists
 	if (!tileObject || !plot || !tileEntity) {
@@ -24,9 +27,10 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 
 	const isPlaceable = plot.getGridTiles().checkPlacement(tileEntity);
 	if (isPlaceable) {
-		const obj = setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
-		plot.addGridTile(tileEntity, obj, player.UserId);
+		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
+		plot.addGridTile(tileEntity, player.UserId);
 	}
+	print(plot.getGridTiles().tileGrid);
 	return isPlaceable;
 };
 
@@ -50,10 +54,3 @@ plotsManager.getPlots().forEach((plot) => {
 		}
 	});
 });
-
-function getObjectFromName(tileName: string, pos: Vector3, direction: Vector2, size: Vector2): TileEntity {
-	const gridTileInformation = getGridEntityInformation(tileName);
-	if (!gridTileInformation) error("Tile not found");
-
-	return getClassByName(gridTileInformation.category, tileName, pos, size, direction, gridTileInformation.speed);
-}

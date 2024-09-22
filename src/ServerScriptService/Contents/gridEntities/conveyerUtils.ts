@@ -28,6 +28,14 @@ function transferContent(previousArray: Array<unknown | undefined>, nextArray: A
     return previousArray;
 }
 
+function copyArray(from: Array<unknown>, to: Array<unknown>): Array<unknown> {
+    for (let i = 0; i < from.size(); i++) {
+        to[i] = from[i];
+    }
+    return to;
+}
+    
+
 function copySegment(array: Array<unknown | undefined>, start: number, finish: number): Array<unknown | undefined> {
     let segment = new Array<unknown | undefined>(finish - start, undefined);
     for (let i = start; i < finish; i++) {
@@ -54,4 +62,4 @@ function addSegment(array: Array<unknown | undefined>, segment: Array<unknown | 
     }
 }
 
-export { appendInputTiles, moveItemsInArray, transferContent, copySegment, removeSegment, addSegment };
+export { appendInputTiles, moveItemsInArray, transferContent, copySegment, removeSegment, addSegment, copyArray };

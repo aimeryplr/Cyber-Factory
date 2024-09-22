@@ -1,12 +1,11 @@
 import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
-import Conveyer from "ServerScriptService/Contents/gridEntities/conveyer";
+import Conveyer from "ServerScriptService/Contents/gridEntities/tileEntitiesInterface/conveyer";
 import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
-import TileEntity from "ServerScriptService/Contents/gridEntities/tileEntity";
+import { TileEntity } from "ServerScriptService/Contents/gridEntities/tileEntity";
 import Tile from "ServerScriptService/Contents/gridEntities/tile";
 import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
-import Seller from "ServerScriptService/Contents/gridEntities/seller";
-import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
+import Seller from "ServerScriptService/Contents/gridEntities/tileEntitiesInterface/seller";
 import TileGrid from "./gridTile";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
@@ -20,7 +19,7 @@ class Plot {
 	private gridBase: BasePart;
 
 	private tileGrid: TileGrid;
-	private sellers = new Array<Seller>();
+	private sellers = new Array<TileEntity>();
 
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
@@ -44,7 +43,7 @@ class Plot {
 				let currentTile = inputTiles[i];
 
 				// Process the current tile (calling tick)
-				currentTile.tick();
+				currentTile.interface.tick(currentTile);
 
 				// If the current tile has an input tile, add it to the newInputTiles array
 				if (!currentTile.inputTiles.isEmpty()) {
@@ -75,19 +74,19 @@ class Plot {
 	 * @param player must be not null when adding a seller
 	 * @returns the gridTile if it has been added
 	 */
-	public addGridTile(tile: Tile, obj: BasePart, player?: number,): Tile | undefined {
+	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
 		this.tileGrid.setTile(tile);
 		if (tile instanceof TileEntity) {
+			if (tile.interface instanceof Conveyer) tile.interface.changeNeighbourTypeConveyer(tile, this.tileGrid);
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
-
-			if (tile instanceof Seller) {
+			if (tile.interface instanceof Seller) {
 				this.sellers.push(tile);
-				if (player !== undefined) tile.setOwner(player);
+				if (player !== undefined) tile.interface.setOwner(player);
 			}
 
-			if (tile instanceof Conveyer) {
+			if (tile.interface instanceof Conveyer) {
 				this.resetBeamsOffset();
-				this.modifyIfTurningConveyer(tile as Conveyer);
+				tile.interface.modifyIfTurningConveyer(tile, this.gridBase);
 			}
 		}
 		return tile;
@@ -96,14 +95,14 @@ class Plot {
 	public removeGridTile(tile: BasePart): void {
 		const localPosition = tile.Position.sub(this.gridBase.Position);
 		const tileEntity = this.tileGrid.getTileFromPosition(localPosition);
-		
+
 		if (tileEntity === undefined) error("Tile not found when removing it");
 
 
 		if (tileEntity instanceof TileEntity) {
 			this.removeConectedTiles(tileEntity);
 
-			if (tileEntity instanceof Seller) {
+			if (tileEntity.interface instanceof Seller) {
 				this.sellers.remove(this.sellers.indexOf(tileEntity));
 			}
 		}
@@ -115,35 +114,10 @@ class Plot {
 		tileEntity.inputTiles.forEach((inputTile) => {
 			inputTile.outputTiles.remove(inputTile.outputTiles.indexOf(tileEntity));
 		});
-		
+
 		tileEntity.outputTiles.forEach((outputTiles) => {
 			outputTiles.inputTiles.remove(outputTiles.inputTiles.indexOf(tileEntity));
 		});
-	}
-
-
-	// to optimize with pooling
-	/**
-	 * change the basepart depending if the conveyer is turning
-	 */
-	modifyIfTurningConveyer(conveyer: Conveyer): void {
-		if (conveyer.inputTiles.isEmpty() || !(conveyer.inputTiles[0] instanceof Conveyer)) return;
-		const isTurningConveyer = math.abs(conveyer.direction.X) !== math.abs(conveyer.inputTiles[0].direction.X);
-
-		if (isTurningConveyer) {
-			const gridEntitiesPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
-
-			conveyer.findThisPartInGridEntities(gridEntitiesPart, this.gridBase.Position)?.Destroy();
-
-			const isTurningLeft = conveyer.inputTiles[0].direction.X === -conveyer.direction.Y && conveyer.inputTiles[0].direction.Y === conveyer.direction.X;
-			const turningConveyer = findBasepartByName(conveyer.name + (isTurningLeft ? "T" : "TR"), conveyer.category);
-
-			if (turningConveyer) {
-				const newPostion = conveyer.position.add(this.gridBase.Position).sub(new Vector3(0, this.gridBase.Size.Y / 2, 0));
-				const orientation = math.atan2(conveyer.direction.Y, conveyer.direction.X) + (isTurningLeft ? 0 : math.pi / 2);
-				setupObject(turningConveyer, newPostion, orientation, this.gridBase);
-			}
-		}
 	}
 
 	public getGridTiles(): TileGrid {

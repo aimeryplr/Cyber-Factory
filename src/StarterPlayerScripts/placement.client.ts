@@ -27,19 +27,19 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
                 placementHandler.activateDestroying();
             }
             if (input.KeyCode === Enum.KeyCode.E) {
-                const conveyer = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("conveyer")?.FindFirstChild("conveyer_t1");
+                const conveyer = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild("conveyer")?.FindFirstChild("conveyer_t1");
                 if (conveyer && conveyer.IsA("BasePart")) {
                     placementHandler.activatePlacing(conveyer);
                 }
             }
             if (input.KeyCode === Enum.KeyCode.F) {
-                const generator = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("generator")?.FindFirstChild("generator_t1");
+                const generator = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild("generator")?.FindFirstChild("generator_t1");
                 if (generator && generator.IsA("BasePart")) {
                     placementHandler.activatePlacing(generator);
                 }
             }
             if (input.KeyCode === Enum.KeyCode.G) {
-                const seller = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild("GridEntities")?.FindFirstChild("seller")?.FindFirstChild("seller");
+                const seller = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild("seller")?.FindFirstChild("seller");
                 if (seller && seller.IsA("BasePart")) {
                     placementHandler.activatePlacing(seller);
                 }
