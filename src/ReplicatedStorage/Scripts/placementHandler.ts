@@ -223,6 +223,7 @@ class PlacementHandler {
 
 /**
  * Setup the object in the grid
+ * @param pos position in global
  * @param orientation in radians
  * @returns the object
 */

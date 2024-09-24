@@ -8,7 +8,7 @@ import Seller from "./tileEntitiesInterface/seller";
 import { TileEntityInterface } from "./tileEntity";
 
 
-const tileEnityClasses: { [key: string]: new (...args: any[]) => any } = {
+const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "conveyer": Conveyer,
     "splitter": Splitter,
     "crafter": Crafter,
@@ -24,7 +24,7 @@ const tileEnityClasses: { [key: string]: new (...args: any[]) => any } = {
  * @returns the class created
  */
 function getInterfaceByCategory(className: string): TileEntityInterface {
-    const ClassConstructor = tileEnityClasses[className];
+    const ClassConstructor = tileEntityRegistry[className];
     if (ClassConstructor) {
         return new ClassConstructor();
     } else {

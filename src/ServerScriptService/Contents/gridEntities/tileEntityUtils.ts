@@ -1,5 +1,6 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
+import { TileEntity } from "./tileEntity";
 
 
 /**
@@ -33,4 +34,8 @@ function objSizeToTileSize(size: Vector3 | Vector2) {
     return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE));
 }
 
-export { findBasepartByName, objSizeToTileSize };
+function changeApperance(basepart: BasePart, previousName: String) {
+    
+}
+
+export { findBasepartByName, objSizeToTileSize, changeApperance };

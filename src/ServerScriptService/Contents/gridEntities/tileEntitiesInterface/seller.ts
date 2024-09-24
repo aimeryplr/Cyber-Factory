@@ -46,12 +46,17 @@ class Seller implements TileEntityInterface {
     getMaxInputs(): number {
         return MAX_INPUTS;
     }
+    
     getMaxOutputs(): number {
         return MAX_OUTPUTS;
     }
 
     getCategory(): string {
         return category;
+    }
+
+    updateShape(tile: TileEntity, gridBase: BasePart): void {
+        return;
     }
 }
 

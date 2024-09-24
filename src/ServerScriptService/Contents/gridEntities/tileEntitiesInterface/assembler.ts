@@ -26,6 +26,10 @@ class Assembler implements TileEntityInterface {
     getCategory(): string {
         return category;
     }
+
+    updateShape(tile: TileEntity, gridBase: BasePart): void {
+        return;
+    }
 }
 
 export default Assembler;

@@ -77,37 +77,51 @@ class Plot {
 	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
 		this.tileGrid.setTile(tile);
 		if (tile instanceof TileEntity) {
-			if (tile.interface instanceof Conveyer) tile.interface.changeNeighbourTypeConveyer(tile, this.tileGrid);
+			tile.setAllNeighbourTypeConveyer(this.tileGrid);
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
+			
 			if (tile.interface instanceof Seller) {
 				this.sellers.push(tile);
 				if (player !== undefined) tile.interface.setOwner(player);
 			}
 
-			if (tile.interface instanceof Conveyer) {
-				this.resetBeamsOffset();
-				tile.interface.modifyIfTurningConveyer(tile, this.gridBase);
-			}
+			this.changeShapes(tile, this.gridBase);
+			this.resetBeamsOffset();
 		}
 		return tile;
 	}
 
-	public removeGridTile(tile: BasePart): void {
-		const localPosition = tile.Position.sub(this.gridBase.Position);
-		const tileEntity = this.tileGrid.getTileFromPosition(localPosition);
+	changeShapes(tile: TileEntity, gridBase: BasePart) {
+		tile.interface.updateShape(tile, gridBase);
+		tile.inputTiles.forEach((inputTile) => {
+			inputTile.interface.updateShape(inputTile, gridBase);
+		});
 
-		if (tileEntity === undefined) error("Tile not found when removing it");
+		tile.outputTiles.forEach((outputTile) => {
+			outputTile.interface.updateShape(outputTile, gridBase);
+		});
+	}
+
+	public removeGridTile(tileObj: BasePart): void {
+		const localPosition = tileObj.Position.sub(this.gridBase.Position);
+		const tile = this.tileGrid.getTileFromPosition(localPosition);
+
+		if (tile === undefined) error("Tile not found when removing it");
 
 
-		if (tileEntity instanceof TileEntity) {
-			this.removeConectedTiles(tileEntity);
+		if (tile instanceof TileEntity) {
+			this.removeConectedTiles(tile);
+			tile.setAllNeighbourTypeConveyer(this.tileGrid);
+			this.resetBeamsOffset();
+			this.changeShapes(tile as TileEntity, this.gridBase);
 
-			if (tileEntity.interface instanceof Seller) {
-				this.sellers.remove(this.sellers.indexOf(tileEntity));
+			if (tile.interface instanceof Seller) {
+				this.sellers.remove(this.sellers.indexOf(tile));
 			}
 		}
 
-		this.tileGrid.removeTile(tileEntity);
+		
+		this.tileGrid.removeTile(tile);
 	}
 
 	removeConectedTiles(tileEntity: TileEntity) {
