@@ -29,10 +29,10 @@ class TileGrid {
     */
     getTileFromPosition(position: Vector3): Tile | undefined {
         const gridPosition = TileGrid.localPositionToGridTilePosition(position);
-        
+
         const y = math.round(this.gridSize.Y / 2) + gridPosition.Y;
         const x = math.round(this.gridSize.X / 2) + gridPosition.X;
-        
+
         return this.getTile(x, y);
     }
 
@@ -62,7 +62,7 @@ class TileGrid {
      * @throws if the tile is already occupied
      * @param position local position
     */
-    setTile(tile: Tile) {
+    addTile(tile: Tile) {
         for (let i = math.ceil(-tile.size.Y / 2); i < math.ceil(tile.size.Y / 2); i++) {
             for (let j = math.ceil(-tile.size.X / 2); j < math.ceil(tile.size.X / 2); j++) {
                 const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
@@ -90,19 +90,19 @@ class TileGrid {
             }
         }
     }
-    
+
     /**
      * @returns true if the tile can be placed
     */
-   checkPlacement(tile: Tile) {
-       const size = tile.size;
-       for (let i = math.ceil(-size.Y / 2); i < math.ceil(size.Y / 2); i++) {
-           for (let j = math.ceil(-size.X / 2); j < math.ceil(size.X / 2); j++) {
-               const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
-               const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
-               const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
-               
-               const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
+    checkPlacement(tile: Tile) {
+        const size = tile.size;
+        for (let i = math.ceil(-size.Y / 2); i < math.ceil(size.Y / 2); i++) {
+            for (let j = math.ceil(-size.X / 2); j < math.ceil(size.X / 2); j++) {
+                const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
+                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+
+                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (this.tileGrid[y][x] !== undefined || !isInBounds) {
                     return false;
                 }

@@ -1,5 +1,5 @@
 import Entity from "../../Entities/entity";
-import { TileEntity, TileEntityInterface } from "../tileEntity";
+import { TileEntity } from "../tileEntity";
 import { addSegment, moveItemsInArray, transferContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
@@ -10,9 +10,13 @@ const MAX_INPUTS = 1; // help to upgrade to merger or splitter
 const MAX_OUTPUTS = 1; // help to upgrade to merger or splitter
 const category: string = "conveyer";
 
-class Conveyer implements TileEntityInterface {
+class Conveyer extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
+
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    }
 
     /**
      * move all items on the conveyer
@@ -20,7 +24,7 @@ class Conveyer implements TileEntityInterface {
     tick(tileEntity: TileEntity): void {
         // send the item to the next gridEntity
         if (tileEntity.outputTiles[0] !== undefined) {
-            addSegment(this.content, tileEntity.outputTiles[0].interface.addEntity(this.content), MAX_CONTENT - tileEntity.speed);
+            addSegment(this.content, tileEntity.outputTiles[0].addEntity(this.content), MAX_CONTENT - tileEntity.speed);
         };
 
         // move all the items by the speed amount
@@ -38,32 +42,20 @@ class Conveyer implements TileEntityInterface {
     /**
      * change the basepart depending if the conveyer is turning
      */
-    updateShape(tile: TileEntity, gridBase: BasePart): void {
-        if (tile.inputTiles.isEmpty() || !(tile.inputTiles[0] instanceof TileEntity)) return;
-        const isTurningConveyer = math.abs(tile.direction.X) !== math.abs(tile.inputTiles[0].direction.X);
+    updateShape(gridBase: BasePart): void {
+        if (this.inputTiles.isEmpty() || !(this.inputTiles[0] instanceof TileEntity)) return;
+        const isTurningConveyer = math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
 
         if (isTurningConveyer) {
-            tile.findThisPartInGridEntities(gridBase)?.Destroy();
+            this.findThisPartInGridEntities(gridBase)?.Destroy();
 
-            const isTurningLeft = tile.inputTiles[0].direction.X === -tile.direction.Y && tile.inputTiles[0].direction.Y === tile.direction.X;
-            const turningConveyer = findBasepartByName(tile.name + (isTurningLeft ? "T" : "TR"), tile.category);
+            const isTurningLeft = this.inputTiles[0].direction.X === -this.direction.Y && this.inputTiles[0].direction.Y === this.direction.X;
+            const turningConveyer = findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);
     
             if (turningConveyer) {
-                setupObject(turningConveyer, tile.getGlobalPosition(gridBase), tile.getOrientation() + (isTurningLeft ? 0 : math.pi / 2), gridBase);
+                setupObject(turningConveyer, this.getGlobalPosition(gridBase), this.getOrientation() + (isTurningLeft ? 0 : math.pi / 2), gridBase);
             }
         }
-    }
-
-    getMaxInputs(): number {
-        return MAX_INPUTS;
-    }
-    
-    getMaxOutputs(): number {
-        return MAX_OUTPUTS;
-    }
-
-    getCategory(): string {
-        return category;
     }
 }
 

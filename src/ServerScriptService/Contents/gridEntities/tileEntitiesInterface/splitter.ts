@@ -1,6 +1,5 @@
 import Entity from "../../Entities/entity";
-import Ressource from "../../Entities/ressource";
-import { TileEntity, TileEntityInterface } from "../tileEntity";
+import { TileEntity } from "../tileEntity";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -8,8 +7,12 @@ const MAX_OUTPUTS = 3;
 const category: string = "splitter";
 const maxCapacity: number = 2;
 
-class Splitter implements TileEntityInterface {
+class Splitter extends TileEntity {
     content = new Array<Entity | undefined>(maxCapacity, undefined);
+
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    }
 
     tick(): void {
         return;
@@ -18,19 +21,8 @@ class Splitter implements TileEntityInterface {
     addEntity(entities: Array<Entity>): Array<Entity> {
         return entities;
     }
-
-    getMaxInputs(): number {
-        return MAX_INPUTS;
-    }
-    getMaxOutputs(): number {
-        return MAX_OUTPUTS;
-    }
-
-    getCategory(): string {
-        return category;
-    }
-
-    updateShape(tile: TileEntity, gridBase: BasePart): void {
+    
+    updateShape(gridBase: BasePart): void {
         return;
     }
 }

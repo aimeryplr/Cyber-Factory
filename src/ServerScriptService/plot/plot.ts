@@ -43,7 +43,7 @@ class Plot {
 				let currentTile = inputTiles[i];
 
 				// Process the current tile (calling tick)
-				currentTile.interface.tick(currentTile);
+				currentTile.tick(currentTile);
 
 				// If the current tile has an input tile, add it to the newInputTiles array
 				if (!currentTile.inputTiles.isEmpty()) {
@@ -75,14 +75,14 @@ class Plot {
 	 * @returns the gridTile if it has been added
 	 */
 	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
-		this.tileGrid.setTile(tile);
+		this.tileGrid.addTile(tile);
 		if (tile instanceof TileEntity) {
 			tile.setAllNeighbourTypeConveyer(this.tileGrid);
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
-			
-			if (tile.interface instanceof Seller) {
+
+			if (tile instanceof Seller) {
 				this.sellers.push(tile);
-				if (player !== undefined) tile.interface.setOwner(player);
+				if (player !== undefined) tile.setOwner(player);
 			}
 
 			this.changeShapes(tile, this.gridBase);
@@ -92,13 +92,13 @@ class Plot {
 	}
 
 	changeShapes(tile: TileEntity, gridBase: BasePart) {
-		tile.interface.updateShape(tile, gridBase);
+		tile.updateShape(gridBase);
 		tile.inputTiles.forEach((inputTile) => {
-			inputTile.interface.updateShape(inputTile, gridBase);
+			inputTile.updateShape(gridBase);
 		});
 
 		tile.outputTiles.forEach((outputTile) => {
-			outputTile.interface.updateShape(outputTile, gridBase);
+			outputTile.updateShape(gridBase);
 		});
 	}
 
@@ -115,12 +115,12 @@ class Plot {
 			this.resetBeamsOffset();
 			this.changeShapes(tile as TileEntity, this.gridBase);
 
-			if (tile.interface instanceof Seller) {
+			if (tile instanceof Seller) {
 				this.sellers.remove(this.sellers.indexOf(tile));
 			}
 		}
 
-		
+
 		this.tileGrid.removeTile(tile);
 	}
 

@@ -5,7 +5,8 @@ import tileEntitiesList from "./tileEntitiesList";
 import Splitter from "./tileEntitiesInterface/splitter";
 import Generator from "./tileEntitiesInterface/generator";
 import Seller from "./tileEntitiesInterface/seller";
-import { TileEntityInterface } from "./tileEntity";
+import Tile from "./tile";
+import { TileEntity } from "./tileEntity";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
@@ -23,10 +24,10 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
  * @param args argument of the constructor
  * @returns the class created
  */
-function getInterfaceByCategory(className: string): TileEntityInterface {
+function getTileEntityByCategory(className: string, name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number): TileEntity {
     const ClassConstructor = tileEntityRegistry[className];
     if (ClassConstructor) {
-        return new ClassConstructor();
+        return new ClassConstructor(name, position, size, direction, speed);
     } else {
         error(`Class ${className} not found`);
     }
@@ -58,4 +59,4 @@ function getGridEntityInformation(name: string, category?: string): { name: stri
 
 
 
-export { getInterfaceByCategory, getGridEntityInformation };
+export { getTileEntityByCategory, getGridEntityInformation };

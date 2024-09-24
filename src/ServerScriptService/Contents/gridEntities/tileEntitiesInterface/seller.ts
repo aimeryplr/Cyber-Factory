@@ -1,15 +1,18 @@
-import TileGrid from "ServerScriptService/plot/gridTile";
 import Entity from "../../Entities/entity";
-import { TileEntity, TileEntityInterface } from "../tileEntity";
+import { TileEntity } from "../tileEntity";
 
 // Settings
 const MAX_INPUTS = 4;
 const MAX_OUTPUTS = 0;
 const category: string = "seller";
 
-class Seller implements TileEntityInterface {
+class Seller extends TileEntity {
     owner: number | undefined;
     playerMoney: NumberValue | undefined;
+
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    }
 
     setOwner(playerId: number) {
         this.owner = playerId;
@@ -43,19 +46,7 @@ class Seller implements TileEntityInterface {
         return new Array<Entity | undefined>(entities.size(), undefined);
     }
 
-    getMaxInputs(): number {
-        return MAX_INPUTS;
-    }
-    
-    getMaxOutputs(): number {
-        return MAX_OUTPUTS;
-    }
-
-    getCategory(): string {
-        return category;
-    }
-
-    updateShape(tile: TileEntity, gridBase: BasePart): void {
+    updateShape(gridBase: BasePart): void {
         return;
     }
 }

@@ -1,9 +1,8 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
-import {TileEntity} from "ServerScriptService/Contents/gridEntities/tileEntity";
 import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
-import { getGridEntityInformation, getInterfaceByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
+import { getGridEntityInformation, getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
@@ -17,8 +16,7 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
 	const tileObject = findBasepartByName(tileName as string);
 	const tileInformation = getGridEntityInformation(tileName as string);
-	const tileEntityInterface = getInterfaceByCategory(tileInformation.category);
-	const tileEntity = new TileEntity(tileName as string, localPos as Vector3, size as Vector2, direction, tileEntityInterface, tileInformation.speed as number, tileInformation.category);
+	const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
 
 	//check if player owns a plot and if the tile exists
 	if (!tileObject || !plot || !tileEntity) {

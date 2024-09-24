@@ -1,17 +1,21 @@
 import Component from "../../Entities/Components/component";
 import Entity from "../../Entities/entity";
 import Ressource from "../../Entities/ressource";
-import { TileEntity, TileEntityInterface } from "../tileEntity";
+import { TileEntity } from "../tileEntity";
 
 // Settings
 const MAX_INPUTS = 3;
 const MAX_OUTPUTS = 1;
 const category: string = "crafter";
 
-class Crafter implements TileEntityInterface {
+class Crafter extends TileEntity {
     // mettre type component
     currentCraft: Component | undefined;
     ressources = new Array<Ressource>()
+
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    }
 
     tick(): void {
         return;
@@ -21,18 +25,7 @@ class Crafter implements TileEntityInterface {
         return entities;
     }
 
-    getMaxInputs(): number {
-        return MAX_INPUTS;
-    }
-    getMaxOutputs(): number {
-        return MAX_OUTPUTS;
-    }
-
-    getCategory(): string {
-        return category;
-    }
-
-    updateShape(tile: TileEntity, gridBase: BasePart): void {
+    updateShape(gridBase: BasePart): void {
         return;
     }
 }
