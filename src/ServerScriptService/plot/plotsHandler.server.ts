@@ -1,32 +1,46 @@
-import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { checkPlacementForObj, setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { Players, ReplicatedStorage } from "@rbxts/services";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
+import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
+import { getGridEntityInformation, getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
 
-const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild(
-	"placeTileCheck",
-) as RemoteFunction;
-
+const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
+const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 
 const plotsManager = new PlotsManager();
 
-placeTileCallback.OnServerInvoke = (player: Player, pos: unknown, tileName: unknown, gridBase: unknown): boolean => {
+placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
 	const plot = plotsManager.getPlotByOwner(player.UserId);
-	const tile = ReplicatedStorage.FindFirstChild("Entities")
-		?.FindFirstChild("GridEntities")
-		?.FindFirstChild(tileName as string) as BasePart;
+	const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
+	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
+	const tileObject = findBasepartByName(tileName as string);
+	const tileInformation = getGridEntityInformation(tileName as string);
+	const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
 
 	//check if player owns a plot and if the tile exists
-	if (!tile) return false;
-	if (!plot) return false;
-
-	const isPlaceable = checkPlacementForObj(pos as Vector3, tile.Size as Vector3, gridBase as BasePart);
-	if (isPlaceable) {
-		setupObject(tile, pos as Vector3, gridBase as BasePart);
-		plot.addGridTile(tileName as string, pos as Vector3);
+	if (!tileObject || !plot || !tileEntity) {
+		error("Tile not found or player does not own a plot or gridTile not found");
 	}
+
+	const isPlaceable = plot.getGridTiles().checkPlacement(tileEntity);
+	if (isPlaceable) {
+		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
+		plot.addGridTile(tileEntity, player.UserId);
+	}
+	print(plot.getGridTiles().tileGrid);
 	return isPlaceable;
 };
+
+removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => {
+	const plot = plotsManager.getPlotByOwner((player as Player).UserId);
+	if (!plot) return;
+
+	plot.removeGridTile(tile as BasePart);
+	(tile as BasePart).Destroy();
+	print(plot.getGridTiles().tileGrid);
+})
+
 
 plotsManager.getPlots().forEach((plot) => {
 	plot.getGridBase().Touched.Connect((part) => {

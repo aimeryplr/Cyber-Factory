@@ -26,6 +26,15 @@
 				"$className": "Folder",
 				"placeTileCheck": {
 					"$className": "RemoteFunction"
+				},
+				"setPlayerPlot": {
+					"$className": "RemoteEvent"
+				},
+				"setConveyerBeams": {
+					"$className": "RemoteEvent"
+				},
+				"removeTile": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},
