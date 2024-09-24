@@ -34,11 +34,11 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 
 removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => {
 	const plot = plotsManager.getPlotByOwner((player as Player).UserId);
+	if (!plot) return;
 
-	if (plot) {
-		plot.removeGridTile(tile as BasePart);
-		(tile as BasePart).Destroy();
-	}
+	plot.removeGridTile(tile as BasePart);
+	(tile as BasePart).Destroy();
+	print(plot.getGridTiles().tileGrid);
 })
 
 

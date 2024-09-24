@@ -1,9 +1,7 @@
 import TileGrid from "ServerScriptService/plot/gridTile";
 import Entity from "../Entities/entity";
 import Tile from "./tile";
-import Seller from "./tileEntitiesInterface/seller";
 import { copyArray } from "./conveyerUtils";
-import { getTileEntityByCategory } from "./tileEntityProvider";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
@@ -59,20 +57,13 @@ abstract class TileEntity extends Tile {
     */
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
         for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
-            if (direction === this.direction) {
+            if (direction === this.direction && !(this.category === "seller")) {
                 this.connectOutput(neighbourTile);
             } else {
                 this.connectInput(neighbourTile, direction);
             }
         }
     };
-
-    setAllNeighbourTypeConveyer(tileGrid: TileGrid): void {
-        for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
-            this.changeNeighbourTypeConveyer(neighbourTile, direction, tileGrid);
-            neighbourTile.changeNeighbourTypeConveyer(this, direction, tileGrid);
-        }
-    }
 
     private connectOutput(neighbourTile: TileEntity) {
         if (this.canConnectOutput(neighbourTile)) {
@@ -88,6 +79,9 @@ abstract class TileEntity extends Tile {
         }
     }
 
+    /**
+     * @returns a map of all the neighbours of this TileEntity with the direction of from the current TileEntity to the neighbour
+     */
     getAllNeighbours(tileGrid: TileGrid): Map<TileEntity, Vector2> {
         const neighbours = new Map<TileEntity, Vector2>();
 
@@ -99,7 +93,7 @@ abstract class TileEntity extends Tile {
 
                 const isNeighbourTile = neighbourTile && neighbourTile !== this && neighbourTile instanceof TileEntity
                 if (isNeighbourTile) {
-                    neighbours.set(neighbourTile, direction);
+                    neighbours.set(neighbourTile, new Vector2(direction.X, direction.Y));
                 }
             }
         }
@@ -131,44 +125,13 @@ abstract class TileEntity extends Tile {
         return false;
     }
 
-    changeNeighbourTypeConveyer(neighbour: TileEntity, direction: Vector2, tileGrid: TileGrid): void {
-        if (this.category === "conveyer") {
-            const willBeMerger = neighbour.direction !== this.direction.mul(-1) && this.inputTiles.size() === 1
-            const willBeSplitter = direction === this.direction.mul(-1) && this.outputTiles.size() === 1
-            if (willBeSplitter) {
-                this.switchToTileEntity("splitter", tileGrid);
-            } else if (willBeMerger) {
-                this.switchToTileEntity("merger", tileGrid);
-            }
-        }
-        else {
-            if (this.category === "splitter" && this.outputTiles.size() === 1) this.switchToTileEntity("conveyer", tileGrid);
-            if (this.category === "merger" && this.inputTiles.size() === 1) this.switchToTileEntity("conveyer", tileGrid);
-        }
-    }
-
-    private switchToTileEntity(tileCategory: string, tileGrid: TileGrid) {
-        const newTile = this.changeType(tileCategory);
-        tileGrid.removeTile(this);
-        tileGrid.addTile(newTile);
-    }
-
-    private changeType(newTileCategory: string): TileEntity {
-        let newTile: TileEntity;
-        newTile = getTileEntityByCategory(newTileCategory, (this.name) as string, this.position, this.size, this.direction, this.speed);
-
-        copyArray(this.inputTiles, newTile.inputTiles) as Array<TileEntity>;
-        copyArray(this.outputTiles, newTile.outputTiles) as Array<TileEntity>;
-        return newTile;
-    }
-
-    findThisPartInGridEntities(gridBase: BasePart): BasePart | undefined {
-        const gridEntities = gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
+    findThisPartInWorld(gridBase: BasePart): BasePart | undefined {
+        const gridPart = gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
         const gridBasePosition = gridBase.Position;
 
-        for (let i = 0; i < gridEntities.size(); i++) {
-            if (gridEntities[i].Position.X === this.position.X + gridBasePosition.X && gridEntities[i].Position.Z === this.position.Z + gridBasePosition.Z) {
-                return gridEntities[i];
+        for (let i = 0; i < gridPart.size(); i++) {
+            if (gridPart[i].Position.X === this.position.X + gridBasePosition.X && gridPart[i].Position.Z === this.position.Z + gridBasePosition.Z) {
+                return gridPart[i];
             }
         }
         return undefined;

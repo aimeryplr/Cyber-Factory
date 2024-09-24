@@ -40,7 +40,7 @@ class Merger extends TileEntity {
 
     updateShape(gridBase: BasePart): void {
         const newTileName = this.getNewTileName();
-        const partToChange = this.findThisPartInGridEntities(gridBase);
+        const partToChange = this.findThisPartInWorld(gridBase);
         if (partToChange && partToChange.Name === newTileName) return;
 
         const mergerPart = findBasepartByName(newTileName, this.category);

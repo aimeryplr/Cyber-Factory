@@ -1,14 +1,10 @@
-import { Players, ReplicatedStorage, Workspace } from "@rbxts/services";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
-import Conveyer from "ServerScriptService/Contents/gridEntities/tileEntitiesInterface/conveyer";
 import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import { TileEntity } from "ServerScriptService/Contents/gridEntities/tileEntity";
 import Tile from "ServerScriptService/Contents/gridEntities/tile";
-import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
-import Seller from "ServerScriptService/Contents/gridEntities/tileEntitiesInterface/seller";
+import Seller from "ServerScriptService/Contents/gridEntities/tileEntitiesChilds/seller";
 import TileGrid from "./gridTile";
+import { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
 
-const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
 
 /**
@@ -77,29 +73,17 @@ class Plot {
 	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
 		this.tileGrid.addTile(tile);
 		if (tile instanceof TileEntity) {
-			tile.setAllNeighbourTypeConveyer(this.tileGrid);
+			setAllNeighbourTypeConveyer(tile, this.tileGrid);
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
-
 			if (tile instanceof Seller) {
 				this.sellers.push(tile);
 				if (player !== undefined) tile.setOwner(player);
 			}
 
-			this.changeShapes(tile, this.gridBase);
-			this.resetBeamsOffset();
+			changeShapes(tile, this.gridBase, this.tileGrid);
+			resetBeamsOffset(this.gridBase);
 		}
 		return tile;
-	}
-
-	changeShapes(tile: TileEntity, gridBase: BasePart) {
-		tile.updateShape(gridBase);
-		tile.inputTiles.forEach((inputTile) => {
-			inputTile.updateShape(gridBase);
-		});
-
-		tile.outputTiles.forEach((outputTile) => {
-			outputTile.updateShape(gridBase);
-		});
 	}
 
 	public removeGridTile(tileObj: BasePart): void {
@@ -108,19 +92,18 @@ class Plot {
 
 		if (tile === undefined) error("Tile not found when removing it");
 
-
 		if (tile instanceof TileEntity) {
 			this.removeConectedTiles(tile);
-			tile.setAllNeighbourTypeConveyer(this.tileGrid);
-			this.resetBeamsOffset();
-			this.changeShapes(tile as TileEntity, this.gridBase);
-
+			setAllNeighbourTypeConveyer(tile, this.tileGrid);
+			resetBeamsOffset(this.gridBase);
+			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
+			
 			if (tile instanceof Seller) {
 				this.sellers.remove(this.sellers.indexOf(tile));
 			}
 		}
-
-
+		
+		
 		this.tileGrid.removeTile(tile);
 	}
 
@@ -128,32 +111,16 @@ class Plot {
 		tileEntity.inputTiles.forEach((inputTile) => {
 			inputTile.outputTiles.remove(inputTile.outputTiles.indexOf(tileEntity));
 		});
-
+		
 		tileEntity.outputTiles.forEach((outputTiles) => {
 			outputTiles.inputTiles.remove(outputTiles.inputTiles.indexOf(tileEntity));
 		});
+		tileEntity.outputTiles.clear();
+		tileEntity.inputTiles.clear();
 	}
 
 	public getGridTiles(): TileGrid {
 		return this.tileGrid;
-	}
-
-	/**
-	 * reset the animation for all conveyer.
-	 * Must use when adding a new conveyer to sync it with the rest
-	 */
-	public resetBeamsOffset(): void {
-		const beams = new Array<Beam>();
-		this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren().forEach((child) => {
-			child.GetChildren().forEach((part) => {
-				if (part.IsA("Beam")) {
-					beams.push(part as Beam);
-				}
-			});
-		})
-		Players.GetPlayers().forEach((player) => {
-			setConveyerBeamsEvent.FireClient(player, beams);
-		});
 	}
 }
 

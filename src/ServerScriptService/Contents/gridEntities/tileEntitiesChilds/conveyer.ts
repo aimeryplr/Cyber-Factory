@@ -43,11 +43,18 @@ class Conveyer extends TileEntity {
      * change the basepart depending if the conveyer is turning
      */
     updateShape(gridBase: BasePart): void {
+        const conveyerBasepart = this.findThisPartInWorld(gridBase);
+        if (conveyerBasepart?.Name !== this.name) {
+            conveyerBasepart?.Destroy();
+            const newPart = findBasepartByName((this.name) as string)
+            setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
+        }
+
         if (this.inputTiles.isEmpty() || !(this.inputTiles[0] instanceof TileEntity)) return;
         const isTurningConveyer = math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
 
         if (isTurningConveyer) {
-            this.findThisPartInWorld(gridBase)?.Destroy();
+            conveyerBasepart?.Destroy();
 
             const isTurningLeft = this.inputTiles[0].direction.X === -this.direction.Y && this.inputTiles[0].direction.Y === this.direction.X;
             const turningConveyer = findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);

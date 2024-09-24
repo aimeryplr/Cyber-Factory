@@ -1,12 +1,12 @@
-import Assembler from "./tileEntitiesInterface/assembler";
-import Conveyer from "./tileEntitiesInterface/conveyer";
-import Crafter from "./tileEntitiesInterface/crafter";
+import Assembler from "./tileEntitiesChilds/assembler";
+import Conveyer from "./tileEntitiesChilds/conveyer";
+import Crafter from "./tileEntitiesChilds/crafter";
 import tileEntitiesList from "./tileEntitiesList";
-import Splitter from "./tileEntitiesInterface/splitter";
-import Generator from "./tileEntitiesInterface/generator";
-import Seller from "./tileEntitiesInterface/seller";
-import Tile from "./tile";
+import Splitter from "./tileEntitiesChilds/splitter";
+import Generator from "./tileEntitiesChilds/generator";
+import Seller from "./tileEntitiesChilds/seller";
 import { TileEntity } from "./tileEntity";
+import Merger from "./tileEntitiesChilds/merger";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
@@ -15,7 +15,8 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "crafter": Crafter,
     "assembler": Assembler,
     "generator": Generator,
-    "seller": Seller
+    "seller": Seller,
+    "merger": Merger
 };
 
 /**
