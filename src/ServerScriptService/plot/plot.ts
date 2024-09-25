@@ -4,7 +4,7 @@ import Tile from "ServerScriptService/Contents/gridEntities/tile";
 import Seller from "ServerScriptService/Contents/gridEntities/tileEntitiesChilds/seller";
 import TileGrid from "./gridTile";
 import { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
-
+import { removeAllTileFromAllConnectedTiles } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
 
 
 /**
@@ -71,19 +71,23 @@ class Plot {
 	 * @returns the gridTile if it has been added
 	 */
 	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
+		let addedTile: Tile = tile
 		this.tileGrid.addTile(tile);
-		if (tile instanceof TileEntity) {
-			setAllNeighbourTypeConveyer(tile, this.tileGrid);
-			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
-			if (tile instanceof Seller) {
-				this.sellers.push(tile);
-				if (player !== undefined) tile.setOwner(player);
+		if (addedTile instanceof TileEntity) {
+			setAllNeighbourTypeConveyer(addedTile, this.tileGrid);
+			const possibleTile: TileEntity = this.tileGrid.getTileFromPosition(tile.position) as TileEntity;
+			if (possibleTile !== undefined) addedTile = possibleTile;
+			(addedTile as TileEntity).setAllConnectedNeighboursTileEntity(this.tileGrid);
+
+			if (addedTile instanceof Seller) {
+				this.sellers.push(addedTile);
+				if (player !== undefined) addedTile.setOwner(player);
 			}
 
-			changeShapes(tile, this.gridBase, this.tileGrid);
+			changeShapes((addedTile as TileEntity), this.gridBase, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
 		}
-		return tile;
+		return addedTile;
 	}
 
 	public removeGridTile(tileObj: BasePart): void {
@@ -97,24 +101,18 @@ class Plot {
 			setAllNeighbourTypeConveyer(tile, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
-			
+
 			if (tile instanceof Seller) {
 				this.sellers.remove(this.sellers.indexOf(tile));
 			}
 		}
-		
-		
+
+		tile.findThisPartInWorld(this.gridBase)?.Destroy();
 		this.tileGrid.removeTile(tile);
 	}
 
 	removeConectedTiles(tileEntity: TileEntity) {
-		tileEntity.inputTiles.forEach((inputTile) => {
-			inputTile.outputTiles.remove(inputTile.outputTiles.indexOf(tileEntity));
-		});
-		
-		tileEntity.outputTiles.forEach((outputTiles) => {
-			outputTiles.inputTiles.remove(outputTiles.inputTiles.indexOf(tileEntity));
-		});
+		removeAllTileFromAllConnectedTiles(tileEntity);
 		tileEntity.outputTiles.clear();
 		tileEntity.inputTiles.clear();
 	}

@@ -37,7 +37,6 @@ removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => 
 	if (!plot) return;
 
 	plot.removeGridTile(tile as BasePart);
-	(tile as BasePart).Destroy();
 	print(plot.getGridTiles().tileGrid);
 })
 

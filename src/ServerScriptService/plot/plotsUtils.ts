@@ -3,37 +3,49 @@ import { Players, ReplicatedStorage } from "@rbxts/services";
 import TileGrid from "./gridTile";
 import { copyArray } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import { getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
+import { connectTileEntityToAllInputsAndOutputs, removeAllTileFromAllConnectedTiles } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
 function setAllNeighbourTypeConveyer(tileEntity: TileEntity, tileGrid: TileGrid): void {
+    let outputCount = 0
+    let inputCount = 0
+
     for (const [neighbourTile, direction] of tileEntity.getAllNeighbours(tileGrid)) {
-        changeNeighbourTypeConveyer(neighbourTile, tileEntity, direction.mul(-1), tileGrid);
         changeNeighbourTypeConveyer(tileEntity, neighbourTile, direction, tileGrid);
+        if (tileEntity.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) outputCount++
+        else if (tileEntity.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) inputCount++
     }
+    if (inputCount > 1) switchTileEntityType(tileEntity, "merger", tileGrid);
+    else if (outputCount > 1) switchTileEntityType(tileEntity, "splitter", tileGrid);
 }
 
 /**
  * @param direction from the tileEntity to the neighbour
  */
 function changeNeighbourTypeConveyer(tileEntity: TileEntity, neighbour: TileEntity, direction: Vector2, tileGrid: TileGrid): void {
-    if (tileEntity.category === "conveyer" && neighbour.direction !== tileEntity.direction.mul(-1)) {
-        const willBeMerger = neighbour.direction === direction.mul(-1) && tileEntity.inputTiles.size() === 1
-        const willBeSplitter = direction !== tileEntity.direction.mul(-1) && tileEntity.outputTiles.size() === 1
+    if (neighbour.category === "conveyer" && tileEntity.direction !== neighbour.direction.mul(-1)) {
+        const willBeMerger = neighbour.inputTiles.size() === 1 && neighbour.canConnectInput(tileEntity, direction.mul(-1));
+        const willBeSplitter = neighbour.outputTiles.size() === 1 && neighbour.canConnectOutput(tileEntity, direction.mul(-1));
         if (willBeSplitter) {
-            switchToTileEntity(tileEntity, "splitter", tileGrid);
+            switchTileEntityType(neighbour, "splitter", tileGrid);
         } else if (willBeMerger) {
-            switchToTileEntity(tileEntity, "merger", tileGrid);
+            switchTileEntityType(neighbour, "merger", tileGrid);
         }
     }
     else {
-        if (tileEntity.category === "splitter" && tileEntity.outputTiles.size() === 1) switchToTileEntity(tileEntity, "conveyer", tileGrid);
-        if (tileEntity.category === "merger" && tileEntity.inputTiles.size() === 1) switchToTileEntity(tileEntity, "conveyer", tileGrid);
+        if (neighbour.category === "splitter" && neighbour.outputTiles.size() === 1) switchTileEntityType(neighbour, "conveyer", tileGrid);
+        if (neighbour.category === "merger" && neighbour.inputTiles.size() === 1) switchTileEntityType(neighbour, "conveyer", tileGrid);
     }
 }
 
-function switchToTileEntity(tileEntity: TileEntity, tileCategory: string, tileGrid: TileGrid) {
+function switchTileEntityType(tileEntity: TileEntity, tileCategory: string, tileGrid: TileGrid) {
+    removeAllTileFromAllConnectedTiles(tileEntity);
+    print(tileGrid.tileGrid);
     const newTile = changeType(tileEntity, tileCategory);
+    connectTileEntityToAllInputsAndOutputs(newTile);
+    print(tileGrid.tileGrid);
+
     tileGrid.removeTile(tileEntity);
     tileGrid.addTile(newTile);
 }

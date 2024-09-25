@@ -44,23 +44,26 @@ class Conveyer extends TileEntity {
      */
     updateShape(gridBase: BasePart): void {
         const conveyerBasepart = this.findThisPartInWorld(gridBase);
-        if (conveyerBasepart?.Name !== this.name) {
-            conveyerBasepart?.Destroy();
-            const newPart = findBasepartByName((this.name) as string)
-            setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
-        }
 
-        if (this.inputTiles.isEmpty() || !(this.inputTiles[0] instanceof TileEntity)) return;
-        const isTurningConveyer = math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
+        if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity) {
+            const isTurningConveyer = math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
+            const isAlreadyTurningConveyer = conveyerBasepart?.Name.match('/T|TR/') !== undefined;
 
-        if (isTurningConveyer) {
-            conveyerBasepart?.Destroy();
-
-            const isTurningLeft = this.inputTiles[0].direction.X === -this.direction.Y && this.inputTiles[0].direction.Y === this.direction.X;
-            const turningConveyer = findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);
-
-            if (turningConveyer) {
+            if (isTurningConveyer && !isAlreadyTurningConveyer) {
+                conveyerBasepart?.Destroy();
+    
+                const isTurningLeft = this.inputTiles[0].direction.X === -this.direction.Y && this.inputTiles[0].direction.Y === this.direction.X;
+                const turningConveyer = findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);
+    
                 setupObject(turningConveyer, this.getGlobalPosition(gridBase), this.getOrientation() + (isTurningLeft ? 0 : math.pi / 2), gridBase);
+            }
+        } else {
+            const isAlreadyStraightConveyer = conveyerBasepart?.Name === this.name;
+            if (!isAlreadyStraightConveyer) {
+                conveyerBasepart?.Destroy();
+                const newPart = findBasepartByName((this.name) as string)
+                print(newPart)
+                setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
             }
         }
     }

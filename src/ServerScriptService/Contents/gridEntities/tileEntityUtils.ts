@@ -1,5 +1,7 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
+import { TileEntity } from "./tileEntity";
+import TileGrid from "ServerScriptService/plot/gridTile";
 
 
 /**
@@ -33,8 +35,27 @@ function objSizeToTileSize(size: Vector3 | Vector2) {
     return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE));
 }
 
-function changeApperance(basepart: BasePart, previousName: String) {
-    
+/**
+ * go through all inputs and outputs and remove the tileEntity from them
+ */
+function removeAllTileFromAllConnectedTiles(tileEntity: TileEntity): void {
+    tileEntity.inputTiles.forEach((inputTile) => {
+        inputTile.removeConnection(tileEntity);
+    });
+
+    tileEntity.outputTiles.forEach((outputTiles) => {
+        outputTiles.removeConnection(tileEntity);
+    });
 }
 
-export { findBasepartByName, objSizeToTileSize, changeApperance };
+function connectTileEntityToAllInputsAndOutputs(tileEntity: TileEntity): void {
+    tileEntity.inputTiles.forEach((inputTile) => {
+        inputTile.outputTiles.push(tileEntity);
+    })
+
+    tileEntity.outputTiles.forEach((outputTile) => {
+        outputTile.inputTiles.push(tileEntity);
+    })
+}
+
+export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs };

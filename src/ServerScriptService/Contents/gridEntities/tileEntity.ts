@@ -1,7 +1,6 @@
 import TileGrid from "ServerScriptService/plot/gridTile";
 import Entity from "../Entities/entity";
 import Tile from "./tile";
-import { copyArray } from "./conveyerUtils";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
@@ -15,7 +14,7 @@ abstract class TileEntity extends Tile {
     maxInputs: number;
     maxOutputs: number;
 
-    constructor(name: String, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number) {
         super(name, position, size);
         this.category = category;
         this.speed = speed;
@@ -58,25 +57,30 @@ abstract class TileEntity extends Tile {
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
         for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
             if (direction === this.direction && !(this.category === "seller")) {
-                this.connectOutput(neighbourTile);
+                this.connectOutput(neighbourTile, direction);
             } else {
                 this.connectInput(neighbourTile, direction);
             }
         }
     };
 
-    private connectOutput(neighbourTile: TileEntity) {
-        if (this.canConnectOutput(neighbourTile)) {
+    connectOutput(neighbourTile: TileEntity, direction: Vector2) {
+        if (this.canConnectOutput(neighbourTile, direction) && this.hasAnyOutputAndInput(neighbourTile)) {
             this.outputTiles.push(neighbourTile);
             neighbourTile.setInput(this);
         }
     }
 
-    private connectInput(neighbourTile: TileEntity, direction: Vector2) {
-        if (this.canConnectInput(neighbourTile, direction)) {
+    connectInput(neighbourTile: TileEntity, direction: Vector2) {
+        if (this.canConnectInput(neighbourTile, direction) && this.hasAnyOutputAndInput(neighbourTile)) {
             this.inputTiles.push(neighbourTile);
             neighbourTile.setOutput(this);
         }
+    }
+
+    removeConnection(tileEntity: TileEntity): void {
+        this.inputTiles.remove(this.inputTiles.indexOf(tileEntity));
+        this.outputTiles.remove(this.outputTiles.indexOf(tileEntity));
     }
 
     /**
@@ -100,41 +104,24 @@ abstract class TileEntity extends Tile {
         return neighbours;
     }
 
-    private hasEnoughOutput(): boolean {
+    hasEnoughOutput(): boolean {
         return this.outputTiles.size() < this.maxOutputs;
     }
 
-    protected hasEnoughInput(): boolean {
+    hasEnoughInput(): boolean {
         return this.inputTiles.size() < this.maxInputs;
     }
 
-    canConnectOutput(neighbourTile: TileEntity): boolean {
-        if (neighbourTile.direction !== this.direction.mul(-1)) {
-            const hasAnyOutputAndInput = this.hasEnoughOutput() && neighbourTile.hasEnoughInput();
-            return hasAnyOutputAndInput
-        }
-        return false;
+    hasAnyOutputAndInput(neighbour: TileEntity): boolean {
+        return this.hasEnoughOutput() && neighbour.hasEnoughInput();
     }
 
+    canConnectOutput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
+        return neighbourTile.direction !== this.direction.mul(-1) && this.direction === neighbourTileDirection
+    }
 
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
-        if (neighbourTile.direction === neighbourTileDirection.mul(-1)) {
-            const hasAnyOutputAndInput = this.hasEnoughInput() && neighbourTile.hasEnoughOutput();
-            return hasAnyOutputAndInput
-        }
-        return false;
-    }
-
-    findThisPartInWorld(gridBase: BasePart): BasePart | undefined {
-        const gridPart = gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
-        const gridBasePosition = gridBase.Position;
-
-        for (let i = 0; i < gridPart.size(); i++) {
-            if (gridPart[i].Position.X === this.position.X + gridBasePosition.X && gridPart[i].Position.Z === this.position.Z + gridBasePosition.Z) {
-                return gridPart[i];
-            }
-        }
-        return undefined;
+        return neighbourTile.direction === neighbourTileDirection.mul(-1)
     }
 
     getOrientation(): number {
