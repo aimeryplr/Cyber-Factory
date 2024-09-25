@@ -25,7 +25,7 @@ class Plot {
 	/**
 	 * update all plot's gridEntities by going in the sellers and then through all inputTiles
 	 */
-	public update(): void {
+	public update(dt: number): void {
 		// Initialize inputTiles with the last tiles of each conveyor (A3, B3, C3)
 		let inputTiles: Array<TileEntity> = this.sellers;
 
@@ -39,7 +39,7 @@ class Plot {
 				let currentTile = inputTiles[i];
 
 				// Process the current tile (calling tick)
-				currentTile.tick(currentTile);
+				currentTile.tick(dt);
 
 				// If the current tile has an input tile, add it to the newInputTiles array
 				if (!currentTile.inputTiles.isEmpty()) {

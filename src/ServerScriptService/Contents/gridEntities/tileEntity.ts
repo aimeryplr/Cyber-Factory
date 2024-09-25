@@ -7,9 +7,11 @@ const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0),
 abstract class TileEntity extends Tile {
     category: string;
     direction: Vector2;
-    speed: number
+    speed: number // the speed in object per second produced
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
+
+    progression: number;
 
     maxInputs: number;
     maxOutputs: number;
@@ -24,9 +26,10 @@ abstract class TileEntity extends Tile {
         this.maxOutputs = maxOutputs;
         this.inputTiles = new Array<TileEntity>(this.maxInputs);
         this.outputTiles = new Array<TileEntity>(this.maxOutputs);
+        this.progression = 0;
     }
 
-    abstract tick(tileEntity: TileEntity): void;
+    abstract tick(dt: number): void;
 
     /**
      * send an entity to the next GridEntity
@@ -65,16 +68,17 @@ abstract class TileEntity extends Tile {
     };
 
     connectOutput(neighbourTile: TileEntity, direction: Vector2) {
-        if (this.canConnectOutput(neighbourTile, direction) && this.hasAnyOutputAndInput(neighbourTile)) {
+        if (this.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) {
             this.outputTiles.push(neighbourTile);
             neighbourTile.setInput(this);
         }
     }
 
     connectInput(neighbourTile: TileEntity, direction: Vector2) {
-        if (this.canConnectInput(neighbourTile, direction) && this.hasAnyOutputAndInput(neighbourTile)) {
+        if (this.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) {
             this.inputTiles.push(neighbourTile);
             neighbourTile.setOutput(this);
+            print(neighbourTile)
         }
     }
 
@@ -112,8 +116,8 @@ abstract class TileEntity extends Tile {
         return this.inputTiles.size() < this.maxInputs;
     }
 
-    hasAnyOutputAndInput(neighbour: TileEntity): boolean {
-        return this.hasEnoughOutput() && neighbour.hasEnoughInput();
+    hasAnyOutputAndInput(): boolean {
+        return this.hasEnoughOutput() && this.hasEnoughInput();
     }
 
     canConnectOutput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {

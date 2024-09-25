@@ -4,6 +4,7 @@ import TileGrid from "./gridTile";
 import { copyArray } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
 import { getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
 import { connectTileEntityToAllInputsAndOutputs, removeAllTileFromAllConnectedTiles } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
+import Conveyer from "ServerScriptService/Contents/gridEntities/tileEntitiesChilds/conveyer";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
@@ -13,8 +14,11 @@ function setAllNeighbourTypeConveyer(tileEntity: TileEntity, tileGrid: TileGrid)
 
     for (const [neighbourTile, direction] of tileEntity.getAllNeighbours(tileGrid)) {
         changeNeighbourTypeConveyer(tileEntity, neighbourTile, direction, tileGrid);
-        if (tileEntity.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) outputCount++
-        else if (tileEntity.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) inputCount++
+        
+        if (tileEntity instanceof Conveyer) {
+            if (tileEntity.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) outputCount++
+            else if (tileEntity.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) inputCount++
+        }       
     }
     if (inputCount > 1) switchTileEntityType(tileEntity, "merger", tileGrid);
     else if (outputCount > 1) switchTileEntityType(tileEntity, "splitter", tileGrid);

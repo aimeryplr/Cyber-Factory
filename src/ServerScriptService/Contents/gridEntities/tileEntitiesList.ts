@@ -3,21 +3,21 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["conveyer_t1", {
             name: "conveyer_t1",
             category: "conveyer",
-            speed: 1,
+            speed: 10,
             tier: 0,
             price: 10,
         }],
         ["conveyer_t2", {
             name: "conveyer_t2",
             category: "conveyer",
-            speed: 2,
+            speed: 30,
             tier: 1,
             price: 100,
         }],
         ["conveyer_t3", {
             name: "conveyer_t3",
             category: "conveyer",
-            speed: 3,
+            speed: 60,
             tier: 2,
             price: 1000,
         }]
@@ -26,7 +26,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["generator_t1", {
             name: "generator_t1",
             category: "generator",
-            speed: 1,
+            speed: 60,
             tier: 1,
             price: 10,
         }],

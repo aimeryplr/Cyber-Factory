@@ -6,22 +6,20 @@ function appendInputTiles(inputTiles: Array<Tile>, newInputTiles: Array<Tile>) {
     }
 }
 
-function moveItemsInArray(contentArray: Array<unknown | undefined>, start: number, subArraySize: number): void{
-    for (let i = start + subArraySize; i > start; i--) {
-        for (let j = start + 2 * subArraySize; j > start + subArraySize; j--) {
-            if (contentArray[j] === undefined) {
-                contentArray[j] = contentArray[i];
-                contentArray[i] = undefined;
-                break;
-            }
+function moveItemsInArray(contentArray: Array<unknown | undefined>): void{
+    for (let i = 1; i < contentArray.size(); i++) {
+        if (contentArray[i - 1] === undefined) {
+            contentArray[i - 1] = contentArray[i];
+            contentArray[i] = undefined;
         }
     }
 }
 
-function transferContent(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>): Array<unknown | undefined> {
-    for (let i = nextArray.size(); i > nextArray.size() - previousArray.size(); i--) {
-        if (previousArray[i] !== undefined) {
-            nextArray[i] = previousArray[i];
+function transferContent(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, nextArraySize: number): Array<unknown | undefined> {
+    for (let i = 0; i < previousArray.size(); i++) {
+        const lastElementIndex = nextArraySize - 1 - i;
+        if (previousArray[i] !== undefined && nextArray[lastElementIndex] === undefined) {
+            nextArray[lastElementIndex] = previousArray[i];
             previousArray[i] = undefined;
         }
     }
@@ -45,10 +43,13 @@ function copySegment(array: Array<unknown | undefined>, start: number, finish: n
     return segment;
 }
 
-// take [start...end] from array
+/**
+ * take [start...end] from array
+ * @returns the array removed
+ */
 function removeSegment(array: Array<unknown | undefined>, start: number, finish: number): Array<unknown | undefined> {
-    let removedSegment = new Array<unknown | undefined>(finish - start, undefined);
-    for (let i = finish; i > start; i--) {
+    let removedSegment = new Array<unknown | undefined>(finish - start + 1, undefined);
+    for (let i = finish; i >= start; i--) {
         removedSegment[i] = array[i];
         array[i] = undefined;
     }

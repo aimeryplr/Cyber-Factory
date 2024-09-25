@@ -1,6 +1,6 @@
 import Entity from "../../Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { addSegment, moveItemsInArray, transferContent } from "../conveyerUtils";
+import { addSegment, moveItemsInArray, removeSegment, transferContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 
@@ -21,20 +21,24 @@ class Conveyer extends TileEntity {
     /**
      * move all items on the conveyer
      */
-    tick(tileEntity: TileEntity): void {
-        // send the item to the next gridEntity
-        if (tileEntity.outputTiles[0] !== undefined) {
-            addSegment(this.content, tileEntity.outputTiles[0].addEntity(this.content), MAX_CONTENT - tileEntity.speed);
-        };
+    tick(dt: number): void {
+        this.progression += this.speed * dt;
+        if (this.progression >= 10) {
+            // send the item to the next gridEntity
+            if (this.outputTiles[0] !== undefined) {
+                this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+            };
 
-        // move all the items by the speed amount
-        for (let i = MAX_CONTENT; i > 0; i--) {
-            moveItemsInArray(this.content, i - tileEntity.speed, tileEntity.speed);
+            // move all the items by the speed amount
+            for (let i = MAX_CONTENT; i > 0; i--) {
+                moveItemsInArray(this.content);
+            }
+            this.progression = 0;
         }
     }
 
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        const transferdEntities = transferContent(entities, this.content) as Array<Entity | undefined>;
+        const transferdEntities = transferContent(entities, this.content, MAX_CONTENT) as Array<Entity | undefined>;
         return transferdEntities;
     }
 
@@ -56,14 +60,13 @@ class Conveyer extends TileEntity {
                 const turningConveyer = findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);
     
                 setupObject(turningConveyer, this.getGlobalPosition(gridBase), this.getOrientation() + (isTurningLeft ? 0 : math.pi / 2), gridBase);
-            }
-        } else {
-            const isAlreadyStraightConveyer = conveyerBasepart?.Name === this.name;
-            if (!isAlreadyStraightConveyer) {
-                conveyerBasepart?.Destroy();
-                const newPart = findBasepartByName((this.name) as string)
-                print(newPart)
-                setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
+            } else {
+                const isAlreadyStraightConveyer = conveyerBasepart?.Name === this.name;
+                if (!isAlreadyStraightConveyer) {
+                    conveyerBasepart?.Destroy();
+                    const newPart = findBasepartByName((this.name) as string)
+                    setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
+                }
             }
         }
     }

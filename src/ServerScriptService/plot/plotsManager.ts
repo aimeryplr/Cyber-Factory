@@ -37,8 +37,8 @@ class PlotsManager {
     }
 
     private setupUpdate() {
-        RunService.Heartbeat.Connect(() => {
-            this.plots.forEach(plot => plot.update());
+        RunService.Heartbeat.Connect((dt) => {
+            this.plots.forEach(plot => plot.update(dt));
         });
     }
 
