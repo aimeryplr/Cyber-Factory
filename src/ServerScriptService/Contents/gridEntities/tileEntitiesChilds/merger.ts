@@ -1,6 +1,6 @@
 import Entity from "../../Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { addSegment, moveItemsInArray, removeSegment, transferContent } from "../conveyerUtils";
+import { addSegment, moveItemsInArray, removeSegment, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 
@@ -21,29 +21,29 @@ class Merger extends TileEntity {
     /**
      * move all items on the conveyer
      */
-    tick(dt: number): void {
-        this.progression += this.speed * dt;
-        if (this.progression >= 10) {
+    tick(progress: number): void {
+        if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined) {
                 this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
             };
 
             // move all the items by the speed amount
-            for (let i = MAX_CONTENT; i > 0; i--) {
-                moveItemsInArray(this.content);
-            }
-            this.progression = 0;
+            moveItemsInArray(this.content);
         }
+        this.lastProgress = this.getProgress(progress);
     }
 
+    /**
+     * Adds entity to the content array and choose a free place depending of the number of connected tile entities
+     */
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        const transferdEntities = transferContent(entities, this.content, MAX_CONTENT) as Array<Entity | undefined>;
+        const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), 6) as Array<Entity | undefined>;
         return transferdEntities;
     }
 
     updateShape(gridBase: BasePart): void {
-        const newTileName = this.getNewTileName();
+        const newTileName = this.getBasepartName();
         const partToChange = this.findThisPartInWorld(gridBase);
         if (partToChange && partToChange.Name === newTileName) return;
 
@@ -52,7 +52,7 @@ class Merger extends TileEntity {
         setupObject(mergerPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
     }
 
-    private getNewTileName(): string {
+    private getBasepartName(): string {
         const mergerPartName = "merger_" + (this.name as string).split("_")[1];
         if (this.inputTiles.size() === 3) return mergerPartName + "+";
         if (this.inputTiles.filter((neighbourTile) => neighbourTile.direction === this.direction).size() === 0) return mergerPartName + "T";

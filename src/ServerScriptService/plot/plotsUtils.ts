@@ -16,8 +16,8 @@ function setAllNeighbourTypeConveyer(tileEntity: TileEntity, tileGrid: TileGrid)
         changeNeighbourTypeConveyer(tileEntity, neighbourTile, direction, tileGrid);
         
         if (tileEntity instanceof Conveyer) {
-            if (tileEntity.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) outputCount++
-            else if (tileEntity.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) inputCount++
+            if (tileEntity.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) inputCount++
+            else if (neighbourTile.direction !== direction.mul(-1) && neighbourTile.hasEnoughInput()) outputCount++
         }       
     }
     if (inputCount > 1) switchTileEntityType(tileEntity, "merger", tileGrid);
@@ -28,14 +28,14 @@ function setAllNeighbourTypeConveyer(tileEntity: TileEntity, tileGrid: TileGrid)
  * @param direction from the tileEntity to the neighbour
  */
 function changeNeighbourTypeConveyer(tileEntity: TileEntity, neighbour: TileEntity, direction: Vector2, tileGrid: TileGrid): void {
-    if (neighbour.category === "conveyer" && tileEntity.direction !== neighbour.direction.mul(-1)) {
+    if (neighbour.category === "conveyer" && (tileEntity.direction !== neighbour.direction.mul(-1) && tileEntity.direction !== direction)) {
         const willBeMerger = neighbour.inputTiles.size() === 1 && neighbour.canConnectInput(tileEntity, direction.mul(-1));
-        const willBeSplitter = neighbour.outputTiles.size() === 1 && neighbour.canConnectOutput(tileEntity, direction.mul(-1));
-        if (willBeSplitter) {
-            switchTileEntityType(neighbour, "splitter", tileGrid);
-        } else if (willBeMerger) {
+        const willBeSplitter = neighbour.outputTiles.size() === 1 && tileEntity.direction === direction.mul(-1) ;
+        if (willBeMerger) {
             switchTileEntityType(neighbour, "merger", tileGrid);
-        }
+        } else if (willBeSplitter) {
+            switchTileEntityType(neighbour, "splitter", tileGrid);
+        }  
     }
     else {
         if (neighbour.category === "splitter" && neighbour.outputTiles.size() === 1) switchTileEntityType(neighbour, "conveyer", tileGrid);
@@ -45,10 +45,8 @@ function changeNeighbourTypeConveyer(tileEntity: TileEntity, neighbour: TileEnti
 
 function switchTileEntityType(tileEntity: TileEntity, tileCategory: string, tileGrid: TileGrid) {
     removeAllTileFromAllConnectedTiles(tileEntity);
-    print(tileGrid.tileGrid);
     const newTile = changeType(tileEntity, tileCategory);
     connectTileEntityToAllInputsAndOutputs(newTile);
-    print(tileGrid.tileGrid);
 
     tileGrid.removeTile(tileEntity);
     tileGrid.addTile(newTile);

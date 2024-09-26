@@ -11,10 +11,10 @@ abstract class TileEntity extends Tile {
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
 
-    progression: number;
-
     maxInputs: number;
     maxOutputs: number;
+
+    lastProgress: number = 0;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number) {
         super(name, position, size);
@@ -26,10 +26,13 @@ abstract class TileEntity extends Tile {
         this.maxOutputs = maxOutputs;
         this.inputTiles = new Array<TileEntity>(this.maxInputs);
         this.outputTiles = new Array<TileEntity>(this.maxOutputs);
-        this.progression = 0;
     }
 
-    abstract tick(dt: number): void;
+    /**
+     * called each heartbeat
+     * @param progression seconds ellapsed till the last 10 seconds
+     */
+    abstract tick(progression: number): void;
 
     /**
      * send an entity to the next GridEntity
@@ -78,7 +81,6 @@ abstract class TileEntity extends Tile {
         if (this.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) {
             this.inputTiles.push(neighbourTile);
             neighbourTile.setOutput(this);
-            print(neighbourTile)
         }
     }
 
@@ -125,6 +127,7 @@ abstract class TileEntity extends Tile {
     }
 
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
+        if (neighbourTile.category === "splitter") return this.direction === neighbourTileDirection.mul(-1)
         return neighbourTile.direction === neighbourTileDirection.mul(-1)
     }
 
@@ -134,6 +137,10 @@ abstract class TileEntity extends Tile {
 
     getGlobalPosition(gridBase: BasePart): Vector3 {
         return this.position.add(gridBase.Position).sub(new Vector3(0, gridBase.Size.Y / 2, 0))
+    }
+
+    getProgress(progress: number): number {
+        return (progress * this.speed) % 1;
     }
 }
 

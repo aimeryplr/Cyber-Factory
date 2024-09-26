@@ -3,10 +3,12 @@ import { RunService } from "@rbxts/services";
 
 class PlotsManager {
     private plots: Array<Plot>;
+    private progress: number;
 
     constructor() {
         this.plots = new Array<Plot>();
         this.init();
+        this.progress = 0;
     }
 
     private init() {
@@ -38,8 +40,12 @@ class PlotsManager {
 
     private setupUpdate() {
         RunService.Heartbeat.Connect((dt) => {
-            this.plots.forEach(plot => plot.update(dt));
+            this.incrementProgress(dt);
+            this.plots.forEach(plot => plot.update(this.progress));
         });
+    }
+    incrementProgress(dt: number) {
+        this.progress = (this.progress + dt) % 10;
     }
 
     private retrievePlots() {

@@ -126,6 +126,7 @@ class PlacementHandler {
     }
 
     activatePlacing(obj: BasePart) {
+        print(this.currentTile)
         if (this.placementStatus !== placementType.NONE) this.resetMode();
         this.currentTile = obj.Clone();
         if(!this.currentTile) error("Object not found");
@@ -145,19 +146,14 @@ class PlacementHandler {
         this.targetPos = undefined;
         this.size = undefined;
         this.currentTile?.Destroy();
+        this.currentTile = undefined;
     }
 
     placeObject() {
         if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
         if (placeTileCheck.InvokeServer(this.currentTile.Name, this.targetPos, -this.rotation , this.size, this.gridBase)) {
-            this.desactivatePlacing();
+            this.resetMode();
         }
-    }
-
-    desactivatePlacing() {
-        if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
-        this.currentTile.Destroy();
-        this.resetMode();
     }
 
     setupDestroying() {
@@ -199,7 +195,7 @@ class PlacementHandler {
 
     activateDestroying() {
         if (this.placementStatus === placementType.DESTROYING) return;
-        if (this.placementStatus === placementType.PLACING) this.desactivatePlacing();
+        if (this.placementStatus === placementType.PLACING) this.resetMode();
         this.placementStatus = placementType.DESTROYING;
 
         this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionTile")?.Clone() as SelectionBox;

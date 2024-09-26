@@ -16,20 +16,18 @@ class Generator extends TileEntity {
         this.ressource = RessourceType.Copper;
     }
 
-    tick(dt: number): void {
+    tick(progress: number): void {
         if (!this.ressource) return;
 
         // send the ressource if the item is not full
-        if (this.progression >= 1) {
+        if (this.getProgress(progress) < this.lastProgress) {
             if (this.outputTiles[0] !== undefined) {
                 const ressource = new Ressource(this.ressource, this.ressource);
                 const ressourceToTransfer = new Array<Entity>(1, ressource);
-                const outpoutedRessource = this.outputTiles[0].addEntity(ressourceToTransfer);
-                this.progression = 0;
+                this.outputTiles[0].addEntity(ressourceToTransfer);
             }
-        } else {
-            this.progression += this.speed * dt;
         }
+        this.lastProgress = this.getProgress(progress);
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {

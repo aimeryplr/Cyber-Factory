@@ -15,12 +15,32 @@ function moveItemsInArray(contentArray: Array<unknown | undefined>): void{
     }
 }
 
-function transferContent(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, nextArraySize: number): Array<unknown | undefined> {
+function transferArrayContent(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, nextArraySize: number): Array<unknown | undefined> {
     for (let i = 0; i < previousArray.size(); i++) {
         const lastElementIndex = nextArraySize - 1 - i;
         if (previousArray[i] !== undefined && nextArray[lastElementIndex] === undefined) {
             nextArray[lastElementIndex] = previousArray[i];
             previousArray[i] = undefined;
+        }
+    }
+    return previousArray;
+}
+
+/**
+ * transfer the content of the array to the next array on the last index
+ * @param range where the content will be transfered
+ * @satisfies {range} < {nextArraysSize}
+ * @returns the previous array without the content transfered
+ */
+function transferArrayContentToArrayPart(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, range: number, nextArraySize: number): Array<unknown | undefined> {
+    for (let i = 0; i < previousArray.size(); i++) {
+        for (let k = nextArraySize - 1; k >= nextArraySize - 1 - range; k--) {
+            print(k);
+            if (nextArray[k] === undefined) {
+                nextArray[k] = previousArray[i];
+                previousArray[i] = undefined;
+                break;
+            }
         }
     }
     return previousArray;
@@ -63,4 +83,4 @@ function addSegment(array: Array<unknown | undefined>, segment: Array<unknown | 
     }
 }
 
-export { appendInputTiles, moveItemsInArray, transferContent, copySegment, removeSegment, addSegment, copyArray };
+export { appendInputTiles, moveItemsInArray, transferArrayContent, copySegment, removeSegment, addSegment, copyArray, transferArrayContentToArrayPart };
