@@ -1,14 +1,16 @@
-import Entity from "../../Entities/entity";
+import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { addSegment, moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
+import { moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { ReplicatedStorage } from "@rbxts/services";
 
 //Setings
 const MAX_CONTENT = 6;
 const MAX_INPUTS = 1; // help to upgrade to merger or splitter
 const MAX_OUTPUTS = 1; // help to upgrade to merger or splitter
 const category: string = "conveyer";
+const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;
 
 class Conveyer extends TileEntity {
     //new array fill with undifined
@@ -30,6 +32,7 @@ class Conveyer extends TileEntity {
 
             // move all the items by the speed amount
             moveItemsInArray(this.content);
+            updateContentEvent.FireAllClients(this.copy());
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -67,6 +70,16 @@ class Conveyer extends TileEntity {
             const newPart = findBasepartByName((this.name) as string, this.category)
             setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
         }
+    }
+
+    copy(): Conveyer {
+        const newConveyer = new Conveyer(this.name, this.position, this.size, this.direction, this.speed);
+        newConveyer.content = this.content;
+        return newConveyer;
+    }
+
+    getMaxContent(): number {
+        return MAX_CONTENT;
     }
 }
 

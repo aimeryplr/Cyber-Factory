@@ -1,8 +1,8 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
-import { findBasepartByName } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
-import { getGridEntityInformation, getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
+import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { getGridEntityInformation, getTileEntityByCategory } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 
 const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;

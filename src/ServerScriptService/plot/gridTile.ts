@@ -1,5 +1,5 @@
 import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
-import Tile from "ServerScriptService/Contents/gridEntities/tile";
+import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 
 class TileGrid {
     tileGrid: Array<Array<Tile | undefined>>;

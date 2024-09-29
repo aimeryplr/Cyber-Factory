@@ -1,6 +1,6 @@
-import Entity from "../../Entities/entity";
+import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { addSegment, moveItemsInArray, removeSegment, transferArrayContentToArrayPart } from "../conveyerUtils";
+import { moveItemsInArray, removeSegment, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 

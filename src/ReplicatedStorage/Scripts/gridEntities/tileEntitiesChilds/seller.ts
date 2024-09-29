@@ -1,4 +1,4 @@
-import Entity from "../../Entities/entity";
+import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 
 // Settings

@@ -1,6 +1,6 @@
-import Entity from "../../Entities/entity";
-import Ressource from "../../Entities/ressource";
-import RessourceType from "../../Entities/ressourceEnum";
+import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
+import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import RessourceType from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
 import { TileEntity } from "../tileEntity";
 
 // Settings

@@ -1,5 +1,5 @@
-import TileGrid from "ServerScriptService/plot/gridTile";
-import Entity from "../Entities/entity";
+import type TileGrid from "ServerScriptService/plot/gridTile";
+import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Tile from "./tile";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]

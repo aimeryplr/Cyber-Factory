@@ -35,6 +35,9 @@
 				},
 				"removeTile": {
 					"$className": "RemoteEvent"
+				},
+				"conveyerContentUpdate": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

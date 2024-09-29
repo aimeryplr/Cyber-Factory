@@ -1,10 +1,10 @@
-import { appendInputTiles } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
-import { TileEntity } from "ServerScriptService/Contents/gridEntities/tileEntity";
-import Tile from "ServerScriptService/Contents/gridEntities/tile";
-import Seller from "ServerScriptService/Contents/gridEntities/tileEntitiesChilds/seller";
+import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/conveyerUtils";
+import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
+import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
+import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import TileGrid from "./gridTile";
 import { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
-import { removeAllTileFromAllConnectedTiles } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
+import { removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 
 
 /**

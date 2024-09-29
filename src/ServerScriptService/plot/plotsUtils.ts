@@ -1,10 +1,10 @@
-import { TileEntity } from "ServerScriptService/Contents/gridEntities/tileEntity";
+import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import TileGrid from "./gridTile";
-import { copyArray } from "ServerScriptService/Contents/gridEntities/conveyerUtils";
-import { getTileEntityByCategory } from "ServerScriptService/Contents/gridEntities/tileEntityProvider";
-import { connectTileEntityToAllInputsAndOutputs, removeAllTileFromAllConnectedTiles } from "ServerScriptService/Contents/gridEntities/tileEntityUtils";
-import Conveyer from "ServerScriptService/Contents/gridEntities/tileEntitiesChilds/conveyer";
+import { copyArray } from "ReplicatedStorage/Scripts/gridEntities/conveyerUtils";
+import { getTileEntityByCategory } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
+import { connectTileEntityToAllInputsAndOutputs, removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 

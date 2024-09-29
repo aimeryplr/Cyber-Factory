@@ -1,6 +1,6 @@
-import componentList from "ServerScriptService/Contents/Entities/Components/componentsList";
+import componentList from "ReplicatedStorage/Scripts/Content/Entities/componentsList";
 import { ReplicatedStorage } from "@rbxts/services";
-import Component from "./Components/component";
+import Component from "./component";
 
 /*
 Function that return a map with the name, tier, buildRessources of a component :
@@ -31,13 +31,11 @@ function getComponentInformation(name: string, category?: string) {
     }
 }
 
-/*
-Function that find the roblox component from it information (get it with getComponentInformation)
-- componentInformation : { name: string, category: string, tier: number, buildRessources: Map<RessourceType, number> }
-
-return : Model
+/**
+*Function that find the roblox component from it information (get it with getComponentInformation)
+* @param componentInformation : { name: string, category: string, tier: number, buildRessources: Map<RessourceType, number> }
 */
-function getComponent(componentInformation: Component) {
+function getComponent(componentInformation: Component): BasePart | undefined {
     const model = ReplicatedStorage.FindFirstChild("components")?.FindFirstChild("pcComponents")?.FindFirstChild(componentInformation.category)?.FindFirstChild(componentInformation.name)?.Clone();
-    return model;
+    return model as BasePart;
 }

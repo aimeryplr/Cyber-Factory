@@ -1,5 +1,5 @@
-import Ressource from "../ressource";
-import Entity from "../entity";
+import Ressource from "./ressource";
+import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 
 /*
     PC Component got name, tier, ressource to craft:
@@ -18,7 +18,7 @@ class Component extends Entity {
 
         /* Higher is the quantity of ressources, higher is the price */
         const coefChiantitude: number = 1.5;
-        let chiantitude: number = 0; 
+        let chiantitude: number = 0;
 
         /* Higher is the tier of the component, higher is the price */
         const coefTier: number = 10;

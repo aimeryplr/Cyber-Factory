@@ -1,5 +1,5 @@
-import RessourceType from "../ressourceEnum";
-import Ressource from "ServerScriptService/Contents/Entities/ressource";
+import RessourceType from "./ressourceEnum";
+import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 
 // Déclaration des variables de ressource
 const copperResource = new Ressource("Copper", RessourceType.Copper);
