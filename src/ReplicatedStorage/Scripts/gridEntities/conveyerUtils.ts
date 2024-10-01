@@ -35,7 +35,6 @@ function transferArrayContent(previousArray: Array<unknown | undefined>, nextArr
 function transferArrayContentToArrayPart(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, range: number, nextArraySize: number): Array<unknown | undefined> {
     for (let i = 0; i < previousArray.size(); i++) {
         for (let k = nextArraySize - 1; k >= nextArraySize - 1 - range; k--) {
-            print(k);
             if (nextArray[k] === undefined) {
                 nextArray[k] = previousArray[i];
                 previousArray[i] = undefined;

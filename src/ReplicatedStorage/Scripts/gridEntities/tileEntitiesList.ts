@@ -3,7 +3,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["conveyer_t1", {
             name: "conveyer_t1",
             category: "conveyer",
-            speed: 0.1,
+            speed: 60,
             tier: 0,
             price: 10,
         }],

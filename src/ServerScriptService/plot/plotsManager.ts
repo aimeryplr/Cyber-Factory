@@ -45,7 +45,7 @@ class PlotsManager {
         });
     }
     incrementProgress(dt: number) {
-        this.progress = (this.progress + dt) % 10;
+        this.progress = (this.progress + dt) % 1000;
     }
 
     private retrievePlots() {

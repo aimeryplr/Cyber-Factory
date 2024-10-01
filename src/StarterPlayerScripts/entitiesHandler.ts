@@ -1,6 +1,5 @@
-import { ReplicatedStorage } from "@rbxts/services";
-import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
-import RessourceType from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
+import { ReplicatedStorage, TweenService } from "@rbxts/services";
+import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 
 const offset = 0.5;
@@ -19,18 +18,23 @@ class EntitiesHandler {
     updateConveyerEntities(conveyer: Conveyer) {
         const newConveyer = new Conveyer(conveyer.name, conveyer.position, conveyer.size, conveyer.direction, conveyer.speed);
         newConveyer.content = conveyer.content
-        print(newConveyer.content, this.conveyers.get(conveyer.position)?.content)
         for (let i = 0; i < newConveyer.getMaxContent(); i++) {
             this.moveEntity(newConveyer, i);
         }
-        print(newConveyer.content, this.conveyers.get(conveyer.position)?.content)
         this.conveyers.set(conveyer.position, newConveyer);
     }
 
     moveEntity(conveyer: Conveyer, i: number) {
-        print("moveEntity");
-        const oldConveyer = this.conveyers.get(conveyer.position);
+        let oldConveyer = this.conveyers.get(conveyer.position);
         const maxSize = conveyer.getMaxContent();
+
+        // setup the oldConveyer with an empty content
+        if (!oldConveyer) {
+            oldConveyer = conveyer.copy();
+            oldConveyer.content = new Array<Entity | undefined>(maxSize, undefined);
+            this.conveyers.set(conveyer.position, oldConveyer);
+            this.entitiesBaseparts.set(oldConveyer.position, new Array<BasePart | undefined>(maxSize, undefined));
+        }
 
         if (oldConveyer) {
             if (i === 0) {
@@ -40,17 +44,11 @@ class EntitiesHandler {
             } else {
                 this.moveEntityInConveyer(i, conveyer);
             }
-        } else {
-            this.conveyers.set(conveyer.position, conveyer);
-            this.entitiesBaseparts.set(conveyer.position, new Array<BasePart | undefined>(conveyer.getMaxContent(), undefined));
-            this.moveEntity(conveyer, maxSize - 1);
         }
     }
 
     spawnEntity(conveyer: Conveyer, oldConveyer: Conveyer) {
-        print("spawnEntity");
         const lastIndex = conveyer.getMaxContent() - 1;
-        print(oldConveyer.content[lastIndex], conveyer.content[lastIndex])
         if (oldConveyer.content[lastIndex] === conveyer.content[lastIndex]) return;
         const entity = ReplicatedStorage.WaitForChild("Entities").WaitForChild("copper").Clone() as BasePart;
         const entitiesBaseparts = this.entitiesBaseparts.get(conveyer.position)
@@ -58,42 +56,43 @@ class EntitiesHandler {
 
         entitiesBaseparts[lastIndex] = entity;
         entity.Parent = this.gridBase.WaitForChild("Entities");
-        entity.Position = conveyer.getGlobalPosition(this.gridBase).add(new Vector3(offset * -3, 1.5, 0));
+        entity.Position = getNewEntityPostion(conveyer, this.gridBase, lastIndex + 1);
+        this.lerpEntity(entity, lastIndex, conveyer);
     }
     
     moveEntityInConveyer(i: number, conveyer: Conveyer) {
-        print("moveEntityInConveyer");
         const conveyerEntitiesBaseparts = this.entitiesBaseparts.get(conveyer.position);
-        const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[0] : undefined;
+        const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[i + 1] : undefined;
         if (!conveyerEntitiesBaseparts || !currentBasePart) return;
-        
         swapArrayElements(conveyerEntitiesBaseparts, i, i + 1);
         this.lerpEntity(currentBasePart, i, conveyer);
     }
 
     moveEntityToNextConveyer(conveyer: Conveyer, oldConveyer: Conveyer) {
-        print("moveEntityToNextConveyer");
         const nextConveyer = conveyer.outputTiles[0];
         const maxSize = conveyer.getMaxContent();
         const conveyerEntitiesBaseparts = this.entitiesBaseparts.get(conveyer.position);
-        const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[0] : undefined;
+        const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[1] : undefined;
 
+        // destroy the entity if the next conveyer is not a conveyer
         if ((!nextConveyer || !(nextConveyer instanceof Conveyer)) && conveyerEntitiesBaseparts && currentBasePart) {
-            const newPos = conveyer.getGlobalPosition(this.gridBase).add(new Vector3(offset * 3, 1.5, 0));
-            currentBasePart.CFrame.Lerp(new CFrame(new Vector3(1.5, 1.5, 0)), 0.1);
+            this.lerpEntity(currentBasePart, 0, conveyer);
             // launch a couroutine to destroy the entity
             const destroying = coroutine.create((currentBasePart: BasePart) => {
-                wait(0.2);
+                wait(60 / (conveyer.getAbsoluteSpeed()));
                 currentBasePart.Destroy();
             });
-            coroutine.resume(destroying);
+            coroutine.resume(destroying, currentBasePart);
             conveyerEntitiesBaseparts[0] = undefined;
             return;
         }
+
+        // check if has to move the entity to the next conveyer
         if (oldConveyer.content[0] === undefined || !(oldConveyer.outputTiles[0] instanceof Conveyer) || !(nextConveyer instanceof Conveyer)) return;
         const hasLastEntityOnNextConveyerNotMoved = oldConveyer.outputTiles[0] instanceof Conveyer && nextConveyer.content[maxSize - 1] === oldConveyer.outputTiles[0].content[maxSize - 1]
         if (hasLastEntityOnNextConveyerNotMoved) return;
 
+        // move the entity to the next conveyer
         if (nextConveyer.content[maxSize - 1] === oldConveyer.content[0]) {
             const nextConveyerEntitiesBaseparts = this.entitiesBaseparts.get(nextConveyer.position);
             if (!nextConveyerEntitiesBaseparts) error("lastConveyerEntitiesBaseparts is undefined");
@@ -107,8 +106,10 @@ class EntitiesHandler {
     }
 
     lerpEntity(basepart: BasePart | undefined, index: number, conveyer: Conveyer) {
-        const newPos = conveyer.getGlobalPosition(this.gridBase).add(new Vector3(offset * (index - 3), 1.5, 0));
-        basepart?.CFrame.Lerp(new CFrame(newPos), 0.1);
+        if (!basepart) error("basepart is undefined");
+        const itemPerMinutes = 60 / conveyer.getAbsoluteSpeed()
+        const tween = TweenService.Create(basepart, new TweenInfo(itemPerMinutes, Enum.EasingStyle.Linear), { Position: getNewEntityPostion(conveyer, this.gridBase, index) });
+        tween.Play();
     }
 }
 
@@ -118,4 +119,8 @@ function swapArrayElements(array: Array<unknown | undefined>, index1: number, in
     const temp = array[index1];
     array[index1] = array[index2];
     array[index2] = temp;
+}
+
+function getNewEntityPostion(conveyer: Conveyer, gridBase: BasePart, index: number): Vector3 {
+    return conveyer.getGlobalPosition(gridBase).add(new Vector3(conveyer.direction.X * offset * (3 - index), 0.7, conveyer.direction.Y * offset * (3 - index)));
 }

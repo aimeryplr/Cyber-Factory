@@ -28,7 +28,7 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
 		plot.addGridTile(tileEntity, player.UserId);
 	}
-	print(plot.getGridTiles().tileGrid);
+	// print(plot.getGridTiles().tileGrid);
 	return isPlaceable;
 };
 
@@ -37,7 +37,7 @@ removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => 
 	if (!plot) return;
 
 	plot.removeGridTile(tile as BasePart);
-	print(plot.getGridTiles().tileGrid);
+	// print(plot.getGridTiles().tileGrid);
 })
 
 

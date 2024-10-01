@@ -28,7 +28,7 @@ function setAllNeighbourTypeConveyer(tileEntity: TileEntity, tileGrid: TileGrid)
  * @param direction from the tileEntity to the neighbour
  */
 function changeNeighbourTypeConveyer(tileEntity: TileEntity, neighbour: TileEntity, direction: Vector2, tileGrid: TileGrid): void {
-    if (neighbour.category === "conveyer" && (tileEntity.direction !== neighbour.direction.mul(-1) && tileEntity.direction !== direction)) {
+    if (neighbour.category === "conveyer" && tileEntity.direction !== neighbour.direction.mul(-1)) {
         const willBeMerger = neighbour.inputTiles.size() === 1 && neighbour.canConnectInput(tileEntity, direction.mul(-1));
         const willBeSplitter = neighbour.outputTiles.size() === 1 && tileEntity.direction === direction.mul(-1) ;
         if (willBeMerger) {

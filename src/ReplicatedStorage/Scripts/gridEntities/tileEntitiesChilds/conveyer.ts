@@ -25,6 +25,8 @@ class Conveyer extends TileEntity {
      */
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
+            updateContentEvent.FireAllClients(this.copy());
+
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined) {
                 this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
@@ -32,7 +34,6 @@ class Conveyer extends TileEntity {
 
             // move all the items by the speed amount
             moveItemsInArray(this.content);
-            updateContentEvent.FireAllClients(this.copy());
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -80,6 +81,10 @@ class Conveyer extends TileEntity {
 
     getMaxContent(): number {
         return MAX_CONTENT;
+    }
+
+    getAbsoluteSpeed(): number {
+        return this.speed + 5;
     }
 }
 

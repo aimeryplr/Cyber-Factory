@@ -140,7 +140,7 @@ abstract class TileEntity extends Tile {
     }
 
     getProgress(progress: number): number {
-        return (progress * this.speed) % 1;
+        return (progress * ((this.speed + 5) / 60)) % 1;
     }
 }
 
