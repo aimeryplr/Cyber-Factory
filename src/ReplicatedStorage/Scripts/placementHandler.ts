@@ -139,14 +139,14 @@ class PlacementHandler {
     }
 
     resetMode() {
-        this.placementStatus = placementType.NONE;
         RunService.UnbindFromRenderStep("place");
         RunService.UnbindFromRenderStep("destroy");
         this.rotation = 0;
         this.targetPos = undefined;
         this.size = undefined;
-        this.currentTile?.Destroy();
+        if (this.placementStatus === placementType.PLACING) this.currentTile?.Destroy()
         this.currentTile = undefined;
+        this.placementStatus = placementType.NONE;
     }
 
     placeObject() {
@@ -165,7 +165,7 @@ class PlacementHandler {
         if (hit && hit.Instance && hit.Instance.Parent === this.placedObjects) {
             if (hit.Instance !== this.currentTile) {
                 this.currentTile = hit.Instance;
-                this.setupDestroySelectionTile(hit.Instance);
+                this.setupDestroySelectionBox(hit.Instance);
             }
         } else {
             this.currentTile = undefined;
@@ -186,7 +186,7 @@ class PlacementHandler {
         this.selectionTile.Adornee = undefined;
     }
 
-    setupDestroySelectionTile(hit: BasePart) {
+    setupDestroySelectionBox(hit: BasePart) {
         if (this.selectionTile === undefined) error("Selection tile not initialized");
         this.selectionTile.Visible = true;
         this.selectionTile.Parent = hit;

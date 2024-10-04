@@ -51,7 +51,7 @@ class Conveyer extends TileEntity {
         const conveyerBasepart = this.findThisPartInWorld(gridBase);
 
         if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity && this.inputTiles[0].category !== "splitter") {
-            const isTurningConveyer = math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
+            const isTurningConveyer = this.isTurning();
             const isAlreadyTurningConveyer = conveyerBasepart?.Name.match('/T|TR/') !== undefined;
 
             if (isTurningConveyer && !isAlreadyTurningConveyer) {
@@ -71,6 +71,10 @@ class Conveyer extends TileEntity {
             const newPart = findBasepartByName((this.name) as string, this.category)
             setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
         }
+    }
+
+    isTurning() {
+        return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
     }
 
     copy(): Conveyer {
