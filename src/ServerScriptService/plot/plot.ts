@@ -3,9 +3,12 @@ import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import TileGrid from "./gridTile";
-import { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
+import { changeShapes, getPlayerFromUserId, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
 import { removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
+import { ReplicatedStorage } from "@rbxts/services";
 
+const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 
 /**
  * holds all classes of the player's plot
@@ -97,6 +100,7 @@ class Plot {
 		if (tile === undefined) error("Tile not found when removing it");
 
 		if (tile instanceof TileEntity) {
+			if (tile instanceof Conveyer && this.owner) destroyConveyerEvent.FireClient(getPlayerFromUserId(this.owner), tile.copy());
 			this.removeConectedTiles(tile);
 			setAllNeighbourTypeConveyer(tile, this.tileGrid);
 			resetBeamsOffset(this.gridBase);

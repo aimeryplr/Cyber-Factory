@@ -11,9 +11,9 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
     entitiesHandler = new EntitiesHandler(gridBase);
 });
 
-conveyerContentUpdate.OnClientEvent.Connect((conveyer: Conveyer) => {
+conveyerContentUpdate.OnClientEvent.Connect((conveyer: Conveyer, previousConveyerPos?: Vector3) => {
     if (entitiesHandler) {
-        entitiesHandler.updateConveyerEntities(conveyer);
+        entitiesHandler.updateConveyerEntities(conveyer, previousConveyerPos);
     }
 });
 

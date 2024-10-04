@@ -38,6 +38,9 @@
 				},
 				"conveyerContentUpdate": {
 					"$className": "RemoteEvent"
+				},
+				"destroyConveyer": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

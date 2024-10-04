@@ -15,6 +15,7 @@ const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild
 class Conveyer extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
+    isTurning = false;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -25,13 +26,14 @@ class Conveyer extends TileEntity {
      */
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
-            updateContentEvent.FireAllClients(this.copy());
-
+            updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].position : undefined);
+            
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined) {
                 this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
             };
-
+            
+            
             // move all the items by the speed amount
             moveItemsInArray(this.content);
         }
@@ -51,7 +53,7 @@ class Conveyer extends TileEntity {
         const conveyerBasepart = this.findThisPartInWorld(gridBase);
 
         if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity && this.inputTiles[0].category !== "splitter") {
-            const isTurningConveyer = this.isTurning();
+            const isTurningConveyer = this.getIsTurning();
             const isAlreadyTurningConveyer = conveyerBasepart?.Name.match('/T|TR/') !== undefined;
 
             if (isTurningConveyer && !isAlreadyTurningConveyer) {
@@ -73,13 +75,17 @@ class Conveyer extends TileEntity {
         }
     }
 
-    isTurning() {
-        return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
+    
+
+    getIsTurning() {
+        if (this.inputTiles.isEmpty()) return false;
+        return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);       
     }
 
     copy(): Conveyer {
         const newConveyer = new Conveyer(this.name, this.position, this.size, this.direction, this.speed);
         newConveyer.content = this.content;
+        newConveyer.isTurning = this.getIsTurning();
         return newConveyer;
     }
 

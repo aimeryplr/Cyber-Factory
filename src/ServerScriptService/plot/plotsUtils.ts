@@ -86,4 +86,10 @@ function resetBeamsOffset(gridBase: BasePart): void {
     });
 }
 
-export { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer };
+function getPlayerFromUserId(userId: number): Player {
+    const player = Players.GetPlayerByUserId(userId);
+    if (!player) error("Player not found");
+    return player
+}
+
+export { changeShapes, resetBeamsOffset, setAllNeighbourTypeConveyer, getPlayerFromUserId };
