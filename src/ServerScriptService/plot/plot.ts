@@ -20,6 +20,9 @@ class Plot {
 	private tileGrid: TileGrid;
 	private sellers = new Array<TileEntity>();
 
+	// this is use to determine the order to add the input tiles when updating
+	private count = 0;
+
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
 		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(gridBase.Size));

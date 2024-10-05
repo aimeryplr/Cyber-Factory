@@ -26,6 +26,15 @@ function transferArrayContent(previousArray: Array<unknown | undefined>, nextArr
     return previousArray;
 }
 
+function addBackContent(previousArray: Array<unknown | undefined>, nextArray: Array<unknown | undefined>, nextArraySize: number): Array<unknown | undefined> {
+    for (let i = 0; i < previousArray.size(); i++) {
+        if (previousArray[i] !== undefined && nextArray[i] === undefined) {
+            nextArray[i] = previousArray[i];
+        }
+    }
+    return previousArray;
+}
+
 /**
  * transfer the content of the array to the next array on the last index
  * @param range where the content will be transfered
@@ -82,4 +91,4 @@ function addSegment(array: Array<unknown | undefined>, segment: Array<unknown | 
     }
 }
 
-export { appendInputTiles, moveItemsInArray, transferArrayContent, copySegment, removeSegment, addSegment, copyArray, transferArrayContentToArrayPart };
+export { appendInputTiles, moveItemsInArray, transferArrayContent, copySegment, removeSegment, addSegment, copyArray, transferArrayContentToArrayPart, addBackContent };

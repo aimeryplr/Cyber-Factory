@@ -30,6 +30,7 @@ class Merger extends TileEntity {
 
             // move all the items by the speed amount
             moveItemsInArray(this.content);
+            this.shiftInputOrder();
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -38,7 +39,7 @@ class Merger extends TileEntity {
      * Adds entity to the content array and choose a free place depending of the number of connected tile entities
      */
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), 6) as Array<Entity | undefined>;
+        const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), MAX_CONTENT) as Array<Entity | undefined>;
         return transferdEntities;
     }
 
@@ -60,6 +61,14 @@ class Merger extends TileEntity {
         const sideConveyer = this.inputTiles.filter((neighbourTile) => neighbourTile.direction !== this.direction)[0];
         if (sideConveyer.direction.X === -this.direction.Y && sideConveyer.direction.Y === this.direction.X) return mergerPartName + "L";
         return mergerPartName + "LR";
+    }
+
+    private shiftInputOrder(): void {
+        const lastInput = this.inputTiles[this.inputTiles.size() - 1];
+        for (let i = 1; i < this.inputTiles.size(); i++) {
+            this.inputTiles[i] = this.inputTiles[i - 1];
+        }
+        this.inputTiles[0] = lastInput;
     }
 }
 

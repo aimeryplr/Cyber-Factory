@@ -1,6 +1,6 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
+import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import { ReplicatedStorage } from "@rbxts/services";
@@ -26,23 +26,35 @@ class Conveyer extends TileEntity {
      */
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
-            updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].position : undefined);
             
             // send the item to the next gridEntity
-            if (this.outputTiles[0] !== undefined) {
-                this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+            if (this.outputTiles[0] !== undefined && this.content[0] !== undefined) {
+                const arrayToAddBack = this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+                addBackContent(arrayToAddBack, this.content, MAX_CONTENT);
             };
-            
             
             // move all the items by the speed amount
             moveItemsInArray(this.content);
+            updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
         }
         this.lastProgress = this.getProgress(progress);
     }
-
+    
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
+        if (!(this.inputTiles[0] instanceof Conveyer)) this.setupIds(entities);
         const transferdEntities = transferArrayContent(entities, this.content, MAX_CONTENT) as Array<Entity | undefined>;
+        updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
         return transferdEntities;
+    }
+
+    setupIds(entities: (Entity | undefined)[]) {
+        let count = calulateId(this.content[4]?.id ?? 0)
+        for (const entity of entities) {
+            if (entity !== undefined) {
+                entity.id = count;
+                count = calulateId(count);
+            }
+        }
     }
 
     // to optimize with pooling
@@ -96,6 +108,10 @@ class Conveyer extends TileEntity {
     getAbsoluteSpeed(): number {
         return this.speed + 5;
     }
+}
+
+function calulateId(count: number) {
+    return (count + 1) % MAX_CONTENT;
 }
 
 export default Conveyer;
