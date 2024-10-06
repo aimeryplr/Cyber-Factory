@@ -2,48 +2,61 @@ import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { findBasepartByName } from "../tileEntityUtils";
-import { moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
+import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
+import Conveyer from "./conveyer";
+import TileGrid from "ServerScriptService/plot/gridTile";
 
 // Settings
 const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 3;
 const category: string = "splitter";
-const MAX_CONTENT: number = 6;
+const MAX_SIZE: number = 6;
 
 class Splitter extends TileEntity {
-    content: Array<Array<Entity | undefined>>;
-    flip = 0;
+    content: Array<Entity | undefined>;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-
-        this.content = new Array(3)
-        for (let i = 0; i < 3; i++) {
-            this.content[i] = new Array<Entity | undefined>(MAX_CONTENT, undefined);
-        }
+        this.content = new Array<Entity | undefined>(MAX_SIZE, undefined);
     }
 
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
-            for (let i = 0; i < this.outputTiles.size(); i++) {
-                if (this.outputTiles[i] !== undefined) {
-                    this.outputTiles[i].addEntity(removeSegment(this.content[i], 0, 0) as Array<Entity | undefined>);
-                };
+            for (const outputTile of this.outputTiles) {
+                const canOutpoutEntity = outputTile instanceof Conveyer && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined
+                if (!canOutpoutEntity) continue;
+
+                const arrayToAddBack = outputTile.addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+                addBackContent(arrayToAddBack, this.content, MAX_SIZE);
+                break;
             }
+            shiftOrder(this.outputTiles);
 
             // move all the items by the speed amount
-            for (let i = 0; i < 3; i++) {
-                moveItemsInArray(this.content[i]);
-            }
+            moveItemsInArray(this.content, MAX_SIZE);
         }
         this.lastProgress = this.getProgress(progress);
     }
 
     addEntity(entities: Array<Entity>): Array<Entity | undefined> {
-        const transferdEntities = transferArrayContent(entities, this.content[this.flip], MAX_CONTENT) as Array<Entity | undefined>;
-        this.incrementFlip();
+        const transferdEntities = transferArrayContent(entities, this.content, MAX_SIZE) as Array<Entity | undefined>;
         return transferdEntities;
+    }
+
+    setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
+        print(this.getAllNeighbours(tileGrid))
+        for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
+            if (this.direction === direction.mul(-1)) {
+                this.connectInput(neighbourTile, direction);
+            } else {
+                this.connectOutput(neighbourTile, direction);
+            }
+        }
+    };
+
+    canConnectOutput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
+        return neighbourTile.direction !== this.direction.mul(-1)
     }
 
     updateShape(gridBase: BasePart): void {
@@ -60,10 +73,6 @@ class Splitter extends TileEntity {
 
     private getBasepartName(): string {
         return "splitter_" + (this.name as string).split("_")[1];
-    }
-
-    private incrementFlip() {
-        this.flip = (this.flip + 1) % this.outputTiles.size();
     }
 }
 

@@ -1,13 +1,14 @@
 import Tile from "./tile";
 
-function appendInputTiles(inputTiles: Array<Tile>, newInputTiles: Array<Tile>) {
-    for (const tile of newInputTiles) {
+function appendInputTiles(inputTiles: Array<Tile>, tileToAdd: Array<Tile>) {
+    for (const tile of tileToAdd) {
+        if (inputTiles.find((inputTile) => inputTile === tile) !== undefined) continue;
         inputTiles.push(tile);
     }
 }
 
-function moveItemsInArray(contentArray: Array<unknown | undefined>): void{
-    for (let i = 1; i < contentArray.size(); i++) {
+function moveItemsInArray(contentArray: Array<unknown | undefined>, maxSize: number): void{
+    for (let i = 1; i < maxSize; i++) {
         if (contentArray[i - 1] === undefined) {
             contentArray[i - 1] = contentArray[i];
             contentArray[i] = undefined;
@@ -91,4 +92,12 @@ function addSegment(array: Array<unknown | undefined>, segment: Array<unknown | 
     }
 }
 
-export { appendInputTiles, moveItemsInArray, transferArrayContent, copySegment, removeSegment, addSegment, copyArray, transferArrayContentToArrayPart, addBackContent };
+function shiftOrder(array: Array<unknown>): void {
+    const lastInput = array[array.size() - 1]; // Get the last element
+    for (let i = array.size() - 1; i > 0; i--) {
+        array[i] = array[i - 1]; // Shift elements to the right
+    }
+    array[0] = lastInput;
+}
+
+export { appendInputTiles, moveItemsInArray, transferArrayContent, copySegment, removeSegment, addSegment, copyArray, transferArrayContentToArrayPart, addBackContent, shiftOrder };

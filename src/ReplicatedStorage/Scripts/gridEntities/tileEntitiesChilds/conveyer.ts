@@ -3,10 +3,11 @@ import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
-import { ReplicatedStorage } from "@rbxts/services";
+import { HttpService, ReplicatedStorage } from "@rbxts/services";
+import { decodeArray, decodeVector2, decodeVector3, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 //Setings
-const MAX_CONTENT = 6;
+const MAX_SIZE = 6;
 const MAX_INPUTS = 1; // help to upgrade to merger or splitter
 const MAX_OUTPUTS = 1; // help to upgrade to merger or splitter
 const category: string = "conveyer";
@@ -14,7 +15,7 @@ const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild
 
 class Conveyer extends TileEntity {
     //new array fill with undifined
-    content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
+    content = new Array<Entity | undefined>(MAX_SIZE, undefined);
     isTurning = false;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
@@ -26,24 +27,24 @@ class Conveyer extends TileEntity {
      */
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
-            
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined && this.content[0] !== undefined) {
                 const arrayToAddBack = this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
-                addBackContent(arrayToAddBack, this.content, MAX_CONTENT);
+                addBackContent(arrayToAddBack, this.content, MAX_SIZE);
             };
-            
+
             // move all the items by the speed amount
-            moveItemsInArray(this.content);
-            updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
+            moveItemsInArray(this.content, MAX_SIZE);
+            if (this.inputTiles.isEmpty()) updateContentEvent.FireAllClients(this.encode());
+            else updateContentEvent.FireAllClients(this.encode(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
         }
         this.lastProgress = this.getProgress(progress);
     }
-    
+
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
         if (!(this.inputTiles[0] instanceof Conveyer)) this.setupIds(entities);
-        const transferdEntities = transferArrayContent(entities, this.content, MAX_CONTENT) as Array<Entity | undefined>;
-        updateContentEvent.FireAllClients(this.copy(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
+        const transferdEntities = transferArrayContent(entities, this.content, MAX_SIZE) as Array<Entity | undefined>;
+        updateContentEvent.FireAllClients(this.encode(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
         return transferdEntities;
     }
 
@@ -87,11 +88,9 @@ class Conveyer extends TileEntity {
         }
     }
 
-    
-
     getIsTurning() {
         if (this.inputTiles.isEmpty()) return false;
-        return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);       
+        return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
     }
 
     copy(): Conveyer {
@@ -101,17 +100,34 @@ class Conveyer extends TileEntity {
         return newConveyer;
     }
 
-    getMaxContent(): number {
-        return MAX_CONTENT;
+    getMaxContentSize(): number {
+        return MAX_SIZE;
     }
 
-    getAbsoluteSpeed(): number {
-        return this.speed + 5;
+    encode(): string {
+        const copy = {
+            name: this.name,
+            position: encodeVector3(this.position),
+            size: encodeVector2(this.size),
+            direction: encodeVector2(this.direction),
+            speed: this.speed,
+            content: encodeArray(this.content, MAX_SIZE),
+            isTurning: this.getIsTurning()
+        }
+        return HttpService.JSONEncode(copy);
+    }
+
+    static decode(encoded: string): Conveyer {
+        const decoded = HttpService.JSONDecode(encoded) as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, isTurning: boolean };
+        const newConveyer = new Conveyer(decoded.name, decodeVector3(decoded.position), decodeVector2(decoded.size), decodeVector2(decoded.direction), decoded.speed);
+        newConveyer.content = decodeArray(decoded.content);
+        newConveyer.isTurning = decoded.isTurning;
+        return newConveyer;
     }
 }
 
 function calulateId(count: number) {
-    return (count + 1) % MAX_CONTENT;
+    return (count + 1) % MAX_SIZE;
 }
 
 export default Conveyer;

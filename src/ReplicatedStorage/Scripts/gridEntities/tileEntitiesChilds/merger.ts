@@ -1,6 +1,6 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { moveItemsInArray, removeSegment, transferArrayContentToArrayPart } from "../conveyerUtils";
+import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 
@@ -25,12 +25,13 @@ class Merger extends TileEntity {
         if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined) {
-                this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+                const arrayToAddBack = this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
+                addBackContent(arrayToAddBack, this.content, MAX_CONTENT);
             };
 
             // move all the items by the speed amount
-            moveItemsInArray(this.content);
-            this.shiftInputOrder();
+            moveItemsInArray(this.content, MAX_CONTENT);
+            shiftOrder(this.inputTiles);
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -44,31 +45,19 @@ class Merger extends TileEntity {
     }
 
     updateShape(gridBase: BasePart): void {
-        const newTileName = this.getBasepartName();
-        const partToChange = this.findThisPartInWorld(gridBase);
-        if (partToChange && partToChange.Name === newTileName) return;
+        const currentPart = this.findThisPartInWorld(gridBase);
+        const basepartName = this.getBasepartName();
 
-        const mergerPart = findBasepartByName(newTileName, this.category);
-        partToChange?.Destroy();
-        setupObject(mergerPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
+        const isAlreadyMerger = currentPart?.Name === basepartName;
+        if (!isAlreadyMerger) {
+            currentPart?.Destroy();
+            const newPart = findBasepartByName((basepartName) as string, this.category)
+            setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
+        }
     }
 
     private getBasepartName(): string {
-        const mergerPartName = "merger_" + (this.name as string).split("_")[1];
-        if (this.inputTiles.size() === 3) return mergerPartName + "+";
-        if (this.inputTiles.filter((neighbourTile) => neighbourTile.direction === this.direction).size() === 0) return mergerPartName + "T";
-
-        const sideConveyer = this.inputTiles.filter((neighbourTile) => neighbourTile.direction !== this.direction)[0];
-        if (sideConveyer.direction.X === -this.direction.Y && sideConveyer.direction.Y === this.direction.X) return mergerPartName + "L";
-        return mergerPartName + "LR";
-    }
-
-    private shiftInputOrder(): void {
-        const lastInput = this.inputTiles[this.inputTiles.size() - 1];
-        for (let i = 1; i < this.inputTiles.size(); i++) {
-            this.inputTiles[i] = this.inputTiles[i - 1];
-        }
-        this.inputTiles[0] = lastInput;
+        return "merger_" + (this.name as string).split("_")[1];
     }
 }
 

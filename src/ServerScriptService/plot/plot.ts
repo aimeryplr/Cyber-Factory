@@ -3,7 +3,7 @@ import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import TileGrid from "./gridTile";
-import { changeShapes, getPlayerFromUserId, resetBeamsOffset, setAllNeighbourTypeConveyer } from "./plotsUtils";
+import { changeShapes, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
 import { removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 import { ReplicatedStorage } from "@rbxts/services";
@@ -77,23 +77,19 @@ class Plot {
 	 * @returns the gridTile if it has been added
 	 */
 	public addGridTile(tile: Tile, player?: number,): Tile | undefined {
-		let addedTile: Tile = tile
 		this.tileGrid.addTile(tile);
-		if (addedTile instanceof TileEntity) {
-			setAllNeighbourTypeConveyer(addedTile, this.tileGrid);
-			const possibleTile: TileEntity = this.tileGrid.getTileFromPosition(tile.position) as TileEntity;
-			if (possibleTile !== undefined) addedTile = possibleTile;
-			(addedTile as TileEntity).setAllConnectedNeighboursTileEntity(this.tileGrid);
+		if (tile instanceof TileEntity) {
+			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
 
-			if (addedTile instanceof Seller) {
-				this.sellers.push(addedTile);
-				if (player !== undefined) addedTile.setOwner(player);
+			if (tile instanceof Seller) {
+				this.sellers.push(tile);
+				if (player !== undefined) tile.setOwner(player);
 			}
 
-			changeShapes((addedTile as TileEntity), this.gridBase, this.tileGrid);
+			changeShapes(tile, this.gridBase, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
 		}
-		return addedTile;
+		return tile;
 	}
 
 	public removeGridTile(tileObj: BasePart): void {
@@ -105,7 +101,6 @@ class Plot {
 		if (tile instanceof TileEntity) {
 			if (tile instanceof Conveyer && this.owner) destroyConveyerEvent.FireClient(getPlayerFromUserId(this.owner), tile.copy());
 			this.removeConectedTiles(tile);
-			setAllNeighbourTypeConveyer(tile, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
 

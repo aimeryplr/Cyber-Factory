@@ -62,7 +62,7 @@ abstract class TileEntity extends Tile {
     */
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
         for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
-            if (direction === this.direction && !(this.category === "seller")) {
+            if ((direction === this.direction && !(this.category === "seller"))) {
                 this.connectOutput(neighbourTile, direction);
             } else {
                 this.connectInput(neighbourTile, direction);
@@ -140,7 +140,7 @@ abstract class TileEntity extends Tile {
     }
 
     getProgress(progress: number): number {
-        return (progress * ((this.speed + 5) / 60)) % 1;
+        return (progress * (this.speed / 60)) % 1;
     }
 }
 
