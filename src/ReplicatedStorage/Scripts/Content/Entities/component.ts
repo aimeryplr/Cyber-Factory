@@ -8,41 +8,24 @@ import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
     - buildRessources : Array<Ressource>
     - tier : number
 */
+const MONEY_COEF: number = 1.2;
+
 class Component extends Entity {
-    public buildRessources: Map<Ressource, number>;
+    public buildRessources: LuaTuple<Array<Component | Ressource | number>>;
     public tier: number;
     public category: string;
 
-    constructor(name: string, buildRessources: Map<Ressource, number>, tier: number, category: string) {
-        let calculatedSellPrice = 0;
-
-        /* Higher is the quantity of ressources, higher is the price */
-        const coefChiantitude: number = 1.5;
-        let chiantitude: number = 0;
-
-        /* Higher is the tier of the component, higher is the price */
-        const coefTier: number = 10;
-
-        for (const [ressource, quantity] of buildRessources) {
-            chiantitude += quantity;
-            calculatedSellPrice += ressource.sellPrice * quantity;
-        }
-
-        /* Higher is the quantity of ressources, higher is the price */
-        chiantitude = chiantitude * coefChiantitude;
-        calculatedSellPrice = calculatedSellPrice * chiantitude;
-
-        /* Higher is the tier of the component, higher is the price */
-        if (tier > 0) {
-            // only if the tier is higher than 0
-            calculatedSellPrice = calculatedSellPrice * tier * coefTier;
-        }
-
-        super(name, calculatedSellPrice);
+    constructor(name: string, buildRessources: any, tier: number, category: string) {
+        super(name, calculateSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
-        this.category = name;
+        this.category = category;
     }
+}
+
+function calculateSellPrice(buildRessources: LuaTuple<Array<Component | Ressource | number>>, tier: number) {
+    const [ressource, quantity] = buildRessources
+    return (ressource as Entity).sellPrice * (quantity as number) * MONEY_COEF * math.pow(10, tier);
 }
 
 
