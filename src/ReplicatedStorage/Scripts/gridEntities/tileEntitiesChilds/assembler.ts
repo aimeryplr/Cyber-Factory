@@ -24,9 +24,9 @@ class Assembler extends TileEntity {
         if (this.getProgress(progress) >= this.lastProgress) return;
         if (!this.currentCraft) return;
 
-        if (this.canCraft()) {
-            this.outputTiles[0].addEntity([this.craft() as Entity]);
-        }
+        // if (this.canCraft()) {
+        //     this.outputTiles[0].addEntity([this.craft() as Entity]);
+        // }
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -34,7 +34,7 @@ class Assembler extends TileEntity {
         if (!entities[0]) return arrayToReturn;
         const entity = entities[0];
         if (!(entity instanceof Ressource)) return arrayToReturn;
-        if (!this.isRessourceNeeded(entity.ressourceType)) return arrayToReturn;
+        // if (!this.isRessourceNeeded(entity.ressourceType)) return arrayToReturn;
 
         if (this.ressources.size() < MAX_CAPACITY) {
             this.ressources.set(entity.ressourceType, (this.ressources?.get(entity.ressourceType) ?? 0) + 1);
@@ -52,30 +52,30 @@ class Assembler extends TileEntity {
         this.currentCraft = craft;
     }
 
-    private isRessourceNeeded(ressourceType: RessourceType): boolean {
-        if (!this.currentCraft) return false;
-        for (const [ressource, quantity] of this.currentCraft.buildRessources) {
-            if (ressourceType === ressource.ressourceType) return true;
-        }
-        return false;
-    }
+    // private isRessourceNeeded(ressourceType: RessourceType): boolean {
+    //     if (!this.currentCraft) return false;
+    //     for (const [ressource, quantity] of this.currentCraft.buildRessources) {
+    //         if (ressourceType === ressource.ressourceType) return true;
+    //     }
+    //     return false;
+    // }
 
-    private canCraft(): boolean {
-        if (!this.currentCraft) return false;
-        for (const [ressourceToHave, quantity] of this.currentCraft.buildRessources) {
-            if (!this.ressources.has(ressourceToHave.ressourceType)) return false;
-            if ((this.ressources.get(ressourceToHave.ressourceType) ?? 0) <= quantity) return false;
-        }
-        return true;
-    }
+    // private canCraft(): boolean {
+    //     if (!this.currentCraft) return false;
+    //     for (const [ressourceToHave, quantity] of this.currentCraft.buildRessources) {
+    //         if (!this.ressources.has(ressourceToHave.ressourceType)) return false;
+    //         if ((this.ressources.get(ressourceToHave.ressourceType) ?? 0) <= quantity) return false;
+    //     }
+    //     return true;
+    // }
 
-    private craft(): Module | undefined {
-        if (!this.currentCraft) return;
-        for (const [ressourceToHave, quantity] of this.currentCraft.buildRessources) {
-            this.ressources.set(ressourceToHave.ressourceType, (this.ressources.get(ressourceToHave.ressourceType) ?? 0) - quantity);
-        }
-        return this.currentCraft;
-    }
+    // private craft(): Module | undefined {
+    //     if (!this.currentCraft) return;
+    //     for (const [ressourceToHave, quantity] of this.currentCraft.buildRessources) {
+    //         this.ressources.set(ressourceToHave.ressourceType, (this.ressources.get(ressourceToHave.ressourceType) ?? 0) - quantity);
+    //     }
+    //     return this.currentCraft;
+    // }
 }
 
 

@@ -13,11 +13,11 @@ class Ressource extends Entity {
             calculatedSellPrice = 5
             speed = 60
         }
-        else if (ressourceType === RessourceType.Copper) {
+        else if (ressourceType === RessourceType.Iron) {
             calculatedSellPrice = 7.5
             speed = 40
         }
-        else if (ressourceType === RessourceType.Gold) {
+        else if (ressourceType === RessourceType.Copper) {
             calculatedSellPrice = 10
             speed = 30
         }

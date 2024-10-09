@@ -2,6 +2,7 @@ import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import Component from "ReplicatedStorage/Scripts/Content/Entities/component";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -12,11 +13,11 @@ const category: string = "crafter";
 class Crafter extends TileEntity {
     // mettre type component
     currentCraft: Component | undefined;
-    ressources = new Array<Ressource | Component>();
+    ressources = new Array<Ressource | Component>(MAX_CAPACITY);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        // this.setCraft()
+        this.setCraft(getComponent("Iron Plate"));
     }
 
     tick(progress: number): void {
@@ -52,23 +53,27 @@ class Crafter extends TileEntity {
 
     private isRessourceNeeded(ressource: Entity): boolean {
         if (!this.currentCraft) return false;
-        const [_ressource, quantity] = this.currentCraft.buildRessources
-        if (ressource.name === (_ressource as Entity).name) return true;
+        for (const [_ressource, quantity] of this.currentCraft.buildRessources) {
+            if (ressource.name === (_ressource as Entity).name) return true;
+        }
         return false;
     }
 
     private canCraft(): boolean {
         if (!this.currentCraft) return false;
-        const [ressource, quantity] = this.currentCraft.buildRessources
-        if (this.ressources.size() >= (quantity as number)) return true
+        for (const [ressource, quantity] of this.currentCraft.buildRessources) {
+            if (this.ressources.size() >= (quantity as number)) return true
+        }
         return false;
     }
 
     private craft(): Component | undefined {
         if (!this.currentCraft) return;
-        const [ressource, quantity] = this.currentCraft.buildRessources
-        for (let i = (quantity as number) - 1; i >= 0; i--) {
-            this.ressources.pop();
+        for (const [ressource, quantity] of this.currentCraft.buildRessources) {
+            if (this.ressources.size() < (quantity as number)) return;
+            for (let i = (quantity as number) - 1; i >= 0; i--) {
+                this.ressources.pop();
+            }
         }
         return this.currentCraft;
     }

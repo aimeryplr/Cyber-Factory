@@ -1,7 +1,7 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
-import RessourceType from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
 import { TileEntity } from "../tileEntity";
+import { Iron } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 
 // Settings
 const MAX_INPUTS = 0;
@@ -9,11 +9,11 @@ const MAX_OUTPUTS = 1;
 const category: string = "generator";
 
 class Generator extends TileEntity {
-    ressource: RessourceType | undefined;
+    ressource: Ressource | undefined;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.ressource = RessourceType.Copper;
+        this.ressource = Iron;
     }
 
     tick(progress: number): void {
@@ -22,8 +22,7 @@ class Generator extends TileEntity {
         // send the ressource if the item is not full
         if (this.getProgress(progress) < this.lastProgress) {
             if (this.outputTiles[0] !== undefined) {
-                const ressource = new Ressource(this.ressource, this.ressource);
-                const ressourceToTransfer = new Array<Entity>(1, ressource);
+                const ressourceToTransfer = new Array<Entity>(1, this.ressource);
                 this.outputTiles[0].addEntity(ressourceToTransfer);
             }
         }
@@ -34,7 +33,7 @@ class Generator extends TileEntity {
         return entities;
     }
 
-    setRessourceType(ressource: RessourceType): void {
+    setRessource(ressource: Ressource): void {
         this.ressource = ressource;
     }
 

@@ -1,7 +1,7 @@
 enum RessourceType {
     Plastic = "PLASTIC",
     Copper = "COPPER",
-    Gold = "GOLD"
+    Iron = "IRON",
 }
 
 export default RessourceType

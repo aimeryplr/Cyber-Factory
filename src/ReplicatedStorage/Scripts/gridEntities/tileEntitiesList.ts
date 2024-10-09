@@ -114,6 +114,16 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             price: 1600,
             image: "rbxassetid://0",
         }]
+    ])],
+    ["crafter", new Map([
+        ["crafter", {
+            name: "crafter",
+            category: "crafter",
+            speed: 1,
+            tier: 1,
+            price: 500,
+            image: "rbxassetid://0",
+        }]
     ])]
 ]);
 

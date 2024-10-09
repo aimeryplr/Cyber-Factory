@@ -1,3 +1,4 @@
+import Component from "./component";
 import Ressource from "./ressource";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 
@@ -12,19 +13,17 @@ PC Component got name, tier, ressource to craft:
 const MONEY_COEF: number = 1.5;
 
 class Module extends Entity {
-    public buildRessources: Map<Ressource, number>;
+    public buildRessources: Map<Ressource | Component, number>;
     public tier: number;
-    public category: string;
 
-    constructor(name: string, speed: number, buildRessources: Map<Ressource, number>, tier: number, category: string) {
+    constructor(name: string, speed: number, buildRessources: Map<Ressource | Component, number>, tier: number) {
         super(name, speed, calculateSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
-        this.category = category;
     }
 }
 
-function calculateSellPrice(buildRessources: Map<Ressource, number>, tier: number): number {
+function calculateSellPrice(buildRessources: Map<Ressource | Component, number>, tier: number): number {
     let price = 0;
     for (const [ressource, quantity] of buildRessources) {
         price += ressource.sellPrice * quantity;
