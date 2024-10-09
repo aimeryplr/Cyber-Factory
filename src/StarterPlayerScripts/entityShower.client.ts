@@ -1,7 +1,6 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import EntitiesHandler from "./entitiesHandler";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
-import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 const conveyerContentUpdate = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;

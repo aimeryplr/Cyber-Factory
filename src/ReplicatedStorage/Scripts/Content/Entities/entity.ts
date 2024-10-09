@@ -1,11 +1,21 @@
+/**
+ * entities goind on the conveyer and crafted by machines
+ * @param sellPrice the price of the entity
+ * @param speed production speed
+ */
+
 class Entity {
 	sellPrice: number;
 	name: string;
-	id: number | undefined;
+	speed: number = 0;
 
-	constructor(name: string, sellPrice: number) {
+	id: number | undefined; // used to identify the entity in the conveyer
+
+
+	constructor(name: string, speed: number, sellPrice: number) {
 		this.sellPrice = sellPrice;
 		this.name = name;
+		this.speed = speed;
 	}
 }
 

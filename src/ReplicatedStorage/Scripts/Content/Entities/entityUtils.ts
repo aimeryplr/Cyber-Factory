@@ -25,7 +25,7 @@ function getComponentInformation(name: string, category?: string) {
     }
 
     if (component) {
-        return new Module(component.name, component.buildRessources, component.tier, component.category);
+        return new Module(component.name, component.speed, component.buildRessources, component.tier, component.category);
     } else {
         return undefined;
     }

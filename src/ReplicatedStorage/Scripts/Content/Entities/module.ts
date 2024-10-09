@@ -16,8 +16,8 @@ class Module extends Entity {
     public tier: number;
     public category: string;
 
-    constructor(name: string, buildRessources: Map<Ressource, number>, tier: number, category: string) {
-        super(name, calculateSellPrice(buildRessources, tier));
+    constructor(name: string, speed: number, buildRessources: Map<Ressource, number>, tier: number, category: string) {
+        super(name, speed, calculateSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
         this.category = category;

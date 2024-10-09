@@ -160,7 +160,14 @@ class PlacementHandler {
         if (this.placementStatus !== placementType.DESTROYING) return;
 
         const mouseRay = this.mouse.UnitRay;
-        const hit = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(100));
+        const character = Players.LocalPlayer.Character;
+        assert(character, "Character not found");
+
+        const raycastParameters = new RaycastParams();
+        raycastParameters.FilterType = Enum.RaycastFilterType.Exclude;
+        raycastParameters.FilterDescendantsInstances = [character];
+
+        const hit = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(100), raycastParameters);
 
         if (hit && hit.Instance && hit.Instance.Parent === this.placedObjects) {
             if (hit.Instance !== this.currentTile) {

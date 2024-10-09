@@ -15,8 +15,8 @@ class Component extends Entity {
     public tier: number;
     public category: string;
 
-    constructor(name: string, buildRessources: any, tier: number, category: string) {
-        super(name, calculateSellPrice(buildRessources, tier));
+    constructor(name: string, buildRessources: any, tier: number, speed: number, category: string) {
+        super(name, speed, calculateSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
         this.category = category;

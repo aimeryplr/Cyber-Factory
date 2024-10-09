@@ -1,10 +1,10 @@
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import RessourceType from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
 import Component from "ReplicatedStorage/Scripts/Content/Entities/component";
+import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 
 // Settings
-const MAX_INPUTS = 3;
+const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 1;
 const MAX_CAPACITY = 20;
 const category: string = "crafter";
@@ -12,10 +12,11 @@ const category: string = "crafter";
 class Crafter extends TileEntity {
     // mettre type component
     currentCraft: Component | undefined;
-    ressources = new Array<RessourceType | Component>();
+    ressources = new Array<Ressource | Component>();
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+        // this.setCraft()
     }
 
     tick(progress: number): void {
@@ -31,12 +32,11 @@ class Crafter extends TileEntity {
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
-        if (!entities[0]) return entities;
+        if (entities.isEmpty()) return entities;
         
         const entity = entities[0];
-        if (!(entity instanceof RessourceType)) return entities;
-        if (!this.isRessourceNeeded(entity.ressourceType)) return entities;
-
+        if (!(entity instanceof Ressource) && !(entity instanceof Component)) return entities;
+        if (!this.isRessourceNeeded(entity)) return entities;
 
         return new Array<Entity>();
     }
@@ -47,12 +47,13 @@ class Crafter extends TileEntity {
 
     private setCraft(craft: Component) {
         this.currentCraft = craft;
+        this.speed = craft.speed
     }
 
-    private isRessourceNeeded(ressourceType: RessourceType | Component): boolean {
+    private isRessourceNeeded(ressource: Entity): boolean {
         if (!this.currentCraft) return false;
-        const [ressource, quantity] = this.currentCraft.buildRessources
-        if (ressourceType === (ressource as RessourceType | Component)) return true;
+        const [_ressource, quantity] = this.currentCraft.buildRessources
+        if (ressource.name === (_ressource as Entity).name) return true;
         return false;
     }
 
