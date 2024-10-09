@@ -21,6 +21,9 @@ game.Players.PlayerAdded:Connect(function(player)
 	if getSaved then
 		moneyValue.Value = getSaved[1]
 		tierValue.Value = getSaved[2]
+	else
+		moneyValue.Value = 1000
+		tierValue.Value = 0
 	end
 end)
 

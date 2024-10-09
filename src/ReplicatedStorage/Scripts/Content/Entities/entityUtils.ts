@@ -27,7 +27,7 @@ function getComponent(name: string, tier?: number) : Component | Module {
     }
 
     if (component) {
-        return new Component(component.name, component.buildRessources, component.speed, component.tier);
+        return new Component(component.name, component.buildRessources, component.tier, component.speed);
     } else {
         error(`Component ${name} not found`);
     }

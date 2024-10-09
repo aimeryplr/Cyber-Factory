@@ -17,6 +17,10 @@ class Entity {
 		this.name = name;
 		this.speed = speed;
 	}
+
+	copy(): Entity {
+		return new Entity(this.name, this.speed, this.sellPrice);
+	}
 }
 
 export default Entity;

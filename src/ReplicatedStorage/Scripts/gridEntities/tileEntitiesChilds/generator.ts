@@ -13,7 +13,7 @@ class Generator extends TileEntity {
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.ressource = Iron;
+        this.setRessource(Iron)
     }
 
     tick(progress: number): void {
@@ -22,7 +22,7 @@ class Generator extends TileEntity {
         // send the ressource if the item is not full
         if (this.getProgress(progress) < this.lastProgress) {
             if (this.outputTiles[0] !== undefined) {
-                const ressourceToTransfer = new Array<Entity>(1, this.ressource);
+                const ressourceToTransfer = new Array<Entity>(1, this.ressource.copy());
                 this.outputTiles[0].addEntity(ressourceToTransfer);
             }
         }
@@ -35,6 +35,7 @@ class Generator extends TileEntity {
 
     setRessource(ressource: Ressource): void {
         this.ressource = ressource;
+        this.speed = ressource.speed;
     }
 
     updateShape(gridBase: BasePart): void {

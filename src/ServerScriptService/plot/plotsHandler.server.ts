@@ -3,8 +3,10 @@ import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import { getGridEntityInformation, getTileEntityByCategory } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
+import { addMoney, hasEnoughMoney, removeMoney, sellConveyerContent } from "./plotsUtils";
+import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 
-const placeTileCallback: RemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
+const placeTileCallback = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent: RemoteEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 
@@ -23,12 +25,15 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 		error("Tile not found or player does not own a plot or gridTile not found");
 	}
 
+	if (!hasEnoughMoney(player, tileInformation.price)) return false;
+	
 	const isPlaceable = plot.getGridTiles().checkPlacement(tileEntity);
 	if (isPlaceable) {
+		removeMoney(player, tileInformation.price); 
 		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
 		plot.addGridTile(tileEntity, player.UserId);
 	}
-	print(plot.getGridTiles().tileGrid);
+	// print(plot.getGridTiles().tileGrid);
 	return isPlaceable;
 };
 
@@ -36,8 +41,13 @@ removeTileEvent.OnServerEvent.Connect((player: unknown, tile: unknown): void => 
 	const plot = plotsManager.getPlotByOwner((player as Player).UserId);
 	if (!plot) return;
 
-	plot.removeGridTile(tile as BasePart);
-	print(plot.getGridTiles().tileGrid); 
+	const removedTile = plot.removeGridTile(tile as BasePart);
+	if (removedTile instanceof Conveyer) sellConveyerContent((player as Player), removedTile);
+	if (removedTile) {
+		const tilePrice = getGridEntityInformation(removedTile.name).price;
+		addMoney(player as Player, tilePrice);
+	} 
+	// print(plot.getGridTiles().tileGrid); 
 })
 
 
@@ -51,3 +61,4 @@ plotsManager.getPlots().forEach((plot) => {
 		}
 	});
 });
+

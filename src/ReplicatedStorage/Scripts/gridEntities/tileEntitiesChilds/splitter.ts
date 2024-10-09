@@ -24,14 +24,14 @@ class Splitter extends TileEntity {
         if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
             for (const outputTile of this.outputTiles) {
-                const canOutpoutEntity = outputTile instanceof Conveyer && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined
+                const canOutpoutEntity = outputTile instanceof Conveyer && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
                 if (!canOutpoutEntity) continue;
+                shiftOrder(this.outputTiles);
 
                 const arrayToAddBack = outputTile.addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
                 addBackContent(arrayToAddBack, this.content, MAX_SIZE);
                 break;
             }
-            shiftOrder(this.outputTiles);
 
             // move all the items by the speed amount
             moveItemsInArray(this.content, MAX_SIZE);
@@ -45,7 +45,6 @@ class Splitter extends TileEntity {
     }
 
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
-        print(this.getAllNeighbours(tileGrid))
         for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
             if (this.direction === direction.mul(-1)) {
                 this.connectInput(neighbourTile, direction);

@@ -21,6 +21,10 @@ class Module extends Entity {
         this.buildRessources = buildRessources;
         this.tier = tier;
     }
+
+    copy(): Module {
+        return new Module(this.name, this.speed, this.buildRessources, this.tier);
+    }
 }
 
 function calculateSellPrice(buildRessources: Map<Ressource | Component, number>, tier: number): number {

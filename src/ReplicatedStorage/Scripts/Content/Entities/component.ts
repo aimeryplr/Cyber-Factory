@@ -2,7 +2,6 @@ import Ressource from "./ressource";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 
 /*
-    PC Component got name, tier, ressource to craft:
     - name : string
     - sellPrice : number
     - buildRessources : Array<Ressource>
@@ -19,11 +18,15 @@ class Component extends Entity {
         this.buildRessources = buildRessources;
         this.tier = tier;
     }
+
+    copy(): Component {
+        return new Component(this.name, this.buildRessources, this.tier, this.speed);
+    }
 }
 
 function calculateSellPrice(buildRessources: Map<Component | Ressource, number>, tier: number): number {
     for (const [ressource, quantity] of buildRessources) {
-        return (ressource as Entity).sellPrice * (quantity as number) * MONEY_COEF * math.pow(10, tier);
+        return (ressource as Entity).sellPrice * quantity * MONEY_COEF * math.pow(10, tier);
     }
     return 0;
 }

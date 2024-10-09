@@ -1,6 +1,7 @@
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import TileGrid from "./gridTile";
+import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
@@ -35,4 +36,33 @@ function getPlayerFromUserId(userId: number): Player {
     return player
 }
 
-export { changeShapes, resetBeamsOffset, getPlayerFromUserId };
+function hasEnoughMoney(player: Player, price: number): boolean {
+    const money = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
+    if (!money) error("Money on leaderstat not found");
+    return money.Value >= price;
+}
+
+function removeMoney(player: Player, price: number): void {
+    const money = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
+    if (!money) error("Money on leaderstat not found");
+    money.Value -= price;
+}
+
+function addMoney(player: Player, price: number): void {
+    const money = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
+    if (!money) error("Money on leaderstat not found");
+    money.Value += price;
+}
+
+function sellConveyerContent(player: Player, conveyer: TileEntity): void {
+    if (conveyer instanceof Conveyer) {
+        const content = conveyer.content;
+        for (const entity of content) {
+            if (entity !== undefined) {
+                addMoney(player, entity.sellPrice);
+            }
+        }
+    }
+}
+
+export { changeShapes, resetBeamsOffset, getPlayerFromUserId, hasEnoughMoney, removeMoney, addMoney, sellConveyerContent };

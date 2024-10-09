@@ -16,7 +16,7 @@ class Crafter extends TileEntity {
     ressources = new Array<Ressource | Component>(MAX_CAPACITY);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, size, direction, 0, category, MAX_INPUTS, MAX_OUTPUTS);
         this.setCraft(getComponent("Iron Plate"));
     }
 
@@ -38,6 +38,8 @@ class Crafter extends TileEntity {
         const entity = entities[0];
         if (!(entity instanceof Ressource) && !(entity instanceof Component)) return entities;
         if (!this.isRessourceNeeded(entity)) return entities;
+
+        this.ressources.push(entity);
 
         return new Array<Entity>();
     }
@@ -62,20 +64,20 @@ class Crafter extends TileEntity {
     private canCraft(): boolean {
         if (!this.currentCraft) return false;
         for (const [ressource, quantity] of this.currentCraft.buildRessources) {
-            if (this.ressources.size() >= (quantity as number)) return true
+            if (this.ressources.size() >= quantity) return true
         }
         return false;
     }
 
     private craft(): Component | undefined {
         if (!this.currentCraft) return;
+        if (!this.canCraft()) return;
         for (const [ressource, quantity] of this.currentCraft.buildRessources) {
-            if (this.ressources.size() < (quantity as number)) return;
-            for (let i = (quantity as number) - 1; i >= 0; i--) {
+            for (let i = quantity - 1; i >= 0; i--) {
                 this.ressources.pop();
             }
         }
-        return this.currentCraft;
+        return (this.currentCraft as Component).copy();
     }
 }
 

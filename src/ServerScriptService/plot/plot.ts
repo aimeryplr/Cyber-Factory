@@ -92,7 +92,7 @@ class Plot {
 		return tile;
 	}
 
-	public removeGridTile(tileObj: BasePart): void {
+	public removeGridTile(tileObj: BasePart): Tile | undefined {
 		const localPosition = tileObj.Position.sub(this.gridBase.Position);
 		const tile = this.tileGrid.getTileFromPosition(localPosition);
 
@@ -111,6 +111,7 @@ class Plot {
 
 		tile.findThisPartInWorld(this.gridBase)?.Destroy();
 		this.tileGrid.removeTile(tile);
+		return tile
 	}
 
 	removeConectedTiles(tileEntity: TileEntity) {

@@ -116,6 +116,7 @@ class PlacementHandler {
         this.currentTile.CanCollide = false;
         this.currentTile.Parent = this.placedObjects;
         this.currentTile.Transparency = PLACING_TRANSPARENCY;
+        this.currentTile.Orientation = new Vector3(0, math.deg(this.rotation), 0);
 
         //add selectionBox
         this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionTile")?.Clone() as SelectionBox;
@@ -140,7 +141,6 @@ class PlacementHandler {
     resetMode() {
         RunService.UnbindFromRenderStep("place");
         RunService.UnbindFromRenderStep("destroy");
-        this.rotation = 0;
         this.targetPos = undefined;
         this.size = undefined;
         if (this.placementStatus === placementType.PLACING) this.currentTile?.Destroy();

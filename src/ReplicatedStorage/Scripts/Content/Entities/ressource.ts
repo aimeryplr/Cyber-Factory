@@ -25,6 +25,10 @@ class Ressource extends Entity {
         super(name, speed, calculatedSellPrice)
         this.ressourceType = ressourceType
     }
+
+    copy(): Ressource {
+        return new Ressource(this.name, this.ressourceType)
+    }
 }
 
 export default Ressource

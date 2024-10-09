@@ -39,7 +39,7 @@ function getTileEntityByCategory(className: string, name: string, position: Vect
  * @param name grridEntity name like generator_t1
  * @returns all the information of the gridEntity
  */
-function getGridEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed?: number, image: string } {
+function getGridEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
     let gridEntity;
 
     if (category) {

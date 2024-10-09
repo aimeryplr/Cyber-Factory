@@ -31,7 +31,6 @@ class Merger extends TileEntity {
 
             // move all the items by the speed amount
             moveItemsInArray(this.content, MAX_CONTENT);
-            shiftOrder(this.inputTiles);
         }
         this.lastProgress = this.getProgress(progress);
     }
