@@ -2,6 +2,8 @@ import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { TileEntity } from "../tileEntity";
 import { Iron } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { HttpService } from "@rbxts/services";
 
 // Settings
 const MAX_INPUTS = 0;
@@ -40,6 +42,26 @@ class Generator extends TileEntity {
 
     updateShape(gridBase: BasePart): void {
         return;
+    }
+
+    public encode(): {} {
+        return {
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
+            "direction": encodeVector2(this.direction),
+            "ressource": this.ressource?.ressourceType,
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+        }
+    }
+
+    static decode(decoded: unknown): Generator {
+        const data = decoded as {name: string, category:string, position: {x: number, y:number, z:number}, size: {x: number, y:number}, direction:  {x: number, y:number}, ressource: string, outputTiles: Array<{x: number, y: number, z: number}>}
+        const generator = new Generator(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
+        generator.setRessource(new Ressource(data.ressource));
+        generator.outputTiles = decodeVector3Array(data.outputTiles) as Array<TileEntity>;
+        return generator;
     }
 }
 

@@ -1,3 +1,8 @@
+import Tile from "./gridEntities/tile";
+import Conveyer from "./gridEntities/tileEntitiesChilds/conveyer";
+import Seller from "./gridEntities/tileEntitiesChilds/seller";
+import Splitter from "./gridEntities/tileEntitiesChilds/splitter";
+
 function encodeVector3(v: Vector3): {x: number, y: number, z: number} {
     const encodedVector = {
         x: v.X,
@@ -51,4 +56,12 @@ function decodeVector2(v: {x: number, y: number}): Vector2 {
     return new Vector2(v.x, v.y);
 }
 
-export { encodeVector3, encodeVector2, encodeArray, decodeVector3, decodeVector2, decodeArray };
+function decodeVector3Array(a: Array<{x: number, y: number, z: number}>): Array<unknown> {
+    const result = new Array<Vector3>(a.size());
+    for (let i = 0; i < a.size(); i++) {
+        result[i] = decodeVector3(a[i]);
+    }
+    return result;
+}
+
+export { encodeVector3, encodeVector2, encodeArray, decodeVector3, decodeVector2, decodeArray, decodeVector3Array };

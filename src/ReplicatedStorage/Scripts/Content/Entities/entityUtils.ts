@@ -1,7 +1,7 @@
 import { componentsList } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 import { ReplicatedStorage } from "@rbxts/services";
 import Component from "./component";
-import RessourceType from "./ressourceEnum";
+import {RessourceType} from "./ressourceEnum";
 import Module from "./module";
 
 /*

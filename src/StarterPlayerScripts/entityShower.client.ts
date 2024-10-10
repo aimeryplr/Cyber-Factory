@@ -1,6 +1,5 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import EntitiesHandler from "./entitiesHandler";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 const conveyerContentUpdate = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;
@@ -11,9 +10,9 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
     entitiesHandler = new EntitiesHandler(gridBase);
 });
 
-conveyerContentUpdate.OnClientEvent.Connect((conveyer: string, previousConveyer?: Conveyer | Vector3) => {
+conveyerContentUpdate.OnClientEvent.Connect((conveyer: string) => {
     if (entitiesHandler) {
-        entitiesHandler.updateConveyerEntities(conveyer, previousConveyer);
+        entitiesHandler.updateConveyerEntities(conveyer);
     }
 });
 

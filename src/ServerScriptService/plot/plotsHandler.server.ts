@@ -1,4 +1,4 @@
-import { Players, ReplicatedStorage } from "@rbxts/services";
+import { HttpService, Players, ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import PlotsManager from "./plotsManager";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
@@ -33,7 +33,7 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
 		plot.addGridTile(tileEntity, player.UserId);
 	}
-	// print(plot.getGridTiles().tileGrid);
+	// print(TileGrid.decode(HttpService.JSONEncode(plot.encode())));
 	return isPlaceable;
 };
 

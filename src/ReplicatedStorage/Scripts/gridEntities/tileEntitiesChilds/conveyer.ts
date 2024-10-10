@@ -4,7 +4,7 @@ import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent }
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 //Setings
 const MAX_SIZE = 6;
@@ -35,8 +35,7 @@ class Conveyer extends TileEntity {
 
             // move all the items by the speed amount
             moveItemsInArray(this.content, MAX_SIZE);
-            if (this.inputTiles.isEmpty()) updateContentEvent.FireAllClients(this.encode());
-            else updateContentEvent.FireAllClients(this.encode(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
+            updateContentEvent.FireAllClients(HttpService.JSONEncode(this.encode()));
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -44,7 +43,7 @@ class Conveyer extends TileEntity {
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
         if (!(this.inputTiles[0] instanceof Conveyer)) this.setupIds(entities);
         const transferdEntities = transferArrayContent(entities, this.content, MAX_SIZE) as Array<Entity | undefined>;
-        updateContentEvent.FireAllClients(this.encode(), this.inputTiles[0] instanceof Conveyer ? this.inputTiles[0].copy() : this.inputTiles[0].position);
+        updateContentEvent.FireAllClients(HttpService.JSONEncode(this.encode()));
         return transferdEntities;
     }
 
@@ -86,6 +85,8 @@ class Conveyer extends TileEntity {
             const newPart = findBasepartByName((this.name) as string, this.category)
             setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
         }
+
+        this.isTurning = this.getIsTurning();
     }
 
     getIsTurning() {
@@ -96,7 +97,7 @@ class Conveyer extends TileEntity {
     copy(): Conveyer {
         const newConveyer = new Conveyer(this.name, this.position, this.size, this.direction, this.speed);
         newConveyer.content = this.content;
-        newConveyer.isTurning = this.getIsTurning();
+        newConveyer.isTurning = this.isTurning;
         return newConveyer;
     }
 
@@ -104,25 +105,29 @@ class Conveyer extends TileEntity {
         return MAX_SIZE;
     }
 
-    encode(): string {
+    encode(): {} {
         const copy = {
-            name: this.name,
-            position: encodeVector3(this.position),
-            size: encodeVector2(this.size),
-            direction: encodeVector2(this.direction),
-            speed: this.speed,
-            content: encodeArray(this.content, MAX_SIZE),
-            isTurning: this.getIsTurning()
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "direction": encodeVector2(this.direction),
+            "speed": this.speed,
+            "content": encodeArray(this.content, MAX_SIZE),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+            "isTurning": this.getIsTurning()
         }
-        return HttpService.JSONEncode(copy);
+        return copy;
     }
 
-    static decode(encoded: string): Conveyer {
-        const decoded = HttpService.JSONDecode(encoded) as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, isTurning: boolean };
-        const newConveyer = new Conveyer(decoded.name, decodeVector3(decoded.position), decodeVector2(decoded.size), decodeVector2(decoded.direction), decoded.speed);
-        newConveyer.content = decodeArray(decoded.content);
-        newConveyer.isTurning = decoded.isTurning;
-        return newConveyer;
+    static decode(decoded: unknown): Conveyer {
+        const data  = decoded as { name: string, position: { x: number, y: number, z: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, isTurning: boolean };
+        const conveyer = new Conveyer(data.name, decodeVector3(data.position), new Vector2(1, 1), decodeVector2(data.direction), data.speed);
+        conveyer.content = decodeArray(data.content);
+        conveyer.isTurning = data.isTurning;
+        conveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[];
+        conveyer.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        return conveyer;
     }
 }
 

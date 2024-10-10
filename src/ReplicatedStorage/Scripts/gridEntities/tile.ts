@@ -1,3 +1,5 @@
+import { decodeVector2, decodeVector3 } from "../encoding";
+
 class Tile {
     //position local par rapport au plot
     position: Vector3;
@@ -20,6 +22,19 @@ class Tile {
             }
         }
         return undefined;
+    }
+
+    encode(): {} {
+        return {
+            "name": this.name,
+            "position": this.position,
+            "size": this.size
+        }
+    }
+
+    static decode(decoded: unknown): Tile {
+        const data = decoded as {name: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}};
+        return new Tile(data.name, decodeVector3(data.position), decodeVector2(data.size));
     }
 }
 

@@ -2,6 +2,7 @@ import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import Component from "ReplicatedStorage/Scripts/Content/Entities/component";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 
 // Settings
@@ -42,6 +43,28 @@ class Crafter extends TileEntity {
         this.ressources.push(entity);
 
         return new Array<Entity>();
+    }
+
+    encode(): {} {
+        return {
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
+            "direction": encodeVector2(this.direction),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+            "currentCraft": this.currentCraft?.name
+        }
+    }
+
+    static decode(decoded: unknown): Crafter {
+        const data = decoded as {name: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}, direction: {x: number, y: number}, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, currentCraft: string};
+        const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
+        crafter.currentCraft = getComponent(data.currentCraft);
+        crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
+        crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        return crafter;
     }
 
     updateShape(gridBase: BasePart): void {

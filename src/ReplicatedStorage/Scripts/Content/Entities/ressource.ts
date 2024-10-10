@@ -1,12 +1,13 @@
 import Entity from "./entity";
-import RessourceType from "./ressourceEnum";
+import {RessourceType, getRessourceFromString } from "./ressourceEnum";
 
 class Ressource extends Entity {
     ressourceType: RessourceType
 
-    constructor(name: string, ressourceType: RessourceType) {
+    constructor(name: string, ressourceType?: RessourceType) {
         let calculatedSellPrice = 0;
         let speed = 0;
+        if (!ressourceType) ressourceType = getRessourceFromString(name);
 
         // Le prix des ressources est fixe
         if (ressourceType === RessourceType.Plastic) {
@@ -23,7 +24,7 @@ class Ressource extends Entity {
         }
 
         super(name, speed, calculatedSellPrice)
-        this.ressourceType = ressourceType
+        this.ressourceType = ressourceType as RessourceType
     }
 
     copy(): Ressource {

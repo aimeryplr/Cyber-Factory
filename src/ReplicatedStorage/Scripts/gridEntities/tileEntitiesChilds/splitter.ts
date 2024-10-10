@@ -5,6 +5,7 @@ import { findBasepartByName } from "../tileEntityUtils";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
 import Conveyer from "./conveyer";
 import TileGrid from "ServerScriptService/plot/gridTile";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -42,6 +43,26 @@ class Splitter extends TileEntity {
     addEntity(entities: Array<Entity>): Array<Entity | undefined> {
         const transferdEntities = transferArrayContent(entities, this.content, MAX_SIZE) as Array<Entity | undefined>;
         return transferdEntities;
+    }
+
+    encode(): {} {
+        return {
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
+            "direction": encodeVector2(this.direction),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+        }
+    }
+
+    static decode(decoded: unknown): Splitter {
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}> };
+        const splitter = new Splitter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        splitter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
+        splitter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        return splitter;
     }
 
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {

@@ -95,7 +95,7 @@ class Plot {
 	public removeGridTile(tileObj: BasePart): Tile | undefined {
 		const localPosition = tileObj.Position.sub(this.gridBase.Position);
 		const tile = this.tileGrid.getTileFromPosition(localPosition);
-
+		
 		if (tile === undefined) error("Tile not found when removing it");
 
 		if (tile instanceof TileEntity) {
@@ -122,6 +122,10 @@ class Plot {
 
 	public getGridTiles(): TileGrid {
 		return this.tileGrid;
+	}
+
+	public encode(): any {
+		return this.tileGrid.encode();
 	}
 }
 

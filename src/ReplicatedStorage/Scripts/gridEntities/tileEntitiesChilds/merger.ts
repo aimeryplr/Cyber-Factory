@@ -3,6 +3,7 @@ import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 //Setings
 const MAX_CONTENT = 6;
@@ -41,6 +42,26 @@ class Merger extends TileEntity {
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
         const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), MAX_CONTENT) as Array<Entity | undefined>;
         return transferdEntities;
+    }
+
+    encode(): {} {
+        return {
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
+            "direction": encodeVector2(this.direction),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+        }
+    }
+
+    static decode(decoded: unknown): Merger {
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}> };
+        const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        merger.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
+        merger.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        return merger;
     }
 
     updateShape(gridBase: BasePart): void {

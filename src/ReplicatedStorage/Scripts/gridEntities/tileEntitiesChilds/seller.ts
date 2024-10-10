@@ -1,5 +1,6 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
+import { decodeVector3Array, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 // Settings
 const MAX_INPUTS = 4;
@@ -44,6 +45,21 @@ class Seller extends TileEntity {
         }
 
         return new Array<Entity | undefined>(entities.size(), undefined);
+    }
+
+    encode(): {} {
+        return {
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+        }
+    }
+
+    static decode(decoded: unknown): Seller {
+        const data = decoded as { position: { x: number, y: number, z: number }, inputTiles: Array<{ x: number, y: number, z: number }> };
+        const seller = new Seller("seller", new Vector3(data.position.x, data.position.y, data.position.z), new Vector2(1, 1), new Vector2(1, 0), 0);
+        seller.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
+        return seller;
     }
 
     updateShape(gridBase: BasePart): void {

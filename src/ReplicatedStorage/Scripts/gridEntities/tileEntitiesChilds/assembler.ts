@@ -1,8 +1,9 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import Module from "ReplicatedStorage/Scripts/Content/Entities/module";
-import RessourceType from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
+import {RessourceType} from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import { decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 // Settings
 const MAX_INPUTS = 2;
@@ -42,6 +43,26 @@ class Assembler extends TileEntity {
         }
         arrayToReturn.push(entity);
         return arrayToReturn;
+    }
+
+    encode(): {} {
+        return {
+            "name": this.name,
+            "category": this.category,
+            "position": encodeVector3(this.position),
+            "direction": encodeVector2(this.direction),
+            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+            "currentCraft": this.currentCraft?.name
+        }
+    }
+
+    static decode(decoded: unknown): Assembler {
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}> };
+        const assembler = new Assembler(data.name, new Vector3(data.position.x, data.position.y, data.position.z), new Vector2(data.size.x, data.size.y), new Vector2(data.direction.x, data.direction.y), data.speed);
+        assembler.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
+        assembler.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        return assembler;
     }
 
     updateShape(gridBase: BasePart): void {

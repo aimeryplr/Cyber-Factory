@@ -1,5 +1,5 @@
 import Component from "./component";
-import RessourceType from "./ressourceEnum";
+import {RessourceType} from "./ressourceEnum";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 
 const Iron = new Ressource("Iron", RessourceType.Iron);

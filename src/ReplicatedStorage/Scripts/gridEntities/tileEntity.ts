@@ -48,6 +48,8 @@ abstract class TileEntity extends Tile {
 
     abstract updateShape(gridBase: BasePart): void;
 
+    abstract encode(): {};
+
     setInput(previousTileEntity: TileEntity): void {
         this.inputTiles.push(previousTileEntity);
     };
