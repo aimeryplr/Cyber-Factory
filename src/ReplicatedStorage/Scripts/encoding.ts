@@ -26,7 +26,7 @@ function encodeArray(array: Array<unknown | undefined>, maxSize: number): { [key
     for (let i = 0; i < maxSize; i++) {
         const value = array[i];
         if (value === undefined) {
-            serialized[i] = "null"; // Placeholder for undefined/null values
+            serialized[i] = "n"; // Placeholder for undefined/null values
         } else {
             serialized[i] = value;
         }
@@ -38,7 +38,7 @@ function decodeArray(array: Array<unknown>): Array<any> {
     const result: Array<unknown> = new Array(array.size());
 
     for (let i = 0; i < array.size(); i++) {
-        if (array[i] === "null") {
+        if (array[i] === "n") {
             result[i] = undefined; // Restore undefined/null values
         } else {
             result[i] = array[i];

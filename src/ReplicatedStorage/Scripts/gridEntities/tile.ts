@@ -24,6 +24,10 @@ class Tile {
         return undefined;
     }
 
+    getGlobalPosition(gridBase: BasePart): Vector3 {
+        return new Vector3(this.position.X + gridBase.Position.X, this.position.Y, this.position.Z + gridBase.Position.Z)
+    }
+
     encode(): {} {
         return {
             "name": this.name,

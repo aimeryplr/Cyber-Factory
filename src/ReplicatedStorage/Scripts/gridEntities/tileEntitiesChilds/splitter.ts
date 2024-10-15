@@ -52,6 +52,7 @@ class Splitter extends TileEntity {
             "position": encodeVector3(this.position),
             "size": encodeVector2(this.size),
             "direction": encodeVector2(this.direction),
+            "speed": this.speed,
             "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }

@@ -137,10 +137,6 @@ abstract class TileEntity extends Tile {
         return math.atan2(this.direction.Y, this.direction.X)
     }
 
-    getGlobalPosition(gridBase: BasePart): Vector3 {
-        return this.position.add(gridBase.Position).sub(new Vector3(0, gridBase.Size.Y / 2, 0))
-    }
-
     getProgress(progress: number): number {
         return (progress * (this.speed / 60)) % 1;
     }

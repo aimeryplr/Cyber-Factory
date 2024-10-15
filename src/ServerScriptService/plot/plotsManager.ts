@@ -35,7 +35,7 @@ class PlotsManager {
     }
 
     public hasPlayerClaimedPlot(userID: number) {
-        return this.plots.some(plot => plot.getOwner() === userID) === undefined;
+        return this.plots.some(plot => plot.getOwner() === userID);
     }
 
     private setupUpdate() {

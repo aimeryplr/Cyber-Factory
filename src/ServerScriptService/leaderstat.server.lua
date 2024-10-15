@@ -8,9 +8,8 @@ game.Players.PlayerAdded:Connect(function(player)
 	local money = Instance.new("IntValue", stats)
 	money.Name = "Money"
 	
-	local tier = Instance.new("StringValue", stats)
+	local tier = Instance.new("IntValue", stats)
 	tier.Name = "Tier"
-	tier.Value = "Tier 1"
 	
 	stats.Parent = player
 	

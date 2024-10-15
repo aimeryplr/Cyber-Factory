@@ -1,7 +1,6 @@
 import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
-import { getGlobalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 
 const offset = 0.5;
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
@@ -166,7 +165,7 @@ function getEntityPositionInTurningConveyer(conveyer: Conveyer, previousConveyer
     const middleIndex = math.round(conveyer.getMaxContentSize() / 2);
     const offset = 1.5 / middleIndex;
     const previousConveyerDirection = new Vector3(conveyer.position.X - previousConveyerPos.X, 0, conveyer.position.Z - previousConveyerPos.Z).Unit;
-    const departPos = getGlobalPosition(conveyer.position, gridBase).add(previousConveyerDirection.mul(-1.5));
+    const departPos = conveyer.getGlobalPosition(gridBase).add(previousConveyerDirection.mul(-1.5));
 
     if (index >= middleIndex) {
         return departPos.add(new Vector3(previousConveyerDirection.X * offset * (lastIndex - index), 0.7, previousConveyerDirection.Z * offset * (lastIndex - index)));
