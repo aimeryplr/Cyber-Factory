@@ -6,7 +6,6 @@ const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0),
 
 abstract class TileEntity extends Tile {
     category: string;
-    direction: Vector2;
     speed: number // the speed in object per second produced
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
@@ -17,10 +16,9 @@ abstract class TileEntity extends Tile {
     lastProgress: number = 0;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number) {
-        super(name, position, size);
+        super(name, position, size, direction);
         this.category = category;
         this.speed = speed;
-        this.direction = direction;
 
         this.maxInputs = maxInputs;
         this.maxOutputs = maxOutputs;
@@ -131,10 +129,6 @@ abstract class TileEntity extends Tile {
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
         if (neighbourTile.category === "splitter") return this.direction === neighbourTileDirection.mul(-1)
         return neighbourTile.direction === neighbourTileDirection.mul(-1)
-    }
-
-    getOrientation(): number {
-        return math.atan2(this.direction.Y, this.direction.X)
     }
 
     getProgress(progress: number): number {

@@ -1,15 +1,17 @@
-import { decodeVector2, decodeVector3 } from "../encoding";
+import { decodeVector2, decodeVector3, encodeVector2, encodeVector3 } from "../encoding";
 
 class Tile {
     //position local par rapport au plot
     position: Vector3;
     name: string;
     size: Vector2;
+    direction: Vector2;
 
-    constructor(name: string, position: Vector3, size: Vector2) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2) {
         this.position = position;
         this.name = name;
         this.size = size;
+        this.direction = direction;
     }
 
     findThisPartInWorld(gridBase: BasePart): BasePart | undefined {
@@ -25,20 +27,25 @@ class Tile {
     }
 
     getGlobalPosition(gridBase: BasePart): Vector3 {
-        return new Vector3(this.position.X + gridBase.Position.X, this.position.Y, this.position.Z + gridBase.Position.Z)
+        return this.position.add(gridBase.Position);
+    }
+
+    getOrientation(): number {
+        return math.atan2(this.direction.Y, this.direction.X)
     }
 
     encode(): {} {
         return {
             "name": this.name,
-            "position": this.position,
-            "size": this.size
+            "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
+            "direction": encodeVector2(this.direction)
         }
     }
 
     static decode(decoded: unknown): Tile {
-        const data = decoded as {name: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}};
-        return new Tile(data.name, decodeVector3(data.position), decodeVector2(data.size));
+        const data = decoded as {name: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}, direction: { x: number, y: number }};
+        return new Tile(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction));
     }
 }
 

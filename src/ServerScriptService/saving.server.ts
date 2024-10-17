@@ -15,7 +15,7 @@ Players.PlayerAdded.Connect((player) => {
         moneyValue.Value = save.money;
         tierValue.Value = save.tier;
     } else {
-        moneyValue.Value = 1000;
+        moneyValue.Value = 3000;
         tierValue.Value = 1;
     }
 });

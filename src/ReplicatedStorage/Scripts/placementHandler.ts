@@ -43,20 +43,17 @@ class PlacementHandler {
     }
 
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {
-        const plotOffset = new Vector2(this.gridBase.Position.X % GRID_SIZE, this.gridBase.Position.Z % GRID_SIZE);
-
         const mouseRay = this.mouse.UnitRay;
         const castRay = new Ray(mouseRay.Origin, mouseRay.Direction.mul(1000));
         const ignoreList = [obj];
         const [hit, position] = Workspace.FindPartOnRayWithIgnoreList(castRay, ignoreList);
+        const localPos = position.sub(this.gridBase.Position);
 
         if (hit === this.gridBase) {
-            let x = math.floor((position.X - plotOffset.X) / GRID_SIZE) * GRID_SIZE + plotOffset.X;
-            const y = this.gridBase.Size.Y / 2 + this.gridBase.Position.Y + obj.Size.Y / 2;
-            let z = math.floor((position.Z - plotOffset.Y) / GRID_SIZE) * GRID_SIZE + plotOffset.Y;
-            if (this.size && this.size.X % 2 === 1) x += GRID_SIZE / 2;
-            if (this.size && this.size.Y % 2 === 1) z += GRID_SIZE / 2;
-            return new Vector3(x, y, z);
+            let x = math.floor((localPos.X + obj.Size.X / 2) / GRID_SIZE) * (GRID_SIZE);
+            const y = this.gridBase.Size.Y / 2 + obj.Size.Y / 2;
+            let z = math.floor((localPos.Z + obj.Size.Z / 2) / GRID_SIZE) * (GRID_SIZE);
+            return new Vector3(x, y, z).add(this.gridBase.Position);
         }
         return undefined;
     }
@@ -151,9 +148,7 @@ class PlacementHandler {
 
     placeObject() {
         if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
-        if (placeTileCheck.InvokeServer(this.currentTile.Name, this.targetPos, -this.rotation , this.size, this.gridBase)) {
-            this.resetMode();
-        }
+        placeTileCheck.InvokeServer(this.currentTile.Name, this.targetPos, -this.rotation , this.size, this.gridBase)
     }
 
     setupDestroying() {

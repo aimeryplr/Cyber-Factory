@@ -121,8 +121,21 @@ class TileGrid {
         return true
     }
 
-    getTiles(): Array<Array<Tile | undefined>> {
+    getGrid(): Array<Array<Tile | undefined>> {
         return this.tileGrid;
+    }
+
+    getTiles(): Array<Tile> {
+        const tiles = new Array<Tile>();
+        for (let i = 0; i < this.gridSize.Y; i++) {
+            for (let j = 0; j < this.gridSize.X; j++) {
+                const currentTile = this.tileGrid[i][j];
+                if (currentTile !== undefined && !tiles.some((tile) => tile.position === currentTile.position)) {
+                    tiles.push(currentTile);
+                }
+            }
+        }
+        return tiles;
     }
 
     /**
@@ -141,7 +154,7 @@ class TileGrid {
                 const tile = this.tileGrid[i][j];
                 if (tile instanceof Tile) {
                     (tileGrid[i] as Array<unknown>)[j] = tile.encode();
-                } 
+                }
             }
         }
         const copy = {
@@ -152,12 +165,12 @@ class TileGrid {
     }
 
     static decode(encoded: string): TileGrid {
-        const decoded =  HttpService.JSONDecode(encoded) as {gridSize: {x: number, y: number}, tileGrid: Array<Array<unknown>>};
+        const decoded = HttpService.JSONDecode(encoded) as { gridSize: { x: number, y: number }, tileGrid: Array<Array<unknown>> };
         const tileGrid = new TileGrid(decodeVector2(decoded.gridSize));
-        
+
         decodeTiles(decoded.tileGrid, tileGrid);
         tileGrid.connectTiles()
-        
+
         return tileGrid;
     }
 
@@ -172,7 +185,7 @@ class TileGrid {
     connectTile(tile: Tile | undefined) {
         if (!tile) return;
         if (!(tile instanceof TileEntity)) return;
-        
+
         for (const outputTile of tile.outputTiles) {
             if (!(typeIs(outputTile, "Vector3"))) continue;
             const outputTileEntity = this.getTileFromPosition(outputTile);
@@ -200,7 +213,7 @@ class TileGrid {
 }
 
 function decodeTile(decoded: unknown) {
-    const data = decoded as {category: string}
+    const data = decoded as { category: string }
 
     switch (data.category) {
         case "tile":

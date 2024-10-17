@@ -110,6 +110,7 @@ class Conveyer extends TileEntity {
             "name": this.name,
             "category": this.category,
             "position": encodeVector3(this.position),
+            "size": encodeVector2(this.size),
             "direction": encodeVector2(this.direction),
             "speed": this.speed,
             "content": encodeArray(this.content, MAX_SIZE),
@@ -121,8 +122,8 @@ class Conveyer extends TileEntity {
     }
 
     static decode(decoded: unknown): Conveyer {
-        const data  = decoded as { name: string, position: { x: number, y: number, z: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, isTurning: boolean };
-        const conveyer = new Conveyer(data.name, decodeVector3(data.position), new Vector2(1, 1), decodeVector2(data.direction), data.speed);
+        const data  = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number },  direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, isTurning: boolean };
+        const conveyer = new Conveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         conveyer.content = decodeArray(data.content);
         conveyer.isTurning = data.isTurning;
         conveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[];

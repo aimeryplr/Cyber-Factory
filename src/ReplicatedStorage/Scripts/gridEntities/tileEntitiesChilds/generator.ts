@@ -3,7 +3,6 @@ import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { TileEntity } from "../tileEntity";
 import { Iron } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
-import { HttpService } from "@rbxts/services";
 
 // Settings
 const MAX_INPUTS = 0;

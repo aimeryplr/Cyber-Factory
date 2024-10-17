@@ -16,7 +16,7 @@ const plotsManager = new PlotsManager();
 placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
 	const plot = plotsManager.getPlotByOwner(player.UserId);
 	const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
-	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position.Floor());
+	const localPos = (pos as Vector3).sub((gridBase as BasePart).Position);
 	const tileObject = findBasepartByName(tileName as string);
 	const tileInformation = getGridEntityInformation(tileName as string);
 	const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
@@ -34,7 +34,7 @@ placeTileCallback.OnServerInvoke = (player: Player, tileName: unknown, pos: unkn
 		setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
 		plot.addGridTile(tileEntity, player.UserId);
 	}
-	// print(TileGrid.decode(HttpService.JSONEncode(plot.encode())));
+	// print(plot.getGridTiles().tileGrid);
 	return isPlaceable;
 };
 
