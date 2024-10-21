@@ -35,23 +35,22 @@ function getTileEntityByCategory(className: string, name: string, position: Vect
 }
 
 /**
- * find the object information in the gridEntities list
+ * find the object information in the gridEntities list, the name can be contained in the name
  * @param name grridEntity name like generator_t1
  * @returns all the information of the gridEntity
  */
-function getGridEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
-    let gridEntity;
-
+function getTileEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
     if (category) {
-        gridEntity = tileEntitiesList.get(category)?.get(name);
-        if (!gridEntity) {
+        const tileEntity = tileEntitiesList.get(category)?.get(name);
+        if (!tileEntity) {
             error(`gridEntity ${name} not found`);
         }
     } else {
-        for (const [_, _gridEntity] of tileEntitiesList) {
-            gridEntity = _gridEntity.get(name);
-            if (gridEntity) {
-                return gridEntity;
+        for (const [_, category] of tileEntitiesList) {
+            for (const [tileEntityName, tileEntityInfo] of category) {
+                if (tileEntityName.find(name)[0] === 1) {
+                    return tileEntityInfo;
+                }
             }
         }
     }
@@ -60,4 +59,4 @@ function getGridEntityInformation(name: string, category?: string): { name: stri
 
 
 
-export { getTileEntityByCategory, getGridEntityInformation };
+export { getTileEntityByCategory, getTileEntityInformation };

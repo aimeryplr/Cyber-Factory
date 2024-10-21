@@ -2,14 +2,9 @@ import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import { HttpService } from "@rbxts/services";
 import { decodeArray, decodeVector2, decodeVector3, encodeArray, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
-import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
-import Splitter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/splitter";
-import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
-import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
-import Merger from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/merger";
-import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
+import { decodeTiles } from "ReplicatedStorage/Scripts/gridTileUtils";
+
 
 class TileGrid {
     tileGrid: Array<Array<Tile | undefined>>;
@@ -40,8 +35,8 @@ class TileGrid {
     getTileFromPosition(position: Vector3): Tile | undefined {
         const gridPosition = TileGrid.localPositionToGridTilePosition(position);
 
-        const y = math.round(this.gridSize.Y / 2) + gridPosition.Y;
-        const x = math.round(this.gridSize.X / 2) + gridPosition.X;
+        const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y;
+        const x = math.floor(this.gridSize.X / 2) + gridPosition.X;
 
         return this.getTile(x, y);
     }
@@ -55,8 +50,8 @@ class TileGrid {
             for (let j = math.ceil(-tile.size.X / 2); j < math.ceil(tile.size.X / 2); j++) {
                 const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
 
-                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
-                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+                const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
                 const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (this.tileGrid[y][x] !== undefined && isInBounds) {
@@ -77,8 +72,8 @@ class TileGrid {
             for (let j = math.ceil(-tile.size.X / 2); j < math.ceil(tile.size.X / 2); j++) {
                 const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
 
-                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
-                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+                const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
                 const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (this.tileGrid[y][x] !== undefined) error("Tile is already occupied");
@@ -92,8 +87,8 @@ class TileGrid {
             for (let j = math.ceil(-tile.size.X / 2); j < math.ceil(tile.size.X / 2); j++) {
                 const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
 
-                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
-                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+                const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
                 const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (isInBounds) this.tileGrid[y][x] = undefined;
@@ -109,8 +104,8 @@ class TileGrid {
         for (let i = math.ceil(-size.Y / 2); i < math.ceil(size.Y / 2); i++) {
             for (let j = math.ceil(-size.X / 2); j < math.ceil(size.X / 2); j++) {
                 const gridPosition = TileGrid.localPositionToGridTilePosition(tile.position);
-                const y = math.round(this.gridSize.Y / 2) + gridPosition.Y + i;
-                const x = math.round(this.gridSize.X / 2) + gridPosition.X + j;
+                const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
+                const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
                 const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (this.tileGrid[y][x] !== undefined || !isInBounds) {
@@ -143,7 +138,7 @@ class TileGrid {
      * @returns the position in grid tile list index
     */
     public static localPositionToGridTilePosition(position: Vector3): Vector2 {
-        return new Vector2(math.floor(position.X / GRID_SIZE), math.floor(position.Z / GRID_SIZE));
+        return new Vector2(math.ceil(position.X / GRID_SIZE), math.ceil(position.Z / GRID_SIZE));
     }
 
     public encode(): any {
@@ -212,41 +207,4 @@ class TileGrid {
     }
 }
 
-function decodeTile(decoded: unknown) {
-    const data = decoded as { category: string }
-
-    switch (data.category) {
-        case "tile":
-            return Tile.decode(decoded);
-        case "conveyer":
-            return Conveyer.decode(decoded);
-        case "splitter":
-            return Splitter.decode(decoded);
-        case "seller":
-            return Seller.decode(decoded);
-        case "crafter":
-            return Crafter.decode(decoded)
-        case "generator":
-            return Generator.decode(decoded);
-        case "merger":
-            return Merger.decode(decoded);
-        case "assembler":
-            return Assembler.decode(decoded);
-        default:
-            error("Tile category not found");
-    }
-}
-
-function decodeTiles(decodedTiles: Array<Array<unknown>>, tileGrid: TileGrid) {
-    for (let i = 0; i < tileGrid.gridSize.Y; i++) {
-        decodedTiles[i] = decodeArray(decodedTiles[i]);
-        for (let j = 0; j < tileGrid.gridSize.X; j++) {
-            if (decodedTiles[i][j] !== undefined) {
-                decodedTiles[i][j] = decodeTile(decodedTiles[i][j]);
-            }
-        }
-    }
-    tileGrid.tileGrid = decodedTiles as Array<Array<Tile | undefined>>;
-}
-
-export default TileGrid
+export { TileGrid };

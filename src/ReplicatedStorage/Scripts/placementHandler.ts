@@ -50,9 +50,13 @@ class PlacementHandler {
         const localPos = position.sub(this.gridBase.Position);
 
         if (hit === this.gridBase) {
-            let x = math.floor((localPos.X + obj.Size.X / 2) / GRID_SIZE) * (GRID_SIZE);
+            let x = math.floor((localPos.X + GRID_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
             const y = this.gridBase.Size.Y / 2 + obj.Size.Y / 2;
-            let z = math.floor((localPos.Z + obj.Size.Z / 2) / GRID_SIZE) * (GRID_SIZE);
+            let z = math.floor((localPos.Z + GRID_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
+            
+            if (this.size && this.size.X % 2 === 0) x -= GRID_SIZE / 2;
+            if (this.size && this.size.Y % 2 === 0) z -= GRID_SIZE / 2;
+
             return new Vector3(x, y, z).add(this.gridBase.Position);
         }
         return undefined;
@@ -67,11 +71,12 @@ class PlacementHandler {
 
     private checkPlacement(pos: Vector3): boolean {
         if (this.currentTile === undefined || this.size === undefined) return false;
-        const x = math.floor((pos.X - this.gridBase.Position.X) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.X / 2;
-        const y = math.floor((pos.Z - this.gridBase.Position.Z) / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.Z / 2;
+        const localPos = pos.sub(this.gridBase.Position);
+        const x = math.floor(localPos.X / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.X / 2;
+        const y = math.floor(localPos.Z / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.Z / 2;
 
-        if (x >= this.gridBase.Size.X - math.ceil(this.size.X / 2 - 1) * GRID_SIZE || x < math.floor(this.size.X / 2) * GRID_SIZE) return false;
-        if (y >= this.gridBase.Size.Z - math.ceil(this.size.Y / 2 - 1) * GRID_SIZE || y < math.floor(this.size.Y / 2) * GRID_SIZE) return false;
+        if (x >= this.gridBase.Size.X - math.ceil(this.size.X / 2 - 1) * GRID_SIZE || x < math.floor(this.size.X / 2 - 1) * GRID_SIZE) return false;
+        if (y >= this.gridBase.Size.Z - math.ceil(this.size.Y / 2 - 1) * GRID_SIZE || y < math.floor(this.size.Y / 2 - 1) * GRID_SIZE) return false;
 
         return true;
     }
@@ -84,10 +89,12 @@ class PlacementHandler {
     private moveObj() {
         if (this.currentTile) {
             const newPos = this.calculateObjectPos(this.currentTile);
+            // init position
             if (newPos !== undefined && this.targetPos === undefined) {
                 this.currentTile.Position = newPos;
+                this.setupObject();
             }
-
+            
             //set target position
             if (newPos !== undefined && this.checkPlacement(newPos) && this.selectionTile !== undefined) {
                 this.targetPos = newPos;
@@ -105,8 +112,14 @@ class PlacementHandler {
         }
     }
 
+    updateMoneyCheck(price: number, playerMoney: NumberValue) {
+        if (this.selectionTile) {
+            this.selectionTile.SurfaceColor3 = playerMoney.Value >= price ? new Color3(0, 1, 0) : new Color3(1, 0, 0);
+        }
+    }
+
     private setupObject() {
-        if (this.currentTile === undefined) return;
+        if (this.currentTile === undefined) error("Object not found");
 
         //setup object
         this.currentTile.Anchored = true;
@@ -115,24 +128,22 @@ class PlacementHandler {
         this.currentTile.Transparency = PLACING_TRANSPARENCY;
         this.currentTile.Orientation = new Vector3(0, math.deg(this.rotation), 0);
 
-        //add selectionBox
         this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionTile")?.Clone() as SelectionBox;
-        if (this.selectionTile === undefined) return;
+        if (!this.selectionTile) return;
 
         this.selectionTile.Parent = this.currentTile;
         this.selectionTile.Adornee = this.currentTile;
     }
 
-    activatePlacing(obj: BasePart) {
+    activatePlacing(obj: BasePart, price: number, playerMoney: NumberValue) {
         if (this.placementStatus !== placementType.NONE) this.resetMode();
         this.currentTile = obj.Clone();
         if(!this.currentTile) error("Object not found");
 
         this.calculateSize();
         this.placementStatus = placementType.PLACING;
-        this.setupObject();
         
-        RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => {this.moveObj()});
+        RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => {this.moveObj(); this.updateMoneyCheck(price, playerMoney)});
     }
 
     resetMode() {
@@ -235,4 +246,18 @@ function setupObject(obj: BasePart, pos: Vector3, orientation: number, gridBase:
     return newObject;
 }
 
-export { PlacementHandler, setupObject, GRID_SIZE };
+/**
+ * @returns the last hit part before the gridBase
+ */
+function getTileFromRay(gridBase: BasePart): BasePart | undefined {
+    const range = 30;
+
+    const mouseRay = Players.LocalPlayer.GetMouse().UnitRay;
+    const raycastParameters = new RaycastParams();
+    raycastParameters.FilterDescendantsInstances = [Players.LocalPlayer.Character!]
+
+    const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(range), raycastParameters);
+    return raycastResult?.Instance
+}
+
+export { PlacementHandler, setupObject, GRID_SIZE, placementType, getTileFromRay };

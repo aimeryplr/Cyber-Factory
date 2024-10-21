@@ -1,9 +1,11 @@
-import { getGridEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
+import { Players } from "@rbxts/services";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
-import { PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
+import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 
 class Hotbar {
     private hotbar;
+    private currentSlot: number | undefined;
 
     constructor() {
         this.hotbar = new Array<HotbarSlot | undefined>(9);
@@ -28,9 +30,9 @@ class Hotbar {
     }
 
     setSlotFromName(slot: number, name: string) {
-        const info = getGridEntityInformation(name);
+        const info = getTileEntityInformation(name);
         const part = findBasepartByName(info.name);
-        this.hotbar[slot] = new HotbarSlot(part, info.image);
+        this.hotbar[slot] = new HotbarSlot(part, info.image, info.price);
     }
 
     getHotbarPart(index: number): BasePart {
@@ -45,19 +47,24 @@ class Hotbar {
     
     activatePlacingFromHotbar(index: number, placementHandler: PlacementHandler) {
         if (this.isSlotEmpty(index)) return;
+        if (this.currentSlot === index && placementHandler.placementStatus === placementType.PLACING) return placementHandler.resetMode();
 
-        const part = this.getHotbarPart(index);
-        placementHandler.activatePlacing(part);
+        const slot = this.getSlot(index);
+        const playerMoney = Players.LocalPlayer!.FindFirstChild("leaderstats")!.FindFirstChild("Money") as NumberValue
+        placementHandler.activatePlacing(slot.getPart(), slot.getPrice(), playerMoney);
+        this.currentSlot = index;
     }
 }
 
 class HotbarSlot {
     private part: BasePart;
     private image: string;
+    private price: number;
 
-    constructor(part: BasePart, image: string) {
+    constructor(part: BasePart, image: string, price: number = 0) {
         this.part = part;
         this.image = image;
+        this.price = price;
     }
 
     public getPart(): BasePart {
@@ -66,6 +73,10 @@ class HotbarSlot {
 
     public getImage(): string {
         return this.image;
+    }
+
+    public getPrice(): number {
+        return this.price;
     }
 }
 

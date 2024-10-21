@@ -50,14 +50,16 @@ class Generator extends TileEntity {
             "position": encodeVector3(this.position),
             "size": encodeVector2(this.size),
             "direction": encodeVector2(this.direction),
-            "ressource": this.ressource?.ressourceType,
+            "ressource": this.ressource?.name,
+            "lastProgress": this.lastProgress,
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }
     }
 
     static decode(decoded: unknown): Generator {
-        const data = decoded as {name: string, category:string, position: {x: number, y:number, z:number}, size: {x: number, y:number}, direction:  {x: number, y:number}, ressource: string, outputTiles: Array<{x: number, y: number, z: number}>}
+        const data = decoded as {name: string, category:string, position: {x: number, y:number, z:number}, size: {x: number, y:number}, direction:  {x: number, y:number}, ressource: string, lastProgress: number, outputTiles: Array<{x: number, y: number, z: number}>}
         const generator = new Generator(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
+        generator.lastProgress = data.lastProgress;
         generator.setRessource(new Ressource(data.ressource));
         generator.outputTiles = decodeVector3Array(data.outputTiles) as Array<TileEntity>;
         return generator;

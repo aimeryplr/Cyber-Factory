@@ -4,7 +4,7 @@ import { TileEntity } from "../tileEntity";
 import { findBasepartByName } from "../tileEntityUtils";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
 import Conveyer from "./conveyer";
-import TileGrid from "ServerScriptService/plot/gridTile";
+import type {TileGrid} from "ServerScriptService/plot/gridTile";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 // Settings

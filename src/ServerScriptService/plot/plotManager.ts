@@ -1,7 +1,12 @@
+import { getPlayerData } from "ServerScriptService/datastore";
+import { TileGrid } from "./gridTile";
 import Plot from "./plot";
-import { RunService } from "@rbxts/services";
+import { Players, RunService } from "@rbxts/services";
 
-class PlotsManager {
+/**
+ * holds every plot in the game with a owner or not
+ */
+class PlotManager {
     private plots: Array<Plot>;
     private progress: number;
 
@@ -14,7 +19,9 @@ class PlotsManager {
     private init() {
         this.setupUpdate();
         this.retrievePlots();
+        this.setupPlots();
     }
+
 
     public addPlot(plot: Plot) {
         this.plots.push(plot);
@@ -57,6 +64,23 @@ class PlotsManager {
             });
         }
     }
+
+    private setupPlots() {
+        this.getPlots().forEach((plot) => {
+            plot.getGridBase().Touched.Connect((part) => {
+                const player = Players.GetPlayerFromCharacter(part.Parent);
+                if (!player || this.hasPlayerClaimedPlot(player.UserId)) return;
+
+                plot.addOwner(player);
+
+                // load the grid
+                const grid = TileGrid.decode(getPlayerData(player.UserId)?.grid as string);
+                if (!grid) return
+
+                plot.loadGrid(grid);
+            });
+        });
+    }
 }
 
-export default PlotsManager;
+export default PlotManager;

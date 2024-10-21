@@ -58,7 +58,11 @@ function connectTileEntityToAllInputsAndOutputs(tileEntity: TileEntity): void {
 }
 
 function getGlobalPosition(position: Vector3, gridBase: BasePart): Vector3 {
-    return new Vector3(position.X + gridBase.Position.X, position.Y, position.Z + gridBase.Position.Z)
+    return position.add(gridBase.Position);
 }
 
-export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition };
+function getLocalPosition(position: Vector3, gridBase: BasePart): Vector3 {
+    return position.sub(gridBase.Position);
+}
+
+export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition, getLocalPosition };

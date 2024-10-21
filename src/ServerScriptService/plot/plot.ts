@@ -2,11 +2,11 @@ import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/conveye
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
-import TileGrid from "./gridTile";
+import {TileGrid} from "./gridTile";
 import { changeShapes, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
 import { findBasepartByName, removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
-import { Players, ReplicatedStorage } from "@rbxts/services";
+import { ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
@@ -161,6 +161,7 @@ class Plot {
 
 			const basepart = findBasepartByName(tile.name).Clone();
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
+			if (tile instanceof TileEntity) tile.updateShape(this.gridBase)
 
 			if (tile instanceof Seller) {
 				this.sellers.push(tile);

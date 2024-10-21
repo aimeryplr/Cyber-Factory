@@ -1,16 +1,16 @@
 enum RessourceType {
-    Plastic = "PLASTIC",
-    Copper = "COPPER",
-    Iron = "IRON",
+    Plastic = "Plastic",
+    Copper = "Copper",
+    Iron = "Iron",
 }
 
 function getRessourceFromString(name: string): RessourceType {
-    switch (name) {
-        case "PLASTIC":
+    switch (string.lower(name)) {
+        case "plastic":
             return RessourceType.Plastic;
-        case "COPPER":
+        case "copper":
             return RessourceType.Copper;
-        case "IRON":
+        case "iron":
             return RessourceType.Iron;
     }
     error("Unknown ressource type: " + name);

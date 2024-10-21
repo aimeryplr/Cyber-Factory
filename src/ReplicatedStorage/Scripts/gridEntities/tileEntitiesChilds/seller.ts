@@ -7,6 +7,8 @@ const MAX_INPUTS = 4;
 const MAX_OUTPUTS = 0;
 const category: string = "seller";
 
+const earnMoneyEvent = game.GetService("ReplicatedStorage").FindFirstChild("Events")?.FindFirstChild("earnMoney") as RemoteEvent;
+
 class Seller extends TileEntity {
     owner: number | undefined;
     playerMoney: NumberValue | undefined;
@@ -41,6 +43,10 @@ class Seller extends TileEntity {
             if (entity !== undefined) {
                 this.playerMoney.Value += entity.sellPrice;
                 entities[i] = undefined;
+
+                const player = game.GetService("Players").GetPlayerByUserId(this.owner ?? 0);
+                if (!player) continue;
+                earnMoneyEvent?.FireClient(player, entity.sellPrice);
             }
         }
 

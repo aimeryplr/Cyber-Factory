@@ -41,6 +41,15 @@
 				},
 				"destroyConveyer": {
 					"$className": "RemoteEvent"
+				},
+				"earnMoney": {
+					"$className": "RemoteEvent"
+				},
+				"getTile": {
+					"$className": "RemoteFunction"
+				},
+				"changeGeneratorRessource": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

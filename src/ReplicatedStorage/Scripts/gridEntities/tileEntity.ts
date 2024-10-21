@@ -1,4 +1,4 @@
-import type TileGrid from "ServerScriptService/plot/gridTile";
+import type {TileGrid} from "ServerScriptService/plot/gridTile";
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Tile from "./tile";
 
@@ -123,7 +123,7 @@ abstract class TileEntity extends Tile {
     }
 
     canConnectOutput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
-        return neighbourTile.direction !== this.direction.mul(-1) && this.direction === neighbourTileDirection
+        return this.direction === neighbourTileDirection && (neighbourTile.direction !== this.direction.mul(-1) || neighbourTile.category === "seller")
     }
 
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
