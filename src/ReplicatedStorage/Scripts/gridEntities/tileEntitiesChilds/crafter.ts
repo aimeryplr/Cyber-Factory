@@ -1,6 +1,6 @@
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import Component from "ReplicatedStorage/Scripts/Content/Entities/component";
+import {Component} from "ReplicatedStorage/Scripts/Content/Entities/component";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
@@ -18,7 +18,6 @@ class Crafter extends TileEntity {
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, 0, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.setCraft(getComponent("Iron Plate"));
     }
 
     tick(progress: number): void {
@@ -52,18 +51,20 @@ class Crafter extends TileEntity {
             "position": encodeVector3(this.position),
             "size": encodeVector2(this.size),
             "direction": encodeVector2(this.direction),
+            "currentCraft": this.currentCraft?.name,
+            "lastProgress": this.lastProgress,
             "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
-            "currentCraft": this.currentCraft?.name
         }
     }
 
     static decode(decoded: unknown): Crafter {
-        const data = decoded as {name: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}, direction: {x: number, y: number}, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, currentCraft: string};
+        const data = decoded as {name: string, category: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}, direction: {x: number, y: number}, currentCraft: string, lastProgress: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>};
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
-        crafter.currentCraft = getComponent(data.currentCraft);
+        if (data.currentCraft) crafter.setCraft(getComponent(data.currentCraft));
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
+        crafter.lastProgress = data.lastProgress;
         return crafter;
     }
 
@@ -71,7 +72,8 @@ class Crafter extends TileEntity {
         return;
     }
 
-    private setCraft(craft: Component) {
+    public setCraft(craft: Component) {
+        print(craft)
         this.currentCraft = craft;
         this.speed = craft.speed
     }
@@ -79,7 +81,7 @@ class Crafter extends TileEntity {
     private isRessourceNeeded(ressource: Entity): boolean {
         if (!this.currentCraft) return false;
         for (const [_ressource, quantity] of this.currentCraft.buildRessources) {
-            if (ressource.name === (_ressource as Entity).name) return true;
+            if (string.lower(ressource.name) === string.lower((_ressource as Ressource).name)) return true;
         }
         return false;
     }

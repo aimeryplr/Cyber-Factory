@@ -16,4 +16,15 @@ function getRessourceFromString(name: string): RessourceType {
     error("Unknown ressource type: " + name);
 }
 
-export {RessourceType, getRessourceFromString};
+function getImageFromRessourceType(ressourceType: RessourceType): string {
+    switch (ressourceType) {
+        case RessourceType.Plastic:
+            return "rbxasset://textures/ui/GuiImagePlaceholder.png";
+        case RessourceType.Copper:
+            return "rbxasset://textures/ui/GuiImagePlaceholder.png";
+        case RessourceType.Iron:
+            return "rbxasset://textures/ui/GuiImagePlaceholder.png";
+    }
+}
+
+export {RessourceType, getRessourceFromString, getImageFromRessourceType};

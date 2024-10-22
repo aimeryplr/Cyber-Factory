@@ -131,6 +131,9 @@ abstract class TileEntity extends Tile {
         return neighbourTile.direction === neighbourTileDirection.mul(-1)
     }
 
+    /**
+     * always below 1
+     */
     getProgress(progress: number): number {
         return (progress * (this.speed / 60)) % 1;
     }

@@ -257,7 +257,10 @@ function getTileFromRay(gridBase: BasePart): BasePart | undefined {
     raycastParameters.FilterDescendantsInstances = [Players.LocalPlayer.Character!]
 
     const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(range), raycastParameters);
-    return raycastResult?.Instance
+    if (raycastResult?.Instance?.Parent === gridBase.FindFirstChild("PlacedObjects")) {
+        return raycastResult?.Instance as BasePart;
+    }
+    return undefined;
 }
 
 export { PlacementHandler, setupObject, GRID_SIZE, placementType, getTileFromRay };

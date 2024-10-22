@@ -50,6 +50,9 @@
 				},
 				"changeGeneratorRessource": {
 					"$className": "RemoteEvent"
+				},
+				"changeCrafterComponent": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

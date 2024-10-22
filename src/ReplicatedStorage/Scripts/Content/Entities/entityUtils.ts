@@ -1,6 +1,6 @@
 import { componentsList } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 import { ReplicatedStorage } from "@rbxts/services";
-import Component from "./component";
+import {Component} from "./component";
 import {RessourceType} from "./ressourceEnum";
 import Module from "./module";
 
@@ -11,20 +11,9 @@ Function that return a map with the name, tier, buildRessources of a component :
 
 return : { name: string, category: string, tier: number, buildRessources: Map<RessourceType, number> }
 */
-function getComponent(name: string, tier?: number) : Component | Module {
+function getComponent(name: string) : Component | Module {
     const AllComponentList = componentsList;
-    let component;
-
-    if (tier) {
-        component = AllComponentList.get(tier)?.get(name);
-    } else {
-        for (const [_, components] of AllComponentList) {
-            component = components.get(name);
-            if (component) {
-                component = component;
-            }
-        }
-    }
+    const component = AllComponentList.get(name);
 
     if (component) {
         return new Component(component.name, component.buildRessources, component.tier, component.speed);
@@ -38,7 +27,7 @@ function getComponent(name: string, tier?: number) : Component | Module {
 * @param componentInformation : { name: string, category: string, tier: number, buildRessources: Map<RessourceType, number> }
 */
 function getComponentModel(componentInformation: Component): BasePart {
-    const model = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild(componentInformation.tier)?.FindFirstChild(componentInformation.name)?.Clone();
+    const model = ReplicatedStorage.FindFirstChild("Entities")?.FindFirstChild(componentInformation.name)?.Clone();
     if (!model) error(`Component ${componentInformation.name} not found`);
     return model as BasePart;
 }

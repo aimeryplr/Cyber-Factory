@@ -5,13 +5,17 @@ import { getTileFromRay } from "ReplicatedStorage/Scripts/placementHandler";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import GeneratorMenu from "./generatorMenu";
 import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
+import CrafterMenu from "./crafterMenu";
+import InteractionMenu from "./InteractionMenu";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const generatorMenu = new GeneratorMenu(Players.LocalPlayer);
+const crafterMenu = new CrafterMenu(Players.LocalPlayer);
 
 class InteractionHandler {
     private gridBase: BasePart;
-    private lastMenu: Frame | undefined;
+    private lastMenu: InteractionMenu | undefined;
 
     constructor(gridBase: BasePart) {
         this.gridBase = gridBase;
@@ -19,7 +23,7 @@ class InteractionHandler {
 
     public interact(): void {
         if (this.lastMenu) {
-            this.lastMenu.Visible = false;
+            this.lastMenu.hide();
             this.lastMenu = undefined;
             return;
         }
@@ -33,15 +37,28 @@ class InteractionHandler {
             case "generator":
                 this.interarctWithGenerator(tilePart);
                 break;
+            case "crafter":
+                this.interactWithCrafter(tilePart);
+                break;
         }
+    }
+
+    public interactWithCrafter(crafterPart: BasePart) {
+        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(crafterPart.Position, this.gridBase))) as Crafter);
+        crafterMenu.setTileEntity(tile as Crafter);
+        
+        crafterMenu.show();
+        if (this.lastMenu) this.lastMenu.hide()
+        this.lastMenu = crafterMenu;
     }
 
     public interarctWithGenerator(generatorPart: BasePart): void {
         const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(generatorPart.Position, this.gridBase))) as Generator);
-        generatorMenu.setGenerator(tile as Generator);
+        generatorMenu.setTileEntity(tile as Generator);
         
         generatorMenu.show();
-        this.lastMenu = generatorMenu.getMenu();
+        if (this.lastMenu) this.lastMenu.hide()
+        this.lastMenu = generatorMenu;
     }
 }
 

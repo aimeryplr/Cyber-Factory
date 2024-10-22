@@ -1,5 +1,5 @@
 import { ReplicatedStorage, UserInputService, Workspace, Players } from "@rbxts/services";
-import { getTileFromRay, PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
+import { PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
 import Hotbar from "./UI/hotbar";
 import InteractionHandler from "./UI/interact";
 
@@ -68,7 +68,7 @@ setConveyerBeamsEvent.OnClientEvent.Connect((beams: Array<Beam>) => {
 
 function showPlotClaimedUI() {
     // show a text to the player screen
-    const text = ReplicatedStorage.WaitForChild("prefab").WaitForChild("plotClaimedUI").Clone();
+    const text = ReplicatedStorage.WaitForChild("prefab").WaitForChild("UI").WaitForChild("plotClaimedUI").Clone();
     text.Parent = Players.LocalPlayer.WaitForChild("PlayerGui").WaitForChild("ScreenGui");
     wait(3);
     text.Destroy();

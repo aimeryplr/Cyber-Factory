@@ -14,7 +14,7 @@ class Component extends Entity {
     public tier: number;
 
     constructor(name: string, buildRessources: Map<Component | Ressource, number>, tier: number, speed: number) {
-        super(name, speed, calculateSellPrice(buildRessources, tier));
+        super(name, speed, calculateComponentSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
     }
@@ -24,7 +24,7 @@ class Component extends Entity {
     }
 }
 
-function calculateSellPrice(buildRessources: Map<Component | Ressource, number>, tier: number): number {
+function calculateComponentSellPrice(buildRessources: Map<Component | Ressource, number>, tier: number): number {
     for (const [ressource, quantity] of buildRessources) {
         return (ressource as Entity).sellPrice * quantity * MONEY_COEF * math.pow(10, tier);
     }
@@ -32,4 +32,4 @@ function calculateSellPrice(buildRessources: Map<Component | Ressource, number>,
 }
 
 
-export default Component;
+export {Component, calculateComponentSellPrice};

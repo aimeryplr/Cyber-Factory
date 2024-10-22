@@ -1,4 +1,4 @@
-import Component from "./component";
+import {Component} from "./component";
 import Ressource from "./ressource";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 

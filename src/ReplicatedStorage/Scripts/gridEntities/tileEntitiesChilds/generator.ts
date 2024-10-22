@@ -14,7 +14,6 @@ class Generator extends TileEntity {
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.setRessource(Iron)
     }
 
     tick(progress: number): void {
@@ -60,7 +59,7 @@ class Generator extends TileEntity {
         const data = decoded as {name: string, category:string, position: {x: number, y:number, z:number}, size: {x: number, y:number}, direction:  {x: number, y:number}, ressource: string, lastProgress: number, outputTiles: Array<{x: number, y: number, z: number}>}
         const generator = new Generator(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
         generator.lastProgress = data.lastProgress;
-        generator.setRessource(new Ressource(data.ressource));
+        if (data.ressource) generator.setRessource(new Ressource(data.ressource));
         generator.outputTiles = decodeVector3Array(data.outputTiles) as Array<TileEntity>;
         return generator;
     }

@@ -8,6 +8,8 @@ import { savePlayerData } from "ServerScriptService/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
+import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 
 export const onGettingTileEvent = (plotManager: PlotManager, player: Player, tilePos: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
@@ -66,11 +68,21 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     return isPlaceable;
 }
 
-export const onChangingRessource = (plotManager: PlotManager, player: Player, position: unknown, ressource: unknown) => {
+export const onChangingGeneratorRessource = (plotManager: PlotManager, player: Player, position: unknown, ressource: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
     if (!plot) return;
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Generator)) return;
     tile.setRessource(new Ressource(ressource as string));
+}
+
+export const onChangingCrafterComponent = (plotManager: PlotManager, player: Player, position: unknown, component: unknown) => {
+    const plot = plotManager.getPlotByOwner(player.UserId);
+    if (!plot) return;
+
+    const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
+    if (!tile || !(tile instanceof Crafter)) return;
+    print(tile)
+    tile.setCraft(getComponent(component as string));
 }
