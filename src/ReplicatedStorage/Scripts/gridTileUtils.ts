@@ -6,7 +6,7 @@ import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/c
 import Merger from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/merger";
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
-import type { TileGrid } from "../../ServerScriptService/plot/gridTile";
+import type { TileGrid } from "./gridTile";
 import { decodeArray } from "ReplicatedStorage/Scripts/encoding";
 
 function decodeTile(decoded: unknown) {

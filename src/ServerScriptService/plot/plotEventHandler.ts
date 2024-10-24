@@ -5,11 +5,14 @@ import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/
 import { addMoney, hasEnoughMoney, removeMoney, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/datastore";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
+import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
+
+const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 
 export const onGettingTileEvent = (plotManager: PlotManager, player: Player, tilePos: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
@@ -28,8 +31,9 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
     if (removedTile) {
         const tilePrice = getTileEntityInformation(removedTile.name).price;
         addMoney(player as Player, tilePrice);
+        sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
     }
-    print(plot.getGridTiles().tileGrid);
+    // print(plot.getGridTiles().tileGrid);
 }
 
 export const onPlayerRemoving = (plotManager: PlotManager, player: Player) => {
@@ -50,7 +54,7 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     const tileObject = findBasepartByName(tileName as string);
     const tileInformation = getTileEntityInformation(tileName as string);
     const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
-
+    
     //check if player owns a plot and if the tile exists
     if (!tileObject || !plot || !tileEntity) {
         error("Tile not found or player does not own a plot or gridTile not found");
@@ -63,8 +67,9 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
         removeMoney(player, tileInformation.price);
         setupObject(tileObject, pos as Vector3, orientation as number, gridBase as BasePart);
         plot.addGridTile(tileEntity, player.UserId);
+        sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
-    print(plot.getGridTiles().tileGrid);
+    // print(plot.getGridTiles().tileGrid);
     return isPlaceable;
 }
 
@@ -83,6 +88,5 @@ export const onChangingCrafterComponent = (plotManager: PlotManager, player: Pla
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Crafter)) return;
-    print(tile)
-    tile.setCraft(getComponent(component as string));
+    tile.setCraft(getComponent(component as string) as Component);
 }

@@ -1,24 +1,22 @@
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { findBasepartByName } from "../tileEntityUtils";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
 import Conveyer from "./conveyer";
-import type {TileGrid} from "ServerScriptService/plot/gridTile";
+import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 
 // Settings
 const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 3;
 const category: string = "splitter";
-const MAX_SIZE: number = 6;
 
 class Splitter extends TileEntity {
     content: Array<Entity | undefined>;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.content = new Array<Entity | undefined>(MAX_SIZE, undefined);
+        this.content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
     }
 
     tick(progress: number): void {
@@ -30,18 +28,18 @@ class Splitter extends TileEntity {
                 shiftOrder(this.outputTiles);
 
                 const arrayToAddBack = outputTile.addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
-                addBackContent(arrayToAddBack, this.content, MAX_SIZE);
+                addBackContent(arrayToAddBack, this.content, CONTENT_SIZE);
                 break;
             }
 
             // move all the items by the speed amount
-            moveItemsInArray(this.content, MAX_SIZE);
+            moveItemsInArray(this.content, CONTENT_SIZE);
         }
         this.lastProgress = this.getProgress(progress);
     }
 
     addEntity(entities: Array<Entity>): Array<Entity | undefined> {
-        const transferdEntities = transferArrayContent(entities, this.content, MAX_SIZE) as Array<Entity | undefined>;
+        const transferdEntities = transferArrayContent(entities, this.content, CONTENT_SIZE) as Array<Entity | undefined>;
         return transferdEntities;
     }
 
@@ -59,7 +57,7 @@ class Splitter extends TileEntity {
     }
 
     static decode(decoded: unknown): Splitter {
-        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}> };
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const splitter = new Splitter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         splitter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         splitter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
@@ -81,15 +79,11 @@ class Splitter extends TileEntity {
     }
 
     updateShape(gridBase: BasePart): void {
-        const currentPart = this.findThisPartInWorld(gridBase);
-        const basepartName = this.getBasepartName();
+        return;
+    }
 
-        const isAlreadySplitter = currentPart?.Name === basepartName;
-        if (!isAlreadySplitter) {
-            currentPart?.Destroy();
-            const newPart = findBasepartByName((basepartName) as string, this.category)
-            setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
-        }
+    getNewShape(): BasePart | undefined {
+        return;
     }
 
     private getBasepartName(): string {

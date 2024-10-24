@@ -2,7 +2,7 @@ import Tile from "./tile";
 
 function appendInputTiles(inputTiles: Array<Tile>, tileToAdd: Array<Tile>) {
     for (const tile of tileToAdd) {
-        if (inputTiles.find((inputTile) => inputTile === tile) !== undefined) continue;
+        if (inputTiles.find((inputTile) => inputTile.position === tile.position)) continue;
         inputTiles.push(tile);
     }
 }

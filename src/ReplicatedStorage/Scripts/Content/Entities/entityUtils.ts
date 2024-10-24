@@ -16,7 +16,7 @@ function getComponent(name: string) : Component | Module {
     const component = AllComponentList.get(name);
 
     if (component) {
-        return new Component(component.name, component.buildRessources, component.tier, component.speed);
+        return new Component(component.name, component.buildRessources, component.tier, component.speed, component.amount);
     } else {
         error(`Component ${name} not found`);
     }

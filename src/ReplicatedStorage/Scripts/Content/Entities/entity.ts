@@ -12,14 +12,15 @@ class Entity {
 	id: number | undefined; // used to identify the entity in the conveyer
 
 
-	constructor(name: string, speed: number, sellPrice: number) {
+	constructor(name: string, speed: number, sellPrice: number, id?: number) {
 		this.sellPrice = sellPrice;
 		this.name = name;
 		this.speed = speed;
+		this.id = id;
 	}
 
 	copy(): Entity {
-		return new Entity(this.name, this.speed, this.sellPrice);
+		return new Entity(this.name, this.speed, this.sellPrice, this.id);
 	}
 }
 

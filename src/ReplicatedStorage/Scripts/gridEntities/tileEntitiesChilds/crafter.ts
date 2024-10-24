@@ -4,6 +4,7 @@ import {Component} from "ReplicatedStorage/Scripts/Content/Entities/component";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
+import Conveyer from "./conveyer";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -15,6 +16,7 @@ class Crafter extends TileEntity {
     // mettre type component
     currentCraft: Component | undefined;
     ressources = new Array<Ressource | Component>(MAX_CAPACITY);
+    craftedComponents = new Array<Component>(MAX_CAPACITY);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, 0, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -24,12 +26,24 @@ class Crafter extends TileEntity {
         if (this.getProgress(progress) < this.lastProgress) {
             if (!this.currentCraft) return;
 
-            if (this.canCraft()) {
-                this.outputTiles[0].addEntity([this.craft()]);
-            }
+            this.sendItemCrafted();
         };
         
         this.lastProgress = this.getProgress(progress);
+    }
+
+    private sendItemCrafted(): void {
+        const craftedComponent = this.craft(); 
+        if (!craftedComponent) {
+            if (this.craftedComponents.isEmpty()) return;
+            this.craftedComponents.push(this.outputTiles[0].addEntity([this.craftedComponents.pop()])[0] as Component);
+            return
+        };
+
+        const hasComponentBeenSend = this.outputTiles[0].addEntity([craftedComponent]).isEmpty();
+        if (hasComponentBeenSend) return;
+        
+        this.craftedComponents.push(craftedComponent);
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -61,7 +75,7 @@ class Crafter extends TileEntity {
     static decode(decoded: unknown): Crafter {
         const data = decoded as {name: string, category: string, position: {x: number, y: number, z: number}, size: {x: number, y: number}, direction: {x: number, y: number}, currentCraft: string, lastProgress: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>};
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
-        if (data.currentCraft) crafter.setCraft(getComponent(data.currentCraft));
+        if (data.currentCraft) crafter.setCraft(getComponent(data.currentCraft) as Component);
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         crafter.lastProgress = data.lastProgress;
@@ -72,8 +86,11 @@ class Crafter extends TileEntity {
         return;
     }
 
+    getNewShape(): BasePart | undefined {
+        return;
+    }
+
     public setCraft(craft: Component) {
-        print(craft)
         this.currentCraft = craft;
         this.speed = craft.speed
     }

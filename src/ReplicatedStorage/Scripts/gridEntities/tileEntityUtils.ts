@@ -1,6 +1,6 @@
 import { ReplicatedStorage } from "@rbxts/services";
-import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
 import { TileEntity } from "./tileEntity";
+import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 
 /**
@@ -29,13 +29,13 @@ function findBasepartByName(name: string, category?: string): BasePart {
     error(`tileObj ${name} not found`);
 }
 
-function objSizeToTileSize(size: Vector3 | Vector2) {
+function objSizeToTileSize(size: Vector3 | Vector2): Vector2 {
     if (size instanceof Vector3) size = new Vector2((size as Vector3).X, (size as Vector3).Z);
     return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE));
 }
 
 /**
- * go through all inputs and outputs and remove the tileEntity from them
+ * removes all connections from the tileEntity
  */
 function removeAllTileFromAllConnectedTiles(tileEntity: TileEntity): void {
     tileEntity.inputTiles.forEach((inputTile) => {

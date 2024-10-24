@@ -1,30 +1,30 @@
 enum RessourceType {
-    Plastic = "Plastic",
+    Polymer = "Plastic",
     Copper = "Copper",
-    Iron = "Iron",
+    Carbon = "Iron",
 }
 
 function getRessourceFromString(name: string): RessourceType {
     switch (string.lower(name)) {
-        case "plastic":
-            return RessourceType.Plastic;
+        case "polymer":
+            return RessourceType.Polymer;
         case "copper":
             return RessourceType.Copper;
-        case "iron":
-            return RessourceType.Iron;
+        case "carbon":
+            return RessourceType.Carbon;
     }
     error("Unknown ressource type: " + name);
 }
 
 function getImageFromRessourceType(ressourceType: RessourceType): string {
     switch (ressourceType) {
-        case RessourceType.Plastic:
+        case RessourceType.Polymer:
             return "rbxasset://textures/ui/GuiImagePlaceholder.png";
         case RessourceType.Copper:
             return "rbxasset://textures/ui/GuiImagePlaceholder.png";
-        case RessourceType.Iron:
+        case RessourceType.Carbon:
             return "rbxasset://textures/ui/GuiImagePlaceholder.png";
     }
 }
 
-export {RessourceType, getRessourceFromString, getImageFromRessourceType};
+export { RessourceType, getRessourceFromString, getImageFromRessourceType };

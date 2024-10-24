@@ -72,6 +72,10 @@ class Seller extends TileEntity {
     updateShape(gridBase: BasePart): void {
         return;
     }
+
+    getNewShape(): BasePart | undefined {
+        return;
+    }
 }
 
 export default Seller;

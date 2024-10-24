@@ -1,4 +1,4 @@
-import { ReplicatedStorage, UserInputService, Workspace, Players } from "@rbxts/services";
+import { ReplicatedStorage, UserInputService, Workspace, Players, RunService } from "@rbxts/services";
 import { PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
 import Hotbar from "./UI/hotbar";
 import InteractionHandler from "./UI/interact";
@@ -27,7 +27,7 @@ hotbar.setSlotFromName(4, "merger_t1");
 hotbar.setSlotFromName(5, "crafter");
 
 
-setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
+setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart, tileGrid: string) => {
     placementHandler = new PlacementHandler(gridBase);
     interaction = new InteractionHandler(gridBase);
 
@@ -36,8 +36,14 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart) => {
     showPlotClaimedUI();
 });
 
+RunService.Heartbeat.Connect((step) => {
+    const input = UserInputService.GetMouseButtonsPressed()[0];
+    handleInputs(input, false)
+})
+
 function handleInputs(input: InputObject, gameProcessed: boolean) {
     if (gameProcessed) return;
+    if (!input) return;
 
     if (input.UserInputType === terminateKey) {
         placementHandler.destroyObject();

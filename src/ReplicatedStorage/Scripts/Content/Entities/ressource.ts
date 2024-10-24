@@ -1,5 +1,5 @@
 import Entity from "./entity";
-import {RessourceType, getRessourceFromString } from "./ressourceEnum";
+import { RessourceType, getRessourceFromString } from "./ressourceEnum";
 
 class Ressource extends Entity {
     ressourceType: RessourceType
@@ -10,17 +10,17 @@ class Ressource extends Entity {
         if (!ressourceType) ressourceType = getRessourceFromString(name);
 
         // Le prix des ressources est fixe
-        if (ressourceType === RessourceType.Plastic) {
-            calculatedSellPrice = 5
-            speed = 60
+        if (ressourceType === RessourceType.Polymer) {
+            calculatedSellPrice = 10
+            speed = 30
         }
-        else if (ressourceType === RessourceType.Iron) {
+        else if (ressourceType === RessourceType.Copper) {
             calculatedSellPrice = 7.5
             speed = 40
         }
-        else if (ressourceType === RessourceType.Copper) {
-            calculatedSellPrice = 10
-            speed = 30
+        else if (ressourceType === RessourceType.Carbon) {
+            calculatedSellPrice = 5
+            speed = 60
         }
 
         super(name, speed, calculatedSellPrice)
@@ -28,7 +28,9 @@ class Ressource extends Entity {
     }
 
     copy(): Ressource {
-        return new Ressource(this.name, this.ressourceType)
+        const newRessource = new Ressource(this.name, this.ressourceType)
+        newRessource.id = this.id
+        return newRessource
     }
 }
 

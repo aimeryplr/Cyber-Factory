@@ -1,19 +1,19 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContentToArrayPart } from "../conveyerUtils";
+import { addBackContent, moveItemsInArray, removeSegment, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 
 //Setings
-const MAX_CONTENT = 6;
 const MAX_INPUTS = 3;
 const MAX_OUTPUTS = 1;
 const category: string = "merger";
 
 class Merger extends TileEntity {
     //new array fill with undifined
-    content = new Array<Entity | undefined>(MAX_CONTENT, undefined);
+    content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -27,11 +27,11 @@ class Merger extends TileEntity {
             // send the item to the next gridEntity
             if (this.outputTiles[0] !== undefined) {
                 const arrayToAddBack = this.outputTiles[0].addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
-                addBackContent(arrayToAddBack, this.content, MAX_CONTENT);
+                addBackContent(arrayToAddBack, this.content, CONTENT_SIZE);
             };
 
             // move all the items by the speed amount
-            moveItemsInArray(this.content, MAX_CONTENT);
+            moveItemsInArray(this.content, CONTENT_SIZE);
         }
         this.lastProgress = this.getProgress(progress);
     }
@@ -40,7 +40,7 @@ class Merger extends TileEntity {
      * Adds entity to the content array and choose a free place depending of the number of connected tile entities
      */
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), MAX_CONTENT) as Array<Entity | undefined>;
+        const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), CONTENT_SIZE) as Array<Entity | undefined>;
         return transferdEntities;
     }
 
@@ -66,15 +66,11 @@ class Merger extends TileEntity {
     }
 
     updateShape(gridBase: BasePart): void {
-        const currentPart = this.findThisPartInWorld(gridBase);
-        const basepartName = this.getBasepartName();
+        return;
+    }
 
-        const isAlreadyMerger = currentPart?.Name === basepartName;
-        if (!isAlreadyMerger) {
-            currentPart?.Destroy();
-            const newPart = findBasepartByName((basepartName) as string, this.category)
-            setupObject(newPart, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
-        }
+    getNewShape(): BasePart | undefined {
+        return;
     }
 
     private getBasepartName(): string {

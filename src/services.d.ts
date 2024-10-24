@@ -2,7 +2,7 @@ type generatorMenu = Frame & {
 	UICorner: UICorner;
 	ressources: Frame & {
 		UIListLayout: UIListLayout;
-		plastic: Frame & {
+		polymer: Frame & {
 			price: Frame & {
 				UIListLayout: UIListLayout;
 				TextLabel: TextLabel;
@@ -10,13 +10,14 @@ type generatorMenu = Frame & {
 					UIAspectRatioConstraint: UIAspectRatioConstraint;
 				};
 			};
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
 			TextLabel: TextLabel;
-			ImageLabel: ImageLabel & {
+			ImageButton: ImageButton & {
 				UICorner: UICorner;
 				UIStroke: UIStroke;
 			};
 		};
-		gold: Frame & {
+		copper: Frame & {
 			price: Frame & {
 				UIListLayout: UIListLayout;
 				TextLabel: TextLabel;
@@ -24,13 +25,14 @@ type generatorMenu = Frame & {
 					UIAspectRatioConstraint: UIAspectRatioConstraint;
 				};
 			};
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
 			TextLabel: TextLabel;
-			ImageLabel: ImageLabel & {
+			ImageButton: ImageButton & {
 				UICorner: UICorner;
 				UIStroke: UIStroke;
 			};
 		};
-		iron: Frame & {
+		carbon: Frame & {
 			price: Frame & {
 				UIListLayout: UIListLayout;
 				TextLabel: TextLabel;
@@ -38,8 +40,9 @@ type generatorMenu = Frame & {
 					UIAspectRatioConstraint: UIAspectRatioConstraint;
 				};
 			};
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
 			TextLabel: TextLabel;
-			ImageLabel: ImageLabel & {
+			ImageButton: ImageButton & {
 				UICorner: UICorner;
 				UIStroke: UIStroke;
 			};
@@ -68,6 +71,7 @@ type generatorMenu = Frame & {
 		};
 	};
 }
+
 
 type crafterMenu = Frame & {
 	UICorner: UICorner;

@@ -69,6 +69,10 @@ class Assembler extends TileEntity {
         return;
     }
 
+    getNewShape(): BasePart | undefined {
+        return;
+    }
+
     private setCraft(craft: Module) {
         this.currentCraft = craft;
     }

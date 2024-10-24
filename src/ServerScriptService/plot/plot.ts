@@ -2,12 +2,12 @@ import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/conveye
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
-import {TileGrid} from "./gridTile";
+import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import { changeShapes, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
 import { findBasepartByName, removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 import { ReplicatedStorage } from "@rbxts/services";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandler";
+import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
@@ -20,10 +20,7 @@ class Plot {
 	private gridBase: BasePart;
 
 	private tileGrid: TileGrid;
-	private sellers = new Array<TileEntity>();
-
-	// this is use to determine the order to add the input tiles when updating
-	private count = 0;
+	private endingTiles = new Array<TileEntity>();
 
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
@@ -33,9 +30,11 @@ class Plot {
 	/**
 	 * update all plot's gridEntities by going in the sellers and then through all inputTiles
 	*/
-	public update(dt: number): void {
+	public update(progress: number): void {
+		if (!this.owner) return;
+		if (this.endingTiles.isEmpty()) return;
 		// Initialize inputTiles with the last tiles of each conveyor (A3, B3, C3)
-		let inputTiles: Array<TileEntity> = this.sellers;
+		let inputTiles: Array<TileEntity> = this.endingTiles;
 
 		// Process the tiles backwards through the conveyors
 		while (inputTiles.size() > 0) {
@@ -47,11 +46,22 @@ class Plot {
 				let currentTile = inputTiles[i];
 
 				// Process the current tile (calling tick)
-				currentTile.tick(dt);
-
-				// If the current tile has an input tile, add it to the newInputTiles array
-				if (!currentTile.inputTiles.isEmpty()) {
-					appendInputTiles(newInputTiles, currentTile.inputTiles);
+				for (const child of currentTile.inputTiles) {
+					if (child.maxOutputs > 1) {
+						// Check if child.outputs is a subset of inputTiles
+						const isSubset = child.outputTiles.every(output => inputTiles.includes(output));
+						if (!isSubset) {
+							appendInputTiles(newInputTiles, [currentTile]);
+							continue;
+						}
+					}
+					
+					appendInputTiles(newInputTiles, [child]);
+					currentTile.tick(progress);
+				}
+				
+				if (currentTile.inputTiles.isEmpty()) {
+					currentTile.tick(progress);
 				}
 			}
 
@@ -83,13 +93,12 @@ class Plot {
 		if (tile instanceof TileEntity) {
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
 
-			if (tile instanceof Seller) {
-				this.sellers.push(tile);
-				if (player !== undefined) tile.setOwner(player);
-			}
+			if (tile instanceof Seller && player) tile.setOwner(player)
 
 			changeShapes(tile, this.gridBase, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
+
+			this.endingTiles = this.tileGrid.getAllEndingTiles()
 		}
 		return tile;
 	}
@@ -105,14 +114,11 @@ class Plot {
 			this.removeConectedTiles(tile);
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
-
-			if (tile instanceof Seller) {
-				this.sellers.remove(this.sellers.indexOf(tile));
-			}
 		}
-
+		
 		tile.findThisPartInWorld(this.gridBase)?.Destroy();
 		this.tileGrid.removeTile(tile);
+		this.endingTiles = this.tileGrid.getAllEndingTiles()
 		return tile
 	}
 
@@ -163,10 +169,9 @@ class Plot {
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
 			if (tile instanceof TileEntity) tile.updateShape(this.gridBase)
 
-			if (tile instanceof Seller) {
-				this.sellers.push(tile);
-				tile.setOwner(this.owner as number);
-			}
+			if (tile instanceof Seller) tile.setOwner(this.owner as number);
+
+			this.endingTiles = this.tileGrid.getAllEndingTiles()
 		}
 	}
 

@@ -53,6 +53,9 @@
 				},
 				"changeCrafterComponent": {
 					"$className": "RemoteEvent"
+				},
+				"sendTileGrid": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

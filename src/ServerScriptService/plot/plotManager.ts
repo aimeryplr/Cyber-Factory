@@ -1,7 +1,9 @@
 import { getPlayerData } from "ServerScriptService/datastore";
-import { TileGrid } from "./gridTile";
+import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import Plot from "./plot";
-import { Players, RunService } from "@rbxts/services";
+import { HttpService, Players, ReplicatedStorage, RunService } from "@rbxts/services";
+
+const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 
 /**
  * holds every plot in the game with a owner or not
@@ -17,9 +19,9 @@ class PlotManager {
     }
 
     private init() {
-        this.setupUpdate();
         this.retrievePlots();
         this.setupPlots();
+        this.setupUpdate();
     }
 
 
@@ -72,12 +74,16 @@ class PlotManager {
                 if (!player || this.hasPlayerClaimedPlot(player.UserId)) return;
 
                 plot.addOwner(player);
-
+                
                 // load the grid
-                const grid = TileGrid.decode(getPlayerData(player.UserId)?.grid as string);
-                if (!grid) return
+                const encodedGrid = getPlayerData(player.UserId)?.grid;
+                if (encodedGrid) {
+                    const grid = TileGrid.decode(encodedGrid);
+                    print(grid);
+                    plot.loadGrid(grid);
+                }
 
-                plot.loadGrid(grid);
+                sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
             });
         });
     }

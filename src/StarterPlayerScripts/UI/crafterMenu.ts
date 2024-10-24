@@ -6,6 +6,7 @@ import {Component} from "ReplicatedStorage/Scripts/Content/Entities/component";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { getImageFromRessourceType } from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
+import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 
 const changeCrafterComponent = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterComponent") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -26,7 +27,6 @@ class CrafterMenu implements InteractionMenu {
     setTileEntity(crafter: Crafter): void {
         if (this.tileEntity?.position === crafter.position && this.tileEntity.currentCraft?.name === crafter.currentCraft?.name) return;
         this.tileEntity = crafter;
-        print(crafter.currentCraft)
 
         this.timeCrafterAdded = tick();
         this.setupMenu();
@@ -58,14 +58,14 @@ class CrafterMenu implements InteractionMenu {
             (newComponent.FindFirstChild("itemName")! as TextLabel).Text = componentName;
             (newComponent.FindFirstChild("itemImage")! as ImageLabel).Image = component.img;
             (newComponent.FindFirstChild("price")!.FindFirstChild("price")! as TextLabel).Text = (
-                new Component(component.name, component.buildRessources, component.tier, component.speed).sellPrice) as unknown as string;
+                getComponent(componentName).sellPrice) as unknown as string;
             newComponent.Parent = this.menu.searchCraft;
 
             newComponent.MouseButton1Click.Connect(() => {
                 if (!this.tileEntity) return;
                 if (this.tileEntity.currentCraft && this.tileEntity.currentCraft.name === componentName) return;
 
-                this.setupCurrentComponent(new Component(componentName, component.buildRessources, component.tier, component.speed));
+                this.setupCurrentComponent(getComponent(componentName) as Component);
             });
         }
     }

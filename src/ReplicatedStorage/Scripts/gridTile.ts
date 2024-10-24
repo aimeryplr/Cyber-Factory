@@ -1,7 +1,7 @@
-import { GRID_SIZE } from "ReplicatedStorage/Scripts/placementHandler";
+import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import { HttpService } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, encodeArray, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, encodeArray, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { decodeTiles } from "ReplicatedStorage/Scripts/gridTileUtils";
 
@@ -125,7 +125,8 @@ class TileGrid {
         for (let i = 0; i < this.gridSize.Y; i++) {
             for (let j = 0; j < this.gridSize.X; j++) {
                 const currentTile = this.tileGrid[i][j];
-                if (currentTile !== undefined && !tiles.some((tile) => tile.position === currentTile.position)) {
+                const isTileAlreadyInList = currentTile && !tiles.some((tile) => tile.position === currentTile.position)
+                if (isTileAlreadyInList) {
                     tiles.push(currentTile);
                 }
             }
@@ -204,6 +205,18 @@ class TileGrid {
             tile.inputTiles.push(inputTileEntity);
             tile.inputTiles.remove(tile.inputTiles.findIndex((inputTile) => (inputTile as unknown) as Vector3 === inputTileEntity.position))
         }
+    }
+
+    getAllEndingTiles() : Array<TileEntity> {
+        const endingTiles = new Array<TileEntity>();
+
+        for (const tile of this.getTiles()) {
+            if (tile instanceof TileEntity && tile.outputTiles.size() === 0) {
+                endingTiles.push(tile);
+            }
+        }
+
+        return endingTiles;
     }
 }
 

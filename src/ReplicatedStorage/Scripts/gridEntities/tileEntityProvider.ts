@@ -36,7 +36,7 @@ function getTileEntityByCategory(className: string, name: string, position: Vect
 
 /**
  * find the object information in the gridEntities list, the name can be contained in the name
- * @param name grridEntity name like generator_t1
+ * @param name gridEntity name like generator_t1
  * @returns all the information of the gridEntity
  */
 function getTileEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
@@ -48,7 +48,7 @@ function getTileEntityInformation(name: string, category?: string): { name: stri
     } else {
         for (const [_, category] of tileEntitiesList) {
             for (const [tileEntityName, tileEntityInfo] of category) {
-                if (tileEntityName.find(name)[0] === 1) {
+                if (name.find(tileEntityName)[0] === 1) {
                     return tileEntityInfo;
                 }
             }

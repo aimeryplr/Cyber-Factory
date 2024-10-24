@@ -1,7 +1,6 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
 import { TileEntity } from "../tileEntity";
-import { Iron } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
 // Settings
@@ -22,7 +21,7 @@ class Generator extends TileEntity {
         // send the ressource if the item is not full
         if (this.getProgress(progress) < this.lastProgress) {
             if (this.outputTiles[0] !== undefined) {
-                const ressourceToTransfer = new Array<Entity>(1, this.ressource.copy());
+                const ressourceToTransfer = [this.ressource.copy()];
                 this.outputTiles[0].addEntity(ressourceToTransfer);
             }
         }
@@ -35,10 +34,15 @@ class Generator extends TileEntity {
 
     setRessource(ressource: Ressource): void {
         this.ressource = ressource;
+        this.ressource.id = 0;
         this.speed = ressource.speed;
     }
 
     updateShape(gridBase: BasePart): void {
+        return;
+    }
+
+    getNewShape(): BasePart | undefined {
         return;
     }
 

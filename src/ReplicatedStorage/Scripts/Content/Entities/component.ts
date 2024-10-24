@@ -12,15 +12,17 @@ const MONEY_COEF: number = 1.2;
 class Component extends Entity {
     public buildRessources: Map<Component | Ressource, number>;
     public tier: number;
+    public amount: number;
 
-    constructor(name: string, buildRessources: Map<Component | Ressource, number>, tier: number, speed: number) {
+    constructor(name: string, buildRessources: Map<Component | Ressource, number>, tier: number, speed: number, amount: number) {
         super(name, speed, calculateComponentSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
+        this.amount = amount;
     }
 
     copy(): Component {
-        return new Component(this.name, this.buildRessources, this.tier, this.speed);
+        return new Component(this.name, this.buildRessources, this.tier, this.speed, this.amount);
     }
 }
 

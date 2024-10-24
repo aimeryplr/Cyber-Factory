@@ -24,7 +24,6 @@ class EntitiesHandler {
     }
 
     /**
-     * 
      * @param prevTileEntity local position of the previous conveyer
      */
     updateConveyerEntities(conveyer: string) {

@@ -1,4 +1,4 @@
-import type {TileGrid} from "ServerScriptService/plot/gridTile";
+import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Tile from "./tile";
 
@@ -44,6 +44,7 @@ abstract class TileEntity extends Tile {
      */
     abstract addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined>;
 
+    abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
     abstract updateShape(gridBase: BasePart): void;
 
     abstract encode(): {};
