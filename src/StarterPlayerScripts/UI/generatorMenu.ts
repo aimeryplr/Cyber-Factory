@@ -35,8 +35,15 @@ class GeneratorMenu implements InteractionMenu {
         // setup the progression bar if it's outputing
         if (this.tileEntity.outputTiles.isEmpty()) return;
         this.setupProgressBar();
+        this.setupClose()
 
         this.setupButtons()
+    }
+
+    setupClose() {
+        this.menu.toptop.close.MouseButton1Click.Connect(() => {
+            this.hide();
+        })
     }
 
     setupCurrentRessource(generator: Generator): void {

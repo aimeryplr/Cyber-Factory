@@ -1,5 +1,5 @@
 import { ReplicatedStorage, UserInputService, Workspace, Players, RunService } from "@rbxts/services";
-import { PlacementHandler } from "ReplicatedStorage/Scripts/placementHandler";
+import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 import Hotbar from "./UI/hotbar";
 import InteractionHandler from "./UI/interact";
 
@@ -12,7 +12,6 @@ const hotBarKeyBinds = [Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, 
 const terminateKey = Enum.UserInputType.MouseButton1;
 const rotateKey = Enum.KeyCode.R;
 const destroyModeKey = Enum.KeyCode.X;
-const interactionKey = Enum.KeyCode.E;
 
 //create a new placement handler
 let placementHandler: PlacementHandler;
@@ -36,27 +35,23 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart, tileGrid: string) => {
     showPlotClaimedUI();
 });
 
-RunService.Heartbeat.Connect((step) => {
-    const input = UserInputService.GetMouseButtonsPressed()[0];
-    handleInputs(input, false)
-})
-
 function handleInputs(input: InputObject, gameProcessed: boolean) {
     if (gameProcessed) return;
     if (!input) return;
 
     if (input.UserInputType === terminateKey) {
-        placementHandler.destroyObject();
-        placementHandler.placeObject();
+        if (placementHandler.placementStatus === placementType.INTERACTING) {
+            interaction.interact();
+        } else {
+            placementHandler.destroyObject();
+            placementHandler.placeObject();
+        }
     }
     if (input.KeyCode === rotateKey) {
         placementHandler.rotate();
     }
     if (input.KeyCode === destroyModeKey) {
         placementHandler.activateDestroying();
-    }
-    if (input.KeyCode === interactionKey) {
-        interaction.interact();
     }
 
     for (let i = 0; i < hotBarKeyBinds.size(); i++) {

@@ -125,8 +125,10 @@ class TileGrid {
         for (let i = 0; i < this.gridSize.Y; i++) {
             for (let j = 0; j < this.gridSize.X; j++) {
                 const currentTile = this.tileGrid[i][j];
-                const isTileAlreadyInList = currentTile && !tiles.some((tile) => tile.position === currentTile.position)
-                if (isTileAlreadyInList) {
+                if (!currentTile) continue;
+                
+                const isTileAlreadyInList = tiles.some((tile) => tile.position === currentTile.position)
+                if (!isTileAlreadyInList) {
                     tiles.push(currentTile);
                 }
             }
@@ -171,10 +173,8 @@ class TileGrid {
     }
 
     connectTiles() {
-        for (let i = 0; i < this.gridSize.Y; i++) {
-            for (let j = 0; j < this.gridSize.X; j++) {
-                this.connectTile(this.tileGrid[i][j])
-            }
+        for (const tile of this.getTiles()) {
+            this.connectTile(tile)    
         }
     }
 
@@ -182,28 +182,24 @@ class TileGrid {
         if (!tile) return;
         if (!(tile instanceof TileEntity)) return;
 
-        for (const outputTile of tile.outputTiles) {
+        for (let i = 0; i < tile.outputTiles.size(); i++) {
+            const outputTile = tile.outputTiles[i];
             if (!(typeIs(outputTile, "Vector3"))) continue;
             const outputTileEntity = this.getTileFromPosition(outputTile);
             if (!outputTileEntity) continue;
             if (!(outputTileEntity instanceof TileEntity)) continue;
 
-            outputTileEntity.inputTiles.push(tile);
-            outputTileEntity.inputTiles.remove(outputTileEntity.inputTiles.findIndex((inputTile) => (inputTile as unknown) as Vector3 === tile.position))
-            tile.outputTiles.push(outputTileEntity);
-            tile.outputTiles.remove(tile.outputTiles.findIndex((outputTile) => (outputTile as unknown) as Vector3 === outputTileEntity.position))
+            tile.outputTiles[i] = outputTileEntity;
         }
 
-        for (const inputTile of tile.inputTiles) {
+        for (let i = 0; i < tile.inputTiles.size(); i++) {
+            const inputTile = tile.inputTiles[i];
             if (!(typeIs(inputTile, "Vector3"))) continue;
             const inputTileEntity = this.getTileFromPosition(inputTile);
             if (!inputTileEntity) continue;
             if (!(inputTileEntity instanceof TileEntity)) continue;
 
-            inputTileEntity.outputTiles.push(tile);
-            inputTileEntity.outputTiles.remove(inputTileEntity.outputTiles.findIndex((outputTile) => (outputTile as unknown) as Vector3 === tile.position))
-            tile.inputTiles.push(inputTileEntity);
-            tile.inputTiles.remove(tile.inputTiles.findIndex((inputTile) => (inputTile as unknown) as Vector3 === inputTileEntity.position))
+            tile.inputTiles[i] = inputTileEntity;
         }
     }
 

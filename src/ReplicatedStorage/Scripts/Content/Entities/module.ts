@@ -1,5 +1,5 @@
-import {Component} from "./component";
-import Ressource from "./ressource";
+import { Component } from "./component";
+import Resource from "./resource";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 
 /**
@@ -13,10 +13,10 @@ PC Component got name, tier, ressource to craft:
 const MONEY_COEF: number = 1.5;
 
 class Module extends Entity {
-    public buildRessources: Map<Ressource | Component, number>;
+    public buildRessources: Map<Resource | Component, number>;
     public tier: number;
 
-    constructor(name: string, speed: number, buildRessources: Map<Ressource | Component, number>, tier: number) {
+    constructor(name: string, speed: number, buildRessources: Map<Resource | Component, number>, tier: number) {
         super(name, speed, calculateSellPrice(buildRessources, tier));
         this.buildRessources = buildRessources;
         this.tier = tier;
@@ -27,12 +27,12 @@ class Module extends Entity {
     }
 }
 
-function calculateSellPrice(buildRessources: Map<Ressource | Component, number>, tier: number): number {
+function calculateSellPrice(buildRessources: Map<Resource | Component, number>, tier: number): number {
     let price = 0;
     for (const [ressource, quantity] of buildRessources) {
         price += ressource.sellPrice * quantity;
     }
-    return price * MONEY_COEF * math.pow(10, tier) ;
+    return price * MONEY_COEF * math.pow(10, tier);
 }
 
 export default Module;

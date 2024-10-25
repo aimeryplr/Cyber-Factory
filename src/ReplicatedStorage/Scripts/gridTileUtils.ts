@@ -35,15 +35,17 @@ function decodeTile(decoded: unknown) {
 }
 
 function decodeTiles(decodedTiles: Array<Array<unknown>>, tileGrid: TileGrid) {
-    for (let i = 0; i < tileGrid.gridSize.Y; i++) {
-        decodedTiles[i] = decodeArray(decodedTiles[i]);
-        for (let j = 0; j < tileGrid.gridSize.X; j++) {
-            if (decodedTiles[i][j] !== undefined) {
-                decodedTiles[i][j] = decodeTile(decodedTiles[i][j]);
+    for (let y = 0; y < tileGrid.gridSize.Y; y++) {
+        decodedTiles[y] = decodeArray(decodedTiles[y]);
+        for (let x = 0; x < tileGrid.gridSize.X; x++) {
+            if (!decodedTiles[y][x]) continue
+
+            const tile = decodeTile(decodedTiles[y][x]);
+            if (tileGrid.checkPlacement(tile)) {
+                tileGrid.addTile(tile);
             }
         }
     }
-    tileGrid.tileGrid = decodedTiles as Array<Array<Tile | undefined>>;
 }
 
 export { decodeTiles, decodeTile };

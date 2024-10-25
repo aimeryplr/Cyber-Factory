@@ -69,7 +69,9 @@ class EntitiesHandler {
         const prevTileEntityPosition = conveyer.inputTiles[0] as unknown;
 
         if (!prevTileEntityPosition || !this.entitiesBaseparts.get(prevTileEntityPosition as Vector3)) {
-            entity = ReplicatedStorage.WaitForChild("Entities").WaitForChild("copper").Clone() as BasePart;
+            entity = ReplicatedStorage.WaitForChild("Entities").WaitForChild(string.lower(conveyer.content[lastIndex]!.name)).Clone() as BasePart;
+            if (!entity) error(`entity ${conveyer.content[lastIndex]!.name} is undefined`);
+            entity.Anchored = true;
             entity.Parent = this.gridBase.WaitForChild("Entities");
         } else {
             const previousEntities = this.entitiesBaseparts.get(prevTileEntityPosition as Vector3);

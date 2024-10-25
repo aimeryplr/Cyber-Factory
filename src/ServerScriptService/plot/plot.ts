@@ -171,8 +171,8 @@ class Plot {
 
 			if (tile instanceof Seller) tile.setOwner(this.owner as number);
 
-			this.endingTiles = this.tileGrid.getAllEndingTiles()
 		}
+		this.endingTiles = this.tileGrid.getAllEndingTiles()
 	}
 
 	public getGridTiles(): TileGrid {

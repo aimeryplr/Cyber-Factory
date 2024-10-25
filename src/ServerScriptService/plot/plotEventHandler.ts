@@ -7,7 +7,7 @@ import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedSto
 import { savePlayerData } from "ServerScriptService/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
@@ -54,7 +54,7 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     const tileObject = findBasepartByName(tileName as string);
     const tileInformation = getTileEntityInformation(tileName as string);
     const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
-    
+
     //check if player owns a plot and if the tile exists
     if (!tileObject || !plot || !tileEntity) {
         error("Tile not found or player does not own a plot or gridTile not found");
@@ -79,7 +79,8 @@ export const onChangingGeneratorRessource = (plotManager: PlotManager, player: P
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Generator)) return;
-    tile.setRessource(new Ressource(ressource as string));
+    print(tile)
+    tile.setRessource(new Resource(ressource as string));
 }
 
 export const onChangingCrafterComponent = (plotManager: PlotManager, player: Player, position: unknown, component: unknown) => {
@@ -88,5 +89,6 @@ export const onChangingCrafterComponent = (plotManager: PlotManager, player: Pla
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Crafter)) return;
+    print(tile)
     tile.setCraft(getComponent(component as string) as Component);
 }

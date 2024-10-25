@@ -1,4 +1,4 @@
-import Ressource from "./ressource";
+import Resource from "./resource";
 import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 
 /*
@@ -7,31 +7,22 @@ import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
     - buildRessources : Array<Ressource>
     - tier : number
 */
-const MONEY_COEF: number = 1.2;
-
 class Component extends Entity {
-    public buildRessources: Map<Component | Ressource, number>;
+    public buildRessources: Map<Component | Resource, number>;
     public tier: number;
     public amount: number;
 
-    constructor(name: string, buildRessources: Map<Component | Ressource, number>, tier: number, speed: number, amount: number) {
-        super(name, speed, calculateComponentSellPrice(buildRessources, tier));
+    constructor(name: string, price: number, buildRessources: Map<Component | Resource, number>, tier: number, speed: number, amount: number) {
+        super(name, speed, price);
         this.buildRessources = buildRessources;
         this.tier = tier;
         this.amount = amount;
     }
 
     copy(): Component {
-        return new Component(this.name, this.buildRessources, this.tier, this.speed, this.amount);
+        return new Component(this.name, this.sellPrice, this.buildRessources, this.tier, this.speed, this.amount);
     }
 }
 
-function calculateComponentSellPrice(buildRessources: Map<Component | Ressource, number>, tier: number): number {
-    for (const [ressource, quantity] of buildRessources) {
-        return (ressource as Entity).sellPrice * quantity * MONEY_COEF * math.pow(10, tier);
-    }
-    return 0;
-}
 
-
-export {Component, calculateComponentSellPrice};
+export { Component };

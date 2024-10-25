@@ -22,14 +22,20 @@ class InteractionHandler {
     }
 
     public interact(): void {
-        if (this.lastMenu) {
+        if (this.lastMenu && this.lastMenu.isVisible()) {
             this.lastMenu.hide();
             this.lastMenu = undefined;
             return;
         }
-        
+
         const tilePart = getTileFromRay(this.gridBase);
         if (!tilePart) return;
+        
+        if (this.lastMenu && this.lastMenu.tileEntity?.position === getLocalPosition(tilePart.Position, this.gridBase)) {
+            this.lastMenu.show();
+            return;
+        }
+        
 
         const partInfo = getTileEntityInformation(tilePart.Name);
 

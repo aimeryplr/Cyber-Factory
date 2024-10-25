@@ -1,5 +1,5 @@
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
-import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
+import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import { TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
@@ -9,7 +9,7 @@ const MAX_OUTPUTS = 1;
 const category: string = "generator";
 
 class Generator extends TileEntity {
-    ressource: Ressource | undefined;
+    ressource: Resource | undefined;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -20,7 +20,7 @@ class Generator extends TileEntity {
 
         // send the ressource if the item is not full
         if (this.getProgress(progress) < this.lastProgress) {
-            if (this.outputTiles[0] !== undefined) {
+            if (this.outputTiles[0]) {
                 const ressourceToTransfer = [this.ressource.copy()];
                 this.outputTiles[0].addEntity(ressourceToTransfer);
             }
@@ -32,7 +32,7 @@ class Generator extends TileEntity {
         return entities;
     }
 
-    setRessource(ressource: Ressource): void {
+    setRessource(ressource: Resource): void {
         this.ressource = ressource;
         this.ressource.id = 0;
         this.speed = ressource.speed;
@@ -60,10 +60,10 @@ class Generator extends TileEntity {
     }
 
     static decode(decoded: unknown): Generator {
-        const data = decoded as {name: string, category:string, position: {x: number, y:number, z:number}, size: {x: number, y:number}, direction:  {x: number, y:number}, ressource: string, lastProgress: number, outputTiles: Array<{x: number, y: number, z: number}>}
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, ressource: string, lastProgress: number, outputTiles: Array<{ x: number, y: number, z: number }> }
         const generator = new Generator(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
         generator.lastProgress = data.lastProgress;
-        if (data.ressource) generator.setRessource(new Ressource(data.ressource));
+        if (data.ressource) generator.setRessource(new Resource(data.ressource));
         generator.outputTiles = decodeVector3Array(data.outputTiles) as Array<TileEntity>;
         return generator;
     }

@@ -1,10 +1,10 @@
 import InteractionMenu from "./InteractionMenu";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import { componentsList } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
-import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
-import {Component} from "ReplicatedStorage/Scripts/Content/Entities/component";
-import Ressource from "ReplicatedStorage/Scripts/Content/Entities/ressource";
-import { getImageFromRessourceType } from "ReplicatedStorage/Scripts/Content/Entities/ressourceEnum";
+import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
+import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
+import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
+import { getImageFromResourceType } from "ReplicatedStorage/Scripts/Content/Entities/resourceEnum";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 
@@ -13,8 +13,8 @@ const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForCh
 
 class CrafterMenu implements InteractionMenu {
     player: Player;
-    menu: crafterMenu;
     tileEntity: Crafter | undefined;
+    menu: crafterMenu;
     private timeCrafterAdded: number | undefined;
 
     private barTween: Tween | undefined;
@@ -42,7 +42,15 @@ class CrafterMenu implements InteractionMenu {
             this.setupProgressBar();
         }
 
+        this.setupClose();
+
         if (!this.tileEntity.currentCraft) { this.menu.craft.Visible = false; return; }
+    }
+
+    setupClose() {
+        this.menu.toptop.close.MouseButton1Click.Connect(() => {
+            this.hide();
+        })
     }
 
     loadCraftList() {
@@ -74,7 +82,7 @@ class CrafterMenu implements InteractionMenu {
         this.menu.craft.Visible = true;
         this.removeBorder();
         (this.menu.searchCraft.FindFirstChild(component.name) as TextButton)!.BorderSizePixel = 4;
-        
+
         this.setupCraft(component);
 
         changeCrafterComponent.FireServer(this.tileEntity!.position, component.name);
@@ -90,7 +98,7 @@ class CrafterMenu implements InteractionMenu {
     setupCraft(component: Component): void {
         const componentInformation = componentsList.get(component.name);
         const [compBuildRessource] = component.buildRessources;
-        const componentInImg = componentsList.get(compBuildRessource[0].name)?.img ?? getImageFromRessourceType((compBuildRessource[0] as Ressource).ressourceType);
+        const componentInImg = componentsList.get(compBuildRessource[0].name)?.img ?? getImageFromResourceType((compBuildRessource[0] as Resource).resourceType);
 
         this.menu.craft.itemName.Text = component.name;
         this.menu.craft.itemName.price.TextLabel.Text = component.sellPrice as unknown as string;
@@ -126,6 +134,29 @@ class CrafterMenu implements InteractionMenu {
 
     public show(): void {
         this.menu.Visible = true;
+        RunService.BindToRenderStep("crafterMenu", 1, () => {
+            if (!this.tileEntity) return;
+            this.tileEntity = Crafter.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.updateAmount();
+        });
+    }
+
+    /**
+     *  update the number about the amount of item in the input or the output
+     */
+    updateAmount() {
+        if (!this.tileEntity) return
+
+        if (!this.tileEntity.currentCraft) {
+            this.menu.craft.progression["1itemIn"].TextLabel.Text = "0/0";
+            this.menu.craft.progression["3itemOut"].TextLabel.Text = "0/0";
+            return;
+        }
+        
+        const [amountIn] = this.tileEntity.currentCraft.buildRessources
+
+        this.menu.craft.progression["1itemIn"].TextLabel.Text = (tostring(this.tileEntity.resource) ?? "0") + "/" + tostring(amountIn[1]);
+        this.menu.craft.progression["3itemOut"].TextLabel.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
     }
 
     public isVisible(): boolean {
@@ -134,6 +165,7 @@ class CrafterMenu implements InteractionMenu {
 
     public hide(): void {
         this.menu.Visible = false;
+        RunService.UnbindFromRenderStep("crafterMenu");
     }
 
     public getMenu(): Frame {
