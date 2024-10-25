@@ -30,6 +30,9 @@ class Tile {
         return this.position.add(gridBase.Position);
     }
 
+    /**
+     * @returns the orientation of the tile in radians
+     */
     getOrientation(): number {
         return math.atan2(this.direction.Y, this.direction.X)
     }

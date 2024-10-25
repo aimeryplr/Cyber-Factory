@@ -71,6 +71,7 @@ class EntitiesHandler {
         if (!prevTileEntityPosition || !this.entitiesBaseparts.get(prevTileEntityPosition as Vector3)) {
             entity = ReplicatedStorage.WaitForChild("Entities").WaitForChild(string.lower(conveyer.content[lastIndex]!.name)).Clone() as BasePart;
             if (!entity) error(`entity ${conveyer.content[lastIndex]!.name} is undefined`);
+            entity.Orientation = new Vector3(0, math.deg(conveyer.getOrientation()), 0);
             entity.Anchored = true;
             entity.Parent = this.gridBase.WaitForChild("Entities");
         } else {

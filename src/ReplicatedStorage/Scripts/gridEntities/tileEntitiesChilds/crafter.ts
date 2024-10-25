@@ -47,6 +47,7 @@ class Crafter extends TileEntity {
 
     addEntity(entities: Array<Entity>): Array<Entity> {
         if (entities.isEmpty()) return entities;
+        if (this.resource >= MAX_CAPACITY) return entities;
 
         const entity = entities[0];
         if (!(entity instanceof Resource) && !(entity instanceof Component)) return entities;
@@ -116,6 +117,7 @@ class Crafter extends TileEntity {
 
     private craft(): Component | undefined {
         if (!this.currentCraft) return;
+        if (this.craftedComponent >= MAX_CAPACITY) return;
         if (!this.canCraft()) return;
         const [resource] = this.currentCraft.buildRessources
         this.resource -= resource[1];

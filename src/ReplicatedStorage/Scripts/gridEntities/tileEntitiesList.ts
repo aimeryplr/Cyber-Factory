@@ -29,7 +29,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["generator_t1", {
             name: "generator_t1",
             category: "generator",
-            speed: 1,
+            speed: 0,
             tier: 1,
             price: 500,
             image: "rbxassetid://0",
@@ -37,7 +37,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["generator_t2", {
             name: "generator_t2",
             category: "generator",
-            speed: 2,
+            speed: 0,
             tier: 2,
             price: 10000,
             image: "rbxassetid://0",
@@ -45,7 +45,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         ["generator_t3", {
             name: "generator_t3",
             category: "generator",
-            speed: 4,
+            speed: 0,
             tier: 3,
             price: 1000000,
             image: "rbxassetid://0",
