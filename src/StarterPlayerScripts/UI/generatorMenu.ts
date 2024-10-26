@@ -1,7 +1,7 @@
 import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
-import InteractionMenu from "./InteractionMenu";
+import {InteractionMenu} from "./InteractionMenu";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -31,13 +31,13 @@ class GeneratorMenu implements InteractionMenu {
         if (!this.tileEntity) return;
 
         this.setupCurrentRessource(this.tileEntity);
+        this.setupButtons()
 
         // setup the progression bar if it's outputing
         if (this.tileEntity.outputTiles.isEmpty()) return;
         this.setupProgressBar();
         this.setupClose()
 
-        this.setupButtons()
     }
 
     setupClose() {
@@ -87,6 +87,8 @@ class GeneratorMenu implements InteractionMenu {
         const progression = this.menu.progression;
         const timeToFill = 60 / this.tileEntity!.speed;
         const calculatedProgression = this.tileEntity!.lastProgress + ((tick() - this.timeGeneratorAdded!) % timeToFill) / timeToFill
+
+        if (!this.tileEntity!.ressource) return;
 
         const barTweenInfo = new TweenInfo(timeToFill * (1 - calculatedProgression), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
         progression.progressionBar.bar.Size = new UDim2(calculatedProgression, 0, 1, 0);

@@ -35,18 +35,22 @@ setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart, tileGrid: string) => {
     showPlotClaimedUI();
 });
 
-function handleInputs(input: InputObject, gameProcessed: boolean) {
-    if (gameProcessed) return;
-    if (!input) return;
+RunService.Heartbeat.Connect(() => {
+    handleInputs(undefined, false)
+})
 
-    if (input.UserInputType === terminateKey) {
-        if (placementHandler.placementStatus === placementType.INTERACTING) {
-            interaction.interact();
-        } else {
-            placementHandler.destroyObject();
-            placementHandler.placeObject();
-        }
+function handleInputs(input: InputObject | undefined, gameProcessed: boolean) {
+    if (gameProcessed) return;
+    if (!placementHandler) return;
+
+    if (input && input.UserInputType === terminateKey && placementHandler.placementStatus === placementType.INTERACTING) {
+        interaction.interact();
+    } else if (UserInputService.GetMouseButtonsPressed()[0] && UserInputService.GetMouseButtonsPressed()[0].UserInputType === terminateKey) {
+        placementHandler.destroyObject();
+        placementHandler.placeObject();
     }
+
+    if (!input) return;
     if (input.KeyCode === rotateKey) {
         placementHandler.rotate();
     }

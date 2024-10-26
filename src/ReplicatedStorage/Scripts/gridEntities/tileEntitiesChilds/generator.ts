@@ -38,10 +38,6 @@ class Generator extends TileEntity {
         this.speed = ressource.speed;
     }
 
-    updateShape(gridBase: BasePart): void {
-        return;
-    }
-
     getNewShape(): BasePart | undefined {
         return;
     }

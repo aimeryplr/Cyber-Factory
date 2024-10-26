@@ -1,6 +1,7 @@
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import Tile from "./tile";
+import { getGlobalPosition, removeConectedTiles } from "./tileEntityUtils";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
@@ -45,7 +46,13 @@ abstract class TileEntity extends Tile {
     abstract addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined>;
 
     abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
-    abstract updateShape(gridBase: BasePart): void;
+    updateShape(gridBase: BasePart): void {
+        const currentBasePart = this.findThisPartInWorld(gridBase);
+        if (!currentBasePart) return;
+
+       currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
+       currentBasePart.Position = getGlobalPosition(this.position, gridBase);
+    };
 
     abstract encode(): {};
 
@@ -57,9 +64,8 @@ abstract class TileEntity extends Tile {
         this.outputTiles.push(nexTileEntity);
     };
 
-    /** Go through all connected part and try to set the input and output
-     * @param touchedPart list of part touching this
-     * @param gridEntities list of entities in the plot
+    /** 
+    * Connect to all neighbours
     */
     setAllConnectedNeighboursTileEntity(tileGrid: TileGrid): void {
         for (const [neighbourTile, direction] of this.getAllNeighbours(tileGrid)) {
@@ -130,6 +136,11 @@ abstract class TileEntity extends Tile {
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
         if (neighbourTile.category === "splitter") return this.direction === neighbourTileDirection.mul(-1)
         return neighbourTile.direction === neighbourTileDirection.mul(-1)
+    }
+
+    rotate(gridBase: BasePart): void {
+        this.size = new Vector2(this.size.Y, this.size.X);
+        this.direction = new Vector2(-this.direction.Y, this.direction.X);
     }
 
     /**

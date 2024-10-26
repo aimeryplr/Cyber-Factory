@@ -1,6 +1,6 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
-import { onChangingCrafterComponent, onChangingGeneratorRessource, onGettingTileEvent, onPlacingTile, onPlayerRemoving, onRemoveTileEvent } from "./plotEventHandler";
+import { onChangingCrafterComponent, onChangingGeneratorRessource, onGettingTileEvent, onPlacingTile, onPlayerRemoving, onRemoveTileEvent, rotateTile } from "./plotEventHandler";
 
 // EVENTS
 const placeTileCallback = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -8,6 +8,7 @@ const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForCh
 const removeTileEventRemote = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
 const changeCrafterComponent = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterComponent") as RemoteEvent;
+const rotateTileEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("rotateTile") as RemoteEvent;
 
 const plotsManager = new PlotManager();
 
@@ -19,3 +20,4 @@ getTileRemoteFunction.OnServerInvoke = (player: Player, tilePos: unknown): strin
 removeTileEventRemote.OnServerEvent.Connect((player, tile) => { onRemoveTileEvent(plotsManager, player, tile) });
 changeGeneratorRessourceEvent.OnServerEvent.Connect((player, position, ressource) => { onChangingGeneratorRessource(plotsManager, player, position, ressource) });
 changeCrafterComponent.OnServerEvent.Connect((player, position, component) => { onChangingCrafterComponent(plotsManager, player, position, component) });
+rotateTileEvent.OnServerEvent.Connect((player, position) => { rotateTile(plotsManager, player, position) });

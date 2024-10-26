@@ -71,7 +71,7 @@ class EntitiesHandler {
         if (!prevTileEntityPosition || !this.entitiesBaseparts.get(prevTileEntityPosition as Vector3)) {
             entity = ReplicatedStorage.WaitForChild("Entities").WaitForChild(string.lower(conveyer.content[lastIndex]!.name)).Clone() as BasePart;
             if (!entity) error(`entity ${conveyer.content[lastIndex]!.name} is undefined`);
-            entity.Orientation = new Vector3(0, math.deg(conveyer.getOrientation()), 0);
+            entity.Orientation = new Vector3(0, conveyer.getOrientation(), 0);
             entity.Anchored = true;
             entity.Parent = this.gridBase.WaitForChild("Entities");
         } else {
@@ -98,7 +98,6 @@ class EntitiesHandler {
         if (!conveyerEntitiesBaseparts || !currentBasePart) return;
         const prevTileEntityPosition = conveyer.inputTiles[0] as unknown;
         const shouldMove = shouldMoveEntityInConveyer(conveyer, oldConveyer, i);
-        // if (i === 4) print(conveyer.content, oldConveyer.content, shouldMove);
         if (!shouldMove) return;
 
         swapArrayElements(conveyerEntitiesBaseparts, i, i + 1);
@@ -114,7 +113,6 @@ class EntitiesHandler {
         const conveyerEntitiesBaseparts = this.entitiesBaseparts.get(conveyer.position);
         const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[0] : undefined;
         const nextConveyer = this.conveyers.get(conveyer.position.add(new Vector3(conveyer.direction.X, 0, conveyer.direction.Y).mul(3)));
-        const prevTileEntityPosition = conveyer.inputTiles[0] as unknown;
 
         if (oldConveyer.content[0]?.id === conveyer.content[0]?.id) return;
         if (!conveyerEntitiesBaseparts) return;

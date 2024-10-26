@@ -7,7 +7,7 @@ import GeneratorMenu from "./generatorMenu";
 import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import CrafterMenu from "./crafterMenu";
-import InteractionMenu from "./InteractionMenu";
+import {InteractionMenu, isMouseInMenu} from "./InteractionMenu";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const generatorMenu = new GeneratorMenu(Players.LocalPlayer);
@@ -23,9 +23,11 @@ class InteractionHandler {
 
     public interact(): void {
         if (this.lastMenu && this.lastMenu.isVisible()) {
-            this.lastMenu.hide();
-            this.lastMenu = undefined;
-            return;
+            if (!isMouseInMenu(this.lastMenu.getMenu())) {
+                this.lastMenu.hide();
+                this.lastMenu = undefined;
+                return;
+            };
         }
 
         const tilePart = getTileFromRay(this.gridBase);

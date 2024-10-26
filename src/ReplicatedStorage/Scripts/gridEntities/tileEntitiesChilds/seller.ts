@@ -69,10 +69,6 @@ class Seller extends TileEntity {
         return seller;
     }
 
-    updateShape(gridBase: BasePart): void {
-        return;
-    }
-
     getNewShape(): BasePart | undefined {
         return;
     }

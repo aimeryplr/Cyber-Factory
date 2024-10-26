@@ -4,6 +4,7 @@ import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component"
 import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
+import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -86,8 +87,14 @@ class Crafter extends TileEntity {
         return crafter;
     }
 
-    updateShape(gridBase: BasePart): void {
-        return;
+    rotate(gridBase: BasePart): void {
+        this.size = new Vector2(this.size.Y, this.size.X);
+        this.direction = new Vector2(-this.direction.Y, this.direction.X);
+        
+        const currentPart = this.findThisPartInWorld(gridBase);
+        const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
+        this.position = this.getOrientation() % 90 === 0 ? this.position.sub(offestPosition) : this.position.add(offestPosition);
+        currentPart!.Position = this.getGlobalPosition(gridBase);
     }
 
     getNewShape(): BasePart | undefined {

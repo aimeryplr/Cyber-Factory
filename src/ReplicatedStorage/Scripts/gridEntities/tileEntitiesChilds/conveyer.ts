@@ -51,7 +51,6 @@ class Conveyer extends TileEntity {
     setupIds(entities: (Entity | undefined)[]) {
         for (const entity of entities) {
             if (!entity) continue
-            if (entity.id) continue
 
             entity.id = this.count % CONTENT_SIZE;
             this.count++;
@@ -86,9 +85,13 @@ class Conveyer extends TileEntity {
     updateShape(gridBase: BasePart): void {
         const newShape = this.getNewShape(gridBase);
         const currentBasePart = this.findThisPartInWorld(gridBase);
-        if (newShape && currentBasePart) {
+        if (!currentBasePart) return;
+
+        if (newShape) {
             currentBasePart.Destroy();
             setupObject(newShape, this.getGlobalPosition(gridBase), math.atan2(this.direction.Y, this.direction.X), gridBase);
+        } else {
+            currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
         }
     }
 

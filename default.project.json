@@ -56,6 +56,9 @@
 				},
 				"sendTileGrid": {
 					"$className": "RemoteEvent"
+				},
+				"rotateTile": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

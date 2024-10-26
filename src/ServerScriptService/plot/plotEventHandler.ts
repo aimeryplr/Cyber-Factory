@@ -1,6 +1,6 @@
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
-import { findBasepartByName, getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 import { addMoney, hasEnoughMoney, removeMoney, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
@@ -11,6 +11,7 @@ import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
+import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 
@@ -33,18 +34,7 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
         addMoney(player as Player, tilePrice);
         sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
     }
-    // print(plot.getGridTiles().tileGrid);
-}
-
-export const onPlayerRemoving = (plotManager: PlotManager, player: Player) => {
-    const plot = plotManager.getPlotByOwner(player.UserId);
-    if (!plot) return
-
-    const moneyValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
-    const tierValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Tier") as IntValue;
-
-    savePlayerData(player.UserId, { money: moneyValue.Value, tier: tierValue.Value, grid: HttpService.JSONEncode(plot.encode()) })
-    plot.removeOwner();
+    print(plot.getGridTiles().tileGrid);
 }
 
 export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
@@ -69,8 +59,18 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
         plot.addGridTile(tileEntity, player.UserId);
         sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
-    // print(plot.getGridTiles().tileGrid);
     return isPlaceable;
+}
+
+export const onPlayerRemoving = (plotManager: PlotManager, player: Player) => {
+    const plot = plotManager.getPlotByOwner(player.UserId);
+    if (!plot) return
+
+    const moneyValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
+    const tierValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Tier") as IntValue;
+
+    savePlayerData(player.UserId, { money: moneyValue.Value, tier: tierValue.Value, grid: HttpService.JSONEncode(plot.encode()) })
+    plot.removeOwner();
 }
 
 export const onChangingGeneratorRessource = (plotManager: PlotManager, player: Player, position: unknown, ressource: unknown) => {
@@ -79,7 +79,7 @@ export const onChangingGeneratorRessource = (plotManager: PlotManager, player: P
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Generator)) return;
-    print(tile)
+ 
     tile.setRessource(new Resource(ressource as string));
 }
 
@@ -89,6 +89,32 @@ export const onChangingCrafterComponent = (plotManager: PlotManager, player: Pla
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Crafter)) return;
-    print(tile)
+ 
     tile.setCraft(getComponent(component as string) as Component);
+}
+
+export const rotateTile = (plotManager: PlotManager, player: Player, position: unknown) => {
+    const plot = plotManager.getPlotByOwner(player.UserId);
+    if (!plot) return;
+
+    const tile = plot.getGridTiles().getTileFromPosition(getLocalPosition(position as Vector3, plot.getGridBase()));
+    if (!tile) return;
+
+    if (tile instanceof TileEntity) {
+        removeConectedTiles(tile);
+        plot.getGridTiles().removeTile(tile);
+        tile.rotate(plot.getGridBase());
+        try {
+            plot.getGridTiles().addTile(tile);
+        } catch (error) {
+            tile.rotate(plot.getGridBase());
+            tile.rotate(plot.getGridBase());
+            tile.rotate(plot.getGridBase());
+            plot.getGridTiles().addTile(tile);
+        }
+        tile.setAllConnectedNeighboursTileEntity(plot.getGridTiles());
+        tile.updateShape(plot.getGridBase());
+        print(plot.getGridTiles().tileGrid);
+    }
+
 }

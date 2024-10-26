@@ -47,6 +47,12 @@ function removeAllTileFromAllConnectedTiles(tileEntity: TileEntity): void {
     });
 }
 
+function removeConectedTiles(tileEntity: TileEntity) {
+    removeAllTileFromAllConnectedTiles(tileEntity);
+    tileEntity.outputTiles.clear();
+    tileEntity.inputTiles.clear();
+}
+
 function connectTileEntityToAllInputsAndOutputs(tileEntity: TileEntity): void {
     tileEntity.inputTiles.forEach((inputTile) => {
         inputTile.outputTiles.push(tileEntity);
@@ -65,4 +71,4 @@ function getLocalPosition(position: Vector3, gridBase: BasePart): Vector3 {
     return position.sub(gridBase.Position);
 }
 
-export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition, getLocalPosition };
+export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition, getLocalPosition, removeConectedTiles };

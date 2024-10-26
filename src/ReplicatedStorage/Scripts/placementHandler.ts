@@ -10,6 +10,7 @@ import { GRID_SIZE } from "ReplicatedStorage/parameters";
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
+const rotateTile = ReplicatedStorage.WaitForChild("Events").WaitForChild("rotateTile") as RemoteEvent;
 
 // Parameters
 const LERP_SPEED = 0.5;
@@ -233,6 +234,7 @@ class PlacementHandler {
 
     desactivateInteracting() {
         RunService.UnbindFromRenderStep("inspect");
+        this.currentTile = undefined;
         this.resetSelectionTile();
     }
 
@@ -265,9 +267,8 @@ class PlacementHandler {
         const hit = getTileFromRay(this.gridBase);
 
         if (hit && hit.Parent === this.placedObjects) {
-            if (hit !== this.currentTile) {
-                this.setupInteractingBox(hit);
-            }
+            this.currentTile = hit;
+            this.setupInteractingBox(hit);
         } else {
             this.resetSelectionTile();
         }
@@ -316,14 +317,19 @@ class PlacementHandler {
 
 
     rotate() {
-        if (this.placementStatus === placementType.INTERACTING) return;
-        if (this.size === undefined) return;
-        this.lastRotation = this.rotation;
-        this.rotation -= math.pi / 2;
-        if (this.rotation === -math.pi * 2) {
-            this.rotation = 0;
+        if (this.placementStatus === placementType.INTERACTING) {
+            if (!this.currentTile) return;
+            rotateTile.FireServer(this.currentTile.Position);
+        } else {
+            if (this.size === undefined) return;
+            this.lastRotation = this.rotation;
+            this.rotation -= math.pi / 2;
+            if (this.rotation === -math.pi * 2) {
+                this.rotation = 0;
+            }
+            this.size = new Vector2(this.size.Y, this.size.X);
         }
-        this.size = new Vector2(this.size.Y, this.size.X);
+
     }
 }
 

@@ -1,4 +1,4 @@
-import InteractionMenu from "./InteractionMenu";
+import {InteractionMenu} from "./InteractionMenu";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import { componentsList } from "ReplicatedStorage/Scripts/Content/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";

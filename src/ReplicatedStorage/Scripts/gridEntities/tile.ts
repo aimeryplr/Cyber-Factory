@@ -31,10 +31,10 @@ class Tile {
     }
 
     /**
-     * @returns the orientation of the tile in radians
+     * @returns the orientation of the tile in degrees
      */
     getOrientation(): number {
-        return math.atan2(this.direction.Y, this.direction.X)
+        return -math.deg(math.atan2(this.direction.Y, this.direction.X))
     }
 
     encode(): {} {

@@ -4,7 +4,7 @@ import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import { changeShapes, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
-import { findBasepartByName, removeAllTileFromAllConnectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { findBasepartByName, removeAllTileFromAllConnectedTiles, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 import { ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
@@ -111,7 +111,7 @@ class Plot {
 
 		if (tile instanceof TileEntity) {
 			if (tile instanceof Conveyer && this.owner) destroyConveyerEvent.FireClient(getPlayerFromUserId(this.owner), tile.copy());
-			this.removeConectedTiles(tile);
+			removeConectedTiles(tile);
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
 		}
@@ -120,12 +120,6 @@ class Plot {
 		this.tileGrid.removeTile(tile);
 		this.endingTiles = this.tileGrid.getAllEndingTiles()
 		return tile
-	}
-
-	removeConectedTiles(tileEntity: TileEntity) {
-		removeAllTileFromAllConnectedTiles(tileEntity);
-		tileEntity.outputTiles.clear();
-		tileEntity.inputTiles.clear();
 	}
 
 	addOwner(player: Player) {

@@ -65,10 +65,6 @@ class Assembler extends TileEntity {
         return assembler;
     }
 
-    updateShape(gridBase: BasePart): void {
-        return;
-    }
-
     getNewShape(): BasePart | undefined {
         return;
     }
