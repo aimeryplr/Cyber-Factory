@@ -1,3 +1,3 @@
 import { Cmdr } from "@rbxts/cmdr";
 
-Cmdr.RegisterDefaultCommands()
+Cmdr.RegisterCommandsIn(script.Parent!.FindFirstChild("commands")!);

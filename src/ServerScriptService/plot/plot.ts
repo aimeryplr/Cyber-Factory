@@ -169,6 +169,12 @@ class Plot {
 		this.endingTiles = this.tileGrid.getAllEndingTiles()
 	}
 
+	reset() {
+		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(this.gridBase.Size));
+		this.gridBase.FindFirstChild("PlacedObjects")!.ClearAllChildren();
+		this.gridBase.FindFirstChild("Entities")!.ClearAllChildren();
+    }
+
 	public getGridTiles(): TileGrid {
 		return this.tileGrid;
 	}

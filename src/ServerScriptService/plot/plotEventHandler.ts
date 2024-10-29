@@ -120,3 +120,11 @@ export const rotateTile = (plotManager: PlotManager, player: Player, position: u
         resetBeamsOffset(plot.getGridBase());
     }
 }
+
+export const resetPlot = (plotManager: PlotManager, player: Player) => {
+    const plot = plotManager.getPlotByOwner(player.UserId);
+    if (!plot) return;
+
+    plot.reset();
+    sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
+}

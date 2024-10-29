@@ -59,6 +59,9 @@
 				},
 				"rotateTile": {
 					"$className": "RemoteEvent"
+				},
+				"resetPlot": {
+					"$className": "BindableEvent"
 				}
 			}
 		},
