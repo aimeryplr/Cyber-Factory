@@ -58,5 +58,8 @@ function getTileEntityInformation(name: string, category?: string): { name: stri
 }
 
 
+export const isMachine = (category: string): boolean => {
+    return ["generator", "crafter", "assembler"].includes(category);
+}
 
 export { getTileEntityByCategory, getTileEntityInformation };

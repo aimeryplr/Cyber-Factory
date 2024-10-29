@@ -125,3 +125,54 @@ type crafterMenu = Frame & {
 		};
 	};
 }
+
+type assemblerMenu = Frame & {
+	UICorner: UICorner;
+	craft: Frame & {
+		speed: TextLabel;
+		itemName: TextLabel & {
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
+			price: Frame & {
+				UIListLayout: UIListLayout;
+				TextLabel: TextLabel;
+				ImageLabel: ImageLabel & {
+					UIAspectRatioConstraint: UIAspectRatioConstraint;
+				};
+			};
+		};
+		progression: Frame & {
+			UIListLayout: UIListLayout;
+			["1itemIn"]: Frame & {
+				UIListLayout: UIListLayout;
+			};
+			["2progressionBar"]: Frame & {
+				UICorner: UICorner;
+				UIStroke: UIStroke;
+				bar: Frame & {
+					UICorner: UICorner;
+				};
+			};
+			["3itemOut"]: ImageLabel & {
+				UICorner: UICorner;
+				UIStroke: UIStroke;
+				UIAspectRatioConstraint: UIAspectRatioConstraint;
+				TextLabel: TextLabel;
+			};
+		};
+	};
+	searchCraft: ScrollingFrame & {
+		UIListLayout: UIListLayout;
+		UIPadding: UIPadding;
+	};
+	toptop: Frame & {
+		top: Frame;
+		UICorner: UICorner;
+		title: TextLabel & {
+			UIPadding: UIPadding;
+		};
+		close: ImageButton & {
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
+			close: LocalScript;
+		};
+	};
+}

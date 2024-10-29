@@ -1,4 +1,4 @@
-import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
+import {type Entity} from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
@@ -89,7 +89,7 @@ class Conveyer extends TileEntity {
 
         if (newShape) {
             currentBasePart.Destroy();
-            setupObject(newShape, this.getGlobalPosition(gridBase), math.atan2(this.direction.Y, this.direction.X), gridBase);
+            setupObject(newShape, this.getGlobalPosition(gridBase), this.getOrientation(), gridBase);
         } else {
             currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
         }
@@ -128,7 +128,7 @@ class Conveyer extends TileEntity {
     }
 
     static decode(decoded: unknown): Conveyer {
-        const data  = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number },  direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}>, isTurning: boolean };
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }>, isTurning: boolean };
         const conveyer = new Conveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         conveyer.content = decodeArray(data.content);
         conveyer.isTurning = data.isTurning;

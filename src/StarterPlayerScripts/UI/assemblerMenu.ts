@@ -1,30 +1,30 @@
 import { InteractionMenu } from "./InteractionMenu";
-import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
+import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
-import { getImage } from "./imageUtils";
-import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
+import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
+import { getImage } from "./imageUtils";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 
-class CrafterMenu implements InteractionMenu {
+class AssemblerMenu implements InteractionMenu {
     player: Player;
-    tileEntity: Crafter | undefined;
-    menu: crafterMenu;
+    tileEntity: Assembler | undefined;
+    menu: assemblerMenu;
     private timeCrafterAdded: number | undefined;
 
     private barTween: Tween | undefined;
 
     constructor(player: Player) {
         this.player = player;
-        this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("crafterMenu") as crafterMenu;
+        this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("assemblerMenu") as assemblerMenu;
     }
 
-    setTileEntity(crafter: Crafter): void {
-        if (this.tileEntity?.position === crafter.position && this.tileEntity.currentCraft?.name === crafter.currentCraft?.name) return;
-        this.tileEntity = crafter;
+    setTileEntity(assembler: Assembler): void {
+        if (this.tileEntity?.position === assembler.position && this.tileEntity.currentCraft?.name === assembler.currentCraft?.name) return;
+        this.tileEntity = assembler;
 
         this.timeCrafterAdded = tick();
         this.setupMenu();
@@ -59,8 +59,8 @@ class CrafterMenu implements InteractionMenu {
 
         const components = entitiesList
         for (const [componentName, component] of components) {
-            if (component.type !== EntityType.COMPONENT) continue;
-            
+            if (component.type !== EntityType.MODULE) continue;
+
             const newComponent = componentPrefab.Clone();
             newComponent.Name = componentName;
             (newComponent.FindFirstChild("itemName")! as TextLabel).Text = componentName;
@@ -86,7 +86,7 @@ class CrafterMenu implements InteractionMenu {
 
         changeCrafterOrAssemblerCraft.FireServer(this.tileEntity!.position, component.name);
         while (this.tileEntity?.currentCraft?.name !== component.name) {
-            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position))) as Crafter;
+            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position))) as Assembler;
             wait(0.1);
         }
         this.timeCrafterAdded = tick();
@@ -95,13 +95,20 @@ class CrafterMenu implements InteractionMenu {
     }
 
     setupCraft(component: Component): void {
-        const [compBuildRessource] = component.buildRessources;
-        const componentInImg = entitiesList.get(compBuildRessource[0]);
+        const resourceFrame = this.menu.craft.progression["1itemIn"]
 
         this.menu.craft.itemName.Text = component.name;
         this.menu.craft.itemName.price.TextLabel.Text = component.price as unknown as string;
         this.menu.craft.progression["3itemOut"].Image = getImage(component);
-        this.menu.craft.progression["1itemIn"].Image = getImage(componentInImg);
+
+        let i = 0;
+        for (const [resource, quantity] of component.buildRessources) {
+            const componentInImg = entitiesList.get(resource);
+            const resourceImage = resourceFrame.GetChildren()[i] as ImageLabel;
+            resourceImage.Image = getImage(componentInImg);
+            resourceImage.Name = resource;
+            i++;
+        }
         this.menu.craft.speed.Text = component.speed + "/s";
     }
 
@@ -134,7 +141,7 @@ class CrafterMenu implements InteractionMenu {
         this.menu.Visible = true;
         RunService.BindToRenderStep("crafterMenu", 1, () => {
             if (!this.tileEntity) return;
-            this.tileEntity = Crafter.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.tileEntity = Assembler.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
             this.updateAmount();
         });
     }
@@ -144,17 +151,23 @@ class CrafterMenu implements InteractionMenu {
      */
     updateAmount() {
         if (!this.tileEntity) return
+        const progression = this.menu.craft.progression;
 
         if (!this.tileEntity.currentCraft) {
-            this.menu.craft.progression["1itemIn"].TextLabel.Text = "0/0";
-            this.menu.craft.progression["3itemOut"].TextLabel.Text = "0/0";
+            for (const child of progression["1itemIn"].GetChildren()) {
+                if (!child.IsA("ImageLabel")) continue;
+                (child.FindFirstChild("TextLabel") as TextLabel)!.Text = "0/0";
+            }
+            progression["3itemOut"].TextLabel.Text = "0/0";
             return;
         }
 
-        const [amountIn] = this.tileEntity.currentCraft.buildRessources
-
-        this.menu.craft.progression["1itemIn"].TextLabel.Text = (tostring(this.tileEntity.resource) ?? "0") + "/" + tostring(amountIn[1]);
-        this.menu.craft.progression["3itemOut"].TextLabel.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
+        for (const [resource, amountNeeded] of this.tileEntity.currentCraft.buildRessources) {
+            const resourceImage = progression["1itemIn"].FindFirstChild(resource) as ImageLabel;
+            const quantity = this.tileEntity.resource.get(string.lower(resource))!;
+            (resourceImage.FindFirstChild("TextLabel") as TextLabel)!.Text = quantity + "/" + tostring(amountNeeded);
+        }
+        progression["3itemOut"].TextLabel.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
     }
 
     public isVisible(): boolean {
@@ -171,4 +184,4 @@ class CrafterMenu implements InteractionMenu {
     }
 }
 
-export default CrafterMenu;
+export default AssemblerMenu;

@@ -132,12 +132,12 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
         }]
     ])],
     ["assembler", new Map([
-        ["assembler_t1", {
-            name: "assembler_t1",
+        ["assembler", {
+            name: "assembler",
             category: "assembler",
             speed: 1,
             tier: 1,
-            price: 5000,
+            price: 500,
             image: "rbxassetid://0",
         }]
     ])]

@@ -24,6 +24,7 @@ hotbar.setSlotFromName(2, "seller");
 hotbar.setSlotFromName(3, "splitter_t1");
 hotbar.setSlotFromName(4, "merger_t1");
 hotbar.setSlotFromName(5, "crafter");
+hotbar.setSlotFromName(6, "assembler");
 
 
 setPlayerPlot.OnClientEvent.Connect((gridBase: BasePart, tileGrid: string) => {

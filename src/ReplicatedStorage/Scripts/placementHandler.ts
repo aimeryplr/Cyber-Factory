@@ -3,7 +3,7 @@ import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/servic
 import { TileGrid } from "./gridTile";
 import { TileEntity } from "./gridEntities/tileEntity";
 import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/tileEntityUtils";
-import { getTileEntityByCategory, getTileEntityInformation } from "./gridEntities/tileEntityProvider";
+import { getTileEntityByCategory, getTileEntityInformation, isMachine } from "./gridEntities/tileEntityProvider";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 //Event
@@ -35,7 +35,10 @@ class PlacementHandler {
     size: Vector2 | undefined;
     rotation: number;
     targetPos: Vector3 | undefined;
+    
     selectionTile: SelectionBox | undefined;
+    turningArrow: BasePart | undefined;
+
     lastPos: Vector3 | undefined;
     lastRotation: number | undefined;
     tileGrid: TileGrid | undefined;
@@ -58,6 +61,7 @@ class PlacementHandler {
     }
 
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {
+        assert(this.currentTile, "Object not found");
         const mouseRay = this.mouse.UnitRay;
         const castRay = new Ray(mouseRay.Origin, mouseRay.Direction.mul(1000));
         const ignoreList = [obj];
@@ -72,7 +76,7 @@ class PlacementHandler {
             if (this.size && this.size.X % 2 === 0) x -= GRID_SIZE / 2;
             if (this.size && this.size.Y % 2 === 0) z -= GRID_SIZE / 2;
 
-            return new Vector3(x, y, z).add(this.gridBase.Position);
+            return new Vector3(x, y, z).add(this.gridBase.Position).sub(this.currentTile.PivotOffset.Position);
         }
         return undefined;
     }
@@ -228,6 +232,8 @@ class PlacementHandler {
         this.currentTile = undefined;
         this.lastPos = undefined;
         this.placementStatus = placementType.INTERACTING;
+        this.turningArrow?.Destroy();
+        this.turningArrow = undefined;
         
         this.activateInteracting()
     }
@@ -236,6 +242,8 @@ class PlacementHandler {
         RunService.UnbindFromRenderStep("inspect");
         this.currentTile = undefined;
         this.resetSelectionTile();
+        this.turningArrow?.Destroy();
+        this.turningArrow = undefined;
     }
 
     placeObject() {
@@ -267,18 +275,37 @@ class PlacementHandler {
         const hit = getTileFromRay(this.gridBase);
 
         if (hit && hit.Parent === this.placedObjects) {
+            if (hit === this.currentTile) return;
+
             this.currentTile = hit;
-            this.setupInteractingBox(hit);
+            this.setupInteractingBox();
         } else {
             this.resetSelectionTile();
+            this.currentTile = undefined;
         }
+        this.setupTurningArrow();
     }
 
-    setupInteractingBox(hit: BasePart) {
+    setupTurningArrow() {
+        if (!this.turningArrow) this.turningArrow = ReplicatedStorage.FindFirstChild("prefab")!.FindFirstChild("rotate arrow")!.Clone() as BasePart;
+        this.turningArrow.Parent = this.currentTile;
+
+        if (!this.currentTile) return;
+        this.turningArrow.Position = this.currentTile.Position.add(Vector3.yAxis.mul(this.currentTile.Size.Y / 2 + 0.3));
+    }
+
+    setupInteractingBox() {
         if (this.selectionTile === undefined) error("Selection tile not initialized");
         this.selectionTile.Visible = true;
-        this.selectionTile.Parent = hit;
-        this.selectionTile.Adornee = hit;
+        this.selectionTile.Parent = this.currentTile;
+        this.selectionTile.Adornee = this.currentTile;
+        this.selectionTile.Color3 = new Color3(1, 1, 1);
+
+        const tileInfo = getTileEntityInformation(this.currentTile!.Name);
+        if (!tileInfo) return;
+        if (isMachine(tileInfo.category)) {
+            this.selectionTile.Color3 = new Color3(1, 1, 0)
+        };
     }
 
     destroyObject() {

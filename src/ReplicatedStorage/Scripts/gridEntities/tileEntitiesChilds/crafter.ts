@@ -1,10 +1,8 @@
-import Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
+import { Component, Entity, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
-import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
-import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -38,7 +36,7 @@ class Crafter extends TileEntity {
         if (!craftedComponent) {
             if (this.craftedComponent === 0) return;
             this.craftedComponent--;
-            this.craftedComponent += this.outputTiles[0].addEntity([this.currentCraft!.copy()]).size()
+            this.craftedComponent += this.outputTiles[0].addEntity([table.clone(this.currentCraft!)]).size()
             return
         };
 
@@ -51,7 +49,6 @@ class Crafter extends TileEntity {
         if (this.resource >= MAX_CAPACITY) return entities;
 
         const entity = entities[0];
-        if (!(entity instanceof Resource) && !(entity instanceof Component)) return entities;
         if (!this.isRessourceNeeded(entity)) return entities;
 
         this.resource++;
@@ -78,7 +75,7 @@ class Crafter extends TileEntity {
     static decode(decoded: unknown): Crafter {
         const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
-        if (data.currentCraft) crafter.setCraft(getComponent(data.currentCraft) as Component);
+        if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = data.resource;
         crafter.craftedComponent = data.craftedComponent;
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
@@ -90,10 +87,12 @@ class Crafter extends TileEntity {
     rotate(gridBase: BasePart): void {
         this.size = new Vector2(this.size.Y, this.size.X);
         this.direction = new Vector2(-this.direction.Y, this.direction.X);
-        
+
         const currentPart = this.findThisPartInWorld(gridBase);
         const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
-        this.position = this.getOrientation() % 90 === 0 ? this.position.sub(offestPosition) : this.position.add(offestPosition);
+        const isUp = (this.getOrientation() + 90) % 180 === 0
+
+        this.position = isUp ? this.position.sub(offestPosition) : this.position.add(offestPosition);
         currentPart!.Position = this.getGlobalPosition(gridBase);
     }
 
@@ -102,6 +101,8 @@ class Crafter extends TileEntity {
     }
 
     public setCraft(craft: Component) {
+        assert(craft.type === EntityType.COMPONENT, "The entity is not a component");
+
         this.currentCraft = craft;
         this.speed = craft.speed
         this.craftedComponent = 0;
@@ -111,7 +112,7 @@ class Crafter extends TileEntity {
     private isRessourceNeeded(ressource: Entity): boolean {
         if (!this.currentCraft) return false;
         for (const [_resource] of this.currentCraft.buildRessources) {
-            if (string.lower(ressource.name) === string.lower((_resource as Resource).name)) return true;
+            if (string.lower(ressource.name) === string.lower(_resource)) return true;
         }
         return false;
     }
@@ -129,7 +130,7 @@ class Crafter extends TileEntity {
         const [resource] = this.currentCraft.buildRessources
         this.resource -= resource[1];
         this.craftedComponent++;
-        return (this.currentCraft as Component).copy();
+        return table.clone(this.currentCraft);
     }
 }
 

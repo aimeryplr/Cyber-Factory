@@ -1,7 +1,8 @@
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
-import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
+import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import Tile from "./tile";
-import { getGlobalPosition, removeConectedTiles } from "./tileEntityUtils";
+import { getGlobalPosition } from "./tileEntityUtils";
+import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
@@ -50,8 +51,8 @@ abstract class TileEntity extends Tile {
         const currentBasePart = this.findThisPartInWorld(gridBase);
         if (!currentBasePart) return;
 
-       currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
-       currentBasePart.Position = getGlobalPosition(this.position, gridBase);
+        currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
+        currentBasePart.Position = getGlobalPosition(this.position, gridBase);
     };
 
     abstract encode(): {};
@@ -141,6 +142,15 @@ abstract class TileEntity extends Tile {
     rotate(gridBase: BasePart): void {
         this.size = new Vector2(this.size.Y, this.size.X);
         this.direction = new Vector2(-this.direction.Y, this.direction.X);
+
+        if (this.size.X === this.size.Y || (this.size.X % 2 !== 0 && this.size.Y % 2 !== 0)) return;
+
+        const currentPart = this.findThisPartInWorld(gridBase);
+        const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
+        const isUp = (this.getOrientation() + 90) % 180 === 0
+
+        this.position = isUp ? this.position.sub(offestPosition) : this.position.add(offestPosition);
+        currentPart!.Position = this.getGlobalPosition(gridBase);
     }
 
     /**

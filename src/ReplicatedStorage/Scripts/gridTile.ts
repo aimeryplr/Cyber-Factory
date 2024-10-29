@@ -145,21 +145,10 @@ class TileGrid {
     }
 
     public encode(): any {
-        const tileGrid = new Array<unknown>(this.gridSize.Y);
-        for (let i = 0; i < this.gridSize.Y; i++) {
-            tileGrid[i] = encodeArray(this.tileGrid[i], this.gridSize.X);
-            for (let j = 0; j < this.gridSize.X; j++) {
-                const tile = this.tileGrid[i][j];
-                if (tile instanceof Tile) {
-                    (tileGrid[i] as Array<unknown>)[j] = tile.encode();
-                }
-            }
-        }
-        const copy = {
+        return {
             "gridSize": encodeVector2(this.gridSize),
-            "tileGrid": tileGrid
+            "tileGrid": this.getTiles().map((tile) => tile.encode())
         }
-        return copy;
     }
 
     static decode(encoded: string): TileGrid {

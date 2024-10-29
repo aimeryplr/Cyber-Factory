@@ -59,7 +59,7 @@ function sellConveyerContent(player: Player, conveyer: TileEntity): void {
         const content = conveyer.content;
         for (const entity of content) {
             if (entity !== undefined) {
-                addMoney(player, entity.sellPrice);
+                addMoney(player, entity.price);
             }
         }
     }

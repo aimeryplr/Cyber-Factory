@@ -25,6 +25,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@rbxts/cmdr": "^1.12.1",
     "@rbxts/services": "^1.5.5"
   }
 }

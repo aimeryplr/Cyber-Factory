@@ -2,16 +2,16 @@ import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
 import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
-import { addMoney, hasEnoughMoney, removeMoney, sellConveyerContent } from "./plotsUtils";
+import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import Resource from "ReplicatedStorage/Scripts/Content/Entities/resource";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
-import { getComponent } from "ReplicatedStorage/Scripts/Content/Entities/entityUtils";
-import { Component } from "ReplicatedStorage/Scripts/Content/Entities/component";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
+import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
+import { Component } from "ReplicatedStorage/Scripts/Entities/entity";
+import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 
@@ -73,24 +73,24 @@ export const onPlayerRemoving = (plotManager: PlotManager, player: Player) => {
     plot.removeOwner();
 }
 
-export const onChangingGeneratorRessource = (plotManager: PlotManager, player: Player, position: unknown, ressource: unknown) => {
+export const onChangingGeneratorRessource = (plotManager: PlotManager, player: Player, position: unknown, resource: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
     if (!plot) return;
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
     if (!tile || !(tile instanceof Generator)) return;
- 
-    tile.setRessource(new Resource(ressource as string));
+
+    tile.setRessource(entitiesList.get(resource as string)!);
 }
 
-export const onChangingCrafterComponent = (plotManager: PlotManager, player: Player, position: unknown, component: unknown) => {
+export const onChangingCrafterOrAssemblerCraft = (plotManager: PlotManager, player: Player, position: unknown, component: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
     if (!plot) return;
 
     const tile = plot.getGridTiles().getTileFromPosition(position as Vector3);
-    if (!tile || !(tile instanceof Crafter)) return;
- 
-    tile.setCraft(getComponent(component as string) as Component);
+    if (!tile || (!(tile instanceof Crafter) && !(tile instanceof Assembler))) return;
+
+    tile.setCraft(entitiesList.get(component as string)! as Component);
 }
 
 export const rotateTile = (plotManager: PlotManager, player: Player, position: unknown) => {
@@ -101,20 +101,22 @@ export const rotateTile = (plotManager: PlotManager, player: Player, position: u
     if (!tile) return;
 
     if (tile instanceof TileEntity) {
+        const tileGrid = plot.getGridTiles();
         removeConectedTiles(tile);
-        plot.getGridTiles().removeTile(tile);
+        tileGrid.removeTile(tile);
         tile.rotate(plot.getGridBase());
-        try {
-            plot.getGridTiles().addTile(tile);
-        } catch (error) {
+        if (!tileGrid.checkPlacement(tile)) {
             tile.rotate(plot.getGridBase());
             tile.rotate(plot.getGridBase());
             tile.rotate(plot.getGridBase());
-            plot.getGridTiles().addTile(tile);
         }
-        tile.setAllConnectedNeighboursTileEntity(plot.getGridTiles());
+        tileGrid.addTile(tile);
+        tile.setAllConnectedNeighboursTileEntity(tileGrid);
         tile.updateShape(plot.getGridBase());
-        print(plot.getGridTiles().tileGrid);
+        sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
 
+    if (tile instanceof Conveyer) {
+        resetBeamsOffset(plot.getGridBase());
+    }
 }

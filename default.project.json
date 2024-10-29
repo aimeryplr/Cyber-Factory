@@ -51,7 +51,7 @@
 				"changeGeneratorRessource": {
 					"$className": "RemoteEvent"
 				},
-				"changeCrafterComponent": {
+				"changeCrafterOrAssemblerCraft": {
 					"$className": "RemoteEvent"
 				},
 				"sendTileGrid": {

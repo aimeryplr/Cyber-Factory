@@ -1,10 +1,10 @@
-import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
 //Setings
 const MAX_INPUTS = 3;
@@ -42,7 +42,7 @@ class Merger extends TileEntity {
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
         const transferdEntities = transferArrayContentToArrayPart(entities, this.content, this.inputTiles.size(), CONTENT_SIZE) as Array<Entity | undefined>;
         if (transferdEntities.isEmpty()) return transferdEntities;
-        
+
         shiftOrder(this.inputTiles)
         return transferdEntities;
     }
@@ -61,7 +61,7 @@ class Merger extends TileEntity {
     }
 
     static decode(decoded: unknown): Merger {
-        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{x: number, y: number, z: number}>, outputTiles: Array<{x: number, y: number, z: number}> };
+        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         merger.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         merger.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];

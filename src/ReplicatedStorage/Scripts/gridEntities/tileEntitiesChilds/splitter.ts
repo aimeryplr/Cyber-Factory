@@ -1,10 +1,10 @@
-import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
 import Conveyer from "./conveyer";
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import {type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
 // Settings
 const MAX_INPUTS = 1;

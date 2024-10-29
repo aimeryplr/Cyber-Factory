@@ -8,10 +8,13 @@ import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEnt
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import CrafterMenu from "./crafterMenu";
 import {InteractionMenu, isMouseInMenu} from "./InteractionMenu";
+import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
+import AssemblerMenu from "./assemblerMenu";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const generatorMenu = new GeneratorMenu(Players.LocalPlayer);
 const crafterMenu = new CrafterMenu(Players.LocalPlayer);
+const assemblerMenu = new AssemblerMenu(Players.LocalPlayer);
 
 class InteractionHandler {
     private gridBase: BasePart;
@@ -48,6 +51,9 @@ class InteractionHandler {
             case "crafter":
                 this.interactWithCrafter(tilePart);
                 break;
+            case "assembler":
+                this.interactWithAssembler(tilePart);
+                break;
         }
     }
 
@@ -58,6 +64,15 @@ class InteractionHandler {
         crafterMenu.show();
         if (this.lastMenu) this.lastMenu.hide()
         this.lastMenu = crafterMenu;
+    }
+
+    public interactWithAssembler(assemblerPart: BasePart) {
+        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(assemblerPart.Position, this.gridBase)))) as Assembler;
+        assemblerMenu.setTileEntity(tile);
+        
+        assemblerMenu.show();
+        if (this.lastMenu) this.lastMenu.hide()
+        this.lastMenu = assemblerMenu;
     }
 
     public interarctWithGenerator(generatorPart: BasePart): void {

@@ -1,4 +1,4 @@
-import type Entity from "ReplicatedStorage/Scripts/Content/Entities/entity";
+import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 
@@ -41,12 +41,12 @@ class Seller extends TileEntity {
         for (let i = 0; i < entities.size(); i++) {
             const entity = entities[i];
             if (entity !== undefined) {
-                this.playerMoney.Value += entity.sellPrice;
+                this.playerMoney.Value += entity.price;
                 entities[i] = undefined;
 
                 const player = game.GetService("Players").GetPlayerByUserId(this.owner ?? 0);
                 if (!player) continue;
-                earnMoneyEvent?.FireClient(player, entity.sellPrice);
+                earnMoneyEvent?.FireClient(player, entity.price);
             }
         }
 

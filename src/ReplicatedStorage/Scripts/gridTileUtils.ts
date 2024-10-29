@@ -34,17 +34,10 @@ function decodeTile(decoded: unknown) {
     }
 }
 
-function decodeTiles(decodedTiles: Array<Array<unknown>>, tileGrid: TileGrid) {
-    for (let y = 0; y < tileGrid.gridSize.Y; y++) {
-        decodedTiles[y] = decodeArray(decodedTiles[y]);
-        for (let x = 0; x < tileGrid.gridSize.X; x++) {
-            if (!decodedTiles[y][x]) continue
-
-            const tile = decodeTile(decodedTiles[y][x]);
-            if (tileGrid.checkPlacement(tile)) {
-                tileGrid.addTile(tile);
-            }
-        }
+function decodeTiles(decodedTiles: Array<unknown>, tileGrid: TileGrid) {
+    for (const tile of decodedTiles) {
+        const decodedTile = decodeTile(tile);
+        tileGrid.addTile(decodedTile);
     }
 }
 
