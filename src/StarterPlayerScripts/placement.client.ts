@@ -1,6 +1,6 @@
 import { ReplicatedStorage, UserInputService, Workspace, Players, RunService } from "@rbxts/services";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
-import Hotbar from "./UI/hotbar";
+import {Hotbar} from "./UI/hotbar";
 import InteractionHandler from "./UI/interact";
 
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;

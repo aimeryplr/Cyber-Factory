@@ -30,8 +30,8 @@ function findBasepartByName(name: string, category?: string): BasePart {
 }
 
 function objSizeToTileSize(size: Vector3 | Vector2): Vector2 {
-    if (size instanceof Vector3) size = new Vector2((size as Vector3).X, (size as Vector3).Z);
-    return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE));
+    if (typeIs(size, "Vector3")) size = new Vector2((size as Vector3).X, (size as Vector3).Z);
+    return new Vector2(math.round(size.X / GRID_SIZE), math.round(size.Y / GRID_SIZE))
 }
 
 /**

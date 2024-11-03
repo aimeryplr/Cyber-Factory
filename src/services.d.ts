@@ -183,3 +183,11 @@ type itemPrefab = ImageLabel & {
 	UIAspectRatioConstraint: UIAspectRatioConstraint;
 	TextLabel: TextLabel;
 }
+
+type itemName = Frame & {
+	UICorner: UICorner;
+	itemName: TextLabel & {
+		UICorner: UICorner;
+	};
+	UIStroke: UIStroke;
+}
