@@ -86,7 +86,6 @@ class Plot {
 				print(`Quest ${quest.name} completed`);
 
 				this.claimReward(quest);
-				print(questTreeArray[quest.tier - 1].getNextQuests(quest))
 				for (const _quest of questTreeArray[quest.tier - 1].getNextQuests(quest)) {
 					this.addQuest(_quest);
 				}
@@ -193,7 +192,6 @@ class Plot {
 	addQuest(quest: Quest) {
 		const clone = cloneQuest(quest)
 		this.quests.push(resetQuestGoals(clone));
-		print(this.quests)
 	}
 
 	removeOwner() {

@@ -110,6 +110,7 @@ class PlacementHandler {
             if (newPos !== undefined && this.targetPos === undefined) {
                 this.currentTile.Position = newPos;
                 this.setupObject();
+                this.setupArrowsPosition(newPos);
             }
             
             //set target position
@@ -126,6 +127,24 @@ class PlacementHandler {
             //lerp object to target position
             if (this.targetPos) {
                 this.currentTile.CFrame = this.currentTile.CFrame.Lerp(new CFrame(this.targetPos).mul(CFrame.fromOrientation(0, this.rotation, 0)), LERP_SPEED);
+                this.moveArrows()
+            }
+        }
+    }
+
+    setupArrowsPosition(pos: Vector3) {
+        this.moveArrows(1, pos);
+    }
+
+    moveArrows(speed: number = LERP_SPEED, tilePos: Vector3 = this.targetPos!) {
+        if (!this.currentTile) return;
+
+        for (const arrow of this.currentTile.GetChildren()) {
+            const arrowPart = arrow as BasePart;
+            if (arrow.Name === "red arrow" || arrow.Name === "blue arrow") {
+                const rotatedOffset = CFrame.fromOrientation(0, this.rotation, 0).mul(arrowPart.PivotOffset.Position);
+                const targetPos = new CFrame(tilePos!).mul(new CFrame(rotatedOffset)).mul(CFrame.Angles(0, this.rotation, 0)).mul(arrowPart.PivotOffset.Rotation);
+                arrowPart.CFrame = arrowPart.CFrame.Lerp(targetPos, speed);
             }
         }
     }
@@ -208,9 +227,66 @@ class PlacementHandler {
         if(!this.currentTile) error("Object not found");
 
         this.calculateSize();
+        this.setupArrows();
         this.placementStatus = placementType.PLACING;
         
         RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => {this.moveObj(); this.checkPlacementStatus(price, playerMoney)});
+    }
+
+    setupArrows() {
+        if (!this.currentTile) return;
+        const tileEntity = getTileEntityByCategory(getTileEntityInformation(this.currentTile.Name).category, "test", new Vector3(0, 0, 0), new Vector2(1, 1), new Vector2(1, 0), 1);
+        if (!tileEntity) return;
+
+        if (["assembler"].includes(tileEntity.category)) {
+            print("implémente ça mon reuf")
+        } else {
+            this.addDefaultArrows(tileEntity.maxInputs, tileEntity.maxOutputs);
+        }
+    }
+
+    private addDefaultArrows(input: number, output: number) {
+        switch (input) {
+            case 4:
+                this.addArrow(ArrowType.INPUT, new Vector3(3, 0, 0), -180);
+            case 3:
+                this.addArrow(ArrowType.INPUT, new Vector3(0, 0, -3), -90);
+            case 2:
+                this.addArrow(ArrowType.INPUT, new Vector3(0, 0, 3), 90);
+            case 1:
+                this.addArrow(ArrowType.INPUT, new Vector3(-3, 0, 0), 0);
+                break;
+            default:
+                break
+        }
+
+        switch (output) {
+            case 3:
+                this.addArrow(ArrowType.OUTPUT, new Vector3(0, 0, -3), 90);
+            case 2:
+                this.addArrow(ArrowType.OUTPUT, new Vector3(0, 0, 3), -90);
+            case 1:
+                this.addArrow(ArrowType.OUTPUT, new Vector3(3, 0, 0), 0);
+                break;
+            default:
+                break
+        }
+            
+    }
+
+    private addArrow(arrowType: ArrowType, relativePosition: Vector3, orientationDeg: number) {
+        const inputArrowPrefab = ReplicatedStorage.FindFirstChild("prefab")!.FindFirstChild("red arrow")! as BasePart;
+        const outputArrowPrefab = ReplicatedStorage.FindFirstChild("prefab")!.FindFirstChild("blue arrow")! as BasePart;
+
+        const arrow = arrowType === ArrowType.INPUT ? inputArrowPrefab.Clone() : outputArrowPrefab.Clone();
+
+        let offsetPosition = new Vector3((this.size!.X - 1) * GRID_SIZE / 2 , 0, (this.size!.Y - 1) * GRID_SIZE / 2)
+        if (this.size!.X % 2 === 0 && arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(-3, 0, 0));
+        if (this.size!.Y % 2 === 0 && arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(3, 0, 0));
+        
+        arrow.PivotOffset = new CFrame(relativePosition.add(offsetPosition)).mul(CFrame.fromEulerAnglesYXZ(0, math.rad(orientationDeg), math.rad(-90)));
+        arrow.Position = this.currentTile!.Position.add(arrow.PivotOffset.Position);
+        arrow.Parent = this.currentTile;
     }
 
     activateInteracting() {
@@ -373,6 +449,11 @@ function getTileFromRay(gridBase: BasePart): BasePart | undefined {
         return raycastResult?.Instance as BasePart;
     }
     return undefined;
+}
+
+enum ArrowType {
+    INPUT,
+    OUTPUT,
 }
 
 export { PlacementHandler, placementType, getTileFromRay };

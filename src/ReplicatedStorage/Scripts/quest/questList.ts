@@ -110,7 +110,6 @@ for (const tierQuestNode of questListNode) {
     }
 }
 
-print(questTreeArray[0].roots[0])
 export { questTreeArray };
 
 export function isQuestCompleted(quest: Quest) {
