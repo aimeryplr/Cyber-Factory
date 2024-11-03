@@ -10,11 +10,13 @@ import CrafterMenu from "./crafterMenu";
 import {InteractionMenu, isMouseInMenu} from "./InteractionMenu";
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 import AssemblerMenu from "./assemblerMenu";
+import { QuestBoard } from "./questsBord";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const generatorMenu = new GeneratorMenu(Players.LocalPlayer);
 const crafterMenu = new CrafterMenu(Players.LocalPlayer);
 const assemblerMenu = new AssemblerMenu(Players.LocalPlayer);
+const questBoard = new QuestBoard(Players.LocalPlayer);
 
 class InteractionHandler {
     private gridBase: BasePart;

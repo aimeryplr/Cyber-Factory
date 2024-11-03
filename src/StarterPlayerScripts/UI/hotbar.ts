@@ -2,6 +2,7 @@ import { Players } from "@rbxts/services";
 import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
+import { getImage } from "./imageUtils";
 
 class Hotbar {
     private hotbar;
@@ -9,6 +10,10 @@ class Hotbar {
 
     constructor() {
         this.hotbar = new Array<HotbarSlot | undefined>(9);
+        
+        for (let i = 0; i < 9; i++) {
+            this.hotbar[i] = new HotbarSlot(i+1);
+        }
     }
 
     public getSlot(slotIndex: number): HotbarSlot {
@@ -17,25 +22,19 @@ class Hotbar {
         return slot;
     }
 
-    public setSlot(slot: number, part: BasePart, image: string) {
-        this.hotbar[slot] = new HotbarSlot(part, image);
+    public setSlot(slot: number, name: string) {
+        this.hotbar[slot]!.setSlot(name);
     }
 
     public removeSlot(slot: number) {
         this.hotbar[slot] = undefined;
     }
 
-    public isSlotEmpty(slot: number): boolean {
-        return this.hotbar[slot] === undefined;
-    }
-
     setSlotFromName(slot: number, name: string) {
-        const info = getTileEntityInformation(name);
-        const part = findBasepartByName(info.name);
-        this.hotbar[slot] = new HotbarSlot(part, info.image, info.price);
+        this.hotbar[slot]?.setSlot(name);
     }
 
-    getHotbarPart(index: number): BasePart {
+    getHotbarPart(index: number): BasePart | undefined {
         const slot = this.getSlot(index);
         return slot.getPart();
     }
@@ -46,36 +45,67 @@ class Hotbar {
     }
     
     activatePlacingFromHotbar(index: number, placementHandler: PlacementHandler) {
-        if (this.isSlotEmpty(index)) return;
+        if (this.getSlot(index).isSlotEmpty()) return;
         if (this.currentSlot === index && placementHandler.placementStatus === placementType.PLACING) return placementHandler.resetMode();
 
         const slot = this.getSlot(index);
         const playerMoney = Players.LocalPlayer!.FindFirstChild("leaderstats")!.FindFirstChild("Money") as NumberValue
-        placementHandler.activatePlacing(slot.getPart(), slot.getPrice(), playerMoney);
+        placementHandler.activatePlacing(slot.getPart()!, slot.getPrice()!, playerMoney);
         this.currentSlot = index;
     }
 }
 
-class HotbarSlot {
-    private part: BasePart;
-    private image: string;
-    private price: number;
+const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
 
-    constructor(part: BasePart, image: string, price: number = 0) {
-        this.part = part;
-        this.image = image;
-        this.price = price;
+class HotbarSlot {
+    private slotFrame: Frame;
+
+    private part: BasePart | undefined;
+    private image: string | undefined;
+    private price: number | undefined;
+
+    constructor(index: number, tileName?: string) {
+        this.slotFrame = hotbarFrame.WaitForChild(index) as Frame;
+        if (tileName) {
+            const info = getTileEntityInformation(tileName);
+
+            this.part = findBasepartByName(info.name);
+            this.image = info.image;
+            this.price = info.price;
+        }
+        this.setupSlot();
     }
 
-    public getPart(): BasePart {
+    setSlot(tileName: string) {
+        const info = getTileEntityInformation(tileName);
+        this.part = findBasepartByName(info.name);
+        this.image = info.image;
+        this.price = info.price;
+        this.setupSlot();
+    }
+
+    public setupSlot() {
+        if (!this.image) {
+            (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = false;
+        } else {
+            (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = true;
+            (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Image = this.getImage();
+        }
+    }
+
+    public getPart(): BasePart | undefined {
         return this.part;
     }
 
     public getImage(): string {
-        return this.image;
+        return getImage(this.image);
     }
 
-    public getPrice(): number {
+    public isSlotEmpty(): boolean {
+        return this.part === undefined;
+    }
+
+    public getPrice(): number | undefined {
         return this.price;
     }
 }

@@ -12,8 +12,11 @@ import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Component } from "ReplicatedStorage/Scripts/Entities/entity";
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
+import { questTreeArray } from "ReplicatedStorage/Scripts/quest/questList";
+import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
+const playerQuests = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 export const onGettingTileEvent = (plotManager: PlotManager, player: Player, tilePos: unknown) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
@@ -34,7 +37,7 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
         addMoney(player as Player, tilePrice);
         sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
     }
-    print(plot.getGridTiles().tileGrid);
+    print(plot.encode());
 }
 
 export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
@@ -59,6 +62,7 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
         plot.addGridTile(tileEntity, player.UserId);
         sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
+    print(plot.encode());
     return isPlaceable;
 }
 
@@ -69,7 +73,7 @@ export const onPlayerRemoving = (plotManager: PlotManager, player: Player) => {
     const moneyValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
     const tierValue = player.FindFirstChild("leaderstats")?.FindFirstChild("Tier") as IntValue;
 
-    savePlayerData(player.UserId, { money: moneyValue.Value, tier: tierValue.Value, grid: HttpService.JSONEncode(plot.encode()) })
+    savePlayerData(player.UserId, { money: moneyValue.Value, tier: tierValue.Value, quests: plot.getQuests(), grid: HttpService.JSONEncode(plot.encode()) })
     plot.removeOwner();
 }
 
@@ -127,4 +131,12 @@ export const resetPlot = (plotManager: PlotManager, player: Player) => {
 
     plot.reset();
     sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
+}
+
+export const resetQuests = (plotManager: PlotManager, player: Player) => {
+    const plot = plotManager.getPlotByOwner(player.UserId);
+    if (!plot) return;
+
+    plot.setQuests(getQuestFromQuestNodes(questTreeArray[0].roots));
+    playerQuests.FireClient(player, plot.getQuests());
 }

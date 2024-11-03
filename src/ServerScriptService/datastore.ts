@@ -1,4 +1,5 @@
 import { DataStoreService } from "@rbxts/services";
+import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
 
 const dataStore = DataStoreService.GetDataStore("SaveData");
 
@@ -6,6 +7,7 @@ export interface playerData {
     tier: number;
     money: number;
     grid: string; // JSON
+    quests: Quest[];
 }
 
 function getPlayerData(playerId: number): playerData | undefined {
@@ -46,6 +48,16 @@ function saveGrid(playerId: number, grid: string): boolean {
     const data = getPlayerData(playerId);
     if (data) {
         data.grid = grid;
+        return savePlayerData(playerId, data);
+    }
+
+    return false;
+}
+
+function saveQuests(playerId: number, quests: Quest[]): boolean {
+    const data = getPlayerData(playerId);
+    if (data) {
+        data.quests = quests;
         return savePlayerData(playerId, data);
     }
 

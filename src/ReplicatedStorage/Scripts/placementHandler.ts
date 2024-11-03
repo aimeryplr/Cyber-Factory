@@ -4,17 +4,13 @@ import { TileGrid } from "./gridTile";
 import { TileEntity } from "./gridEntities/tileEntity";
 import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/tileEntityUtils";
 import { getTileEntityByCategory, getTileEntityInformation, isMachine } from "./gridEntities/tileEntityProvider";
-import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 const rotateTile = ReplicatedStorage.WaitForChild("Events").WaitForChild("rotateTile") as RemoteEvent;
-
-// Parameters
-const LERP_SPEED = 0.5;
-const PLACING_TRANSPARENCY = 0.3;
 
 enum placementType {
     PLACING,
@@ -64,19 +60,20 @@ class PlacementHandler {
         assert(this.currentTile, "Object not found");
         const mouseRay = this.mouse.UnitRay;
         const castRay = new Ray(mouseRay.Origin, mouseRay.Direction.mul(1000));
-        const ignoreList = [obj];
+        const ignoreList = [obj, Players.LocalPlayer.Character!];
         const [hit, position] = Workspace.FindPartOnRayWithIgnoreList(castRay, ignoreList);
         const localPos = position.sub(this.gridBase.Position);
 
         if (hit === this.gridBase) {
-            let x = math.floor((localPos.X + GRID_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
+            let x = math.floor(localPos.X / GRID_SIZE) * GRID_SIZE;
             const y = this.gridBase.Size.Y / 2 + obj.Size.Y / 2;
-            let z = math.floor((localPos.Z + GRID_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
+            let z = math.floor(localPos.Z / GRID_SIZE) * GRID_SIZE;
             
-            if (this.size && this.size.X % 2 === 0) x -= GRID_SIZE / 2;
-            if (this.size && this.size.Y % 2 === 0) z -= GRID_SIZE / 2;
+            if (this.size && this.size.X % 2 === 1) x += GRID_SIZE / 2;
+            if (this.size && this.size.Y % 2 === 1) z += GRID_SIZE / 2;
 
-            return new Vector3(x, y, z).add(this.gridBase.Position).sub(this.currentTile.PivotOffset.Position);
+            const newPos = new Vector3(x, y, z).add(this.gridBase.Position).sub(this.currentTile.PivotOffset.Position)
+            if (Players.LocalPlayer.Character!.PrimaryPart!.Position.sub(newPos).Magnitude <= PLACEMENT_RANGE) return newPos;
         }
         return undefined;
     }
@@ -95,8 +92,8 @@ class PlacementHandler {
         const x = math.floor(localPos.X / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.X / 2;
         const y = math.floor(localPos.Z / GRID_SIZE) * GRID_SIZE + this.gridBase.Size.Z / 2;
 
-        if (x >= this.gridBase.Size.X - math.ceil(this.size.X / 2 - 1) * GRID_SIZE || x < math.floor(this.size.X / 2 - 1) * GRID_SIZE) return false;
-        if (y >= this.gridBase.Size.Z - math.ceil(this.size.Y / 2 - 1) * GRID_SIZE || y < math.floor(this.size.Y / 2 - 1) * GRID_SIZE) return false;
+        if (x > this.gridBase.Size.X - math.ceil(this.size.X / 2 - 1) * GRID_SIZE || x <= math.floor(this.size.X / 2 - 1) * GRID_SIZE) return false;
+        if (y > this.gridBase.Size.Z - math.ceil(this.size.Y / 2 - 1) * GRID_SIZE || y <= math.floor(this.size.Y / 2 - 1) * GRID_SIZE) return false;
 
         return true;
     }
@@ -364,15 +361,15 @@ class PlacementHandler {
  * @returns the last hit part before the gridBase
  */
 function getTileFromRay(gridBase: BasePart): BasePart | undefined {
-    const range = 30;
-
     const mouseRay = Players.LocalPlayer.GetMouse().UnitRay;
     const raycastParameters = new RaycastParams();
     raycastParameters.FilterType = Enum.RaycastFilterType.Include
     raycastParameters.FilterDescendantsInstances = [gridBase.FindFirstChild("PlacedObjects")!];
 
-    const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(range), raycastParameters);
+    const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(1000), raycastParameters);
     if (raycastResult?.Instance?.Parent === gridBase.FindFirstChild("PlacedObjects")) {
+        const isTileTooFarAway = raycastResult!.Instance.Position.sub(Players.LocalPlayer.Character!.PrimaryPart!.Position).Magnitude > PLACEMENT_RANGE
+        if (isTileTooFarAway) return undefined;
         return raycastResult?.Instance as BasePart;
     }
     return undefined;

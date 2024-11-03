@@ -12,6 +12,7 @@ const earnMoneyEvent = game.GetService("ReplicatedStorage").FindFirstChild("Even
 class Seller extends TileEntity {
     owner: number | undefined;
     playerMoney: NumberValue | undefined;
+    sellingCallBack: (entitySoldName: string) => void = () => { };
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -31,6 +32,10 @@ class Seller extends TileEntity {
         }
     }
 
+    setSellingCallBack(callback: (entitySoldName: string) => void) {
+        this.sellingCallBack = (entitySoldName: string) => callback(entitySoldName);
+    }
+
     tick(): void {
         return;
     }
@@ -47,6 +52,7 @@ class Seller extends TileEntity {
                 const player = game.GetService("Players").GetPlayerByUserId(this.owner ?? 0);
                 if (!player) continue;
                 earnMoneyEvent?.FireClient(player, entity.price);
+                this.sellingCallBack(entity.name);
             }
         }
 

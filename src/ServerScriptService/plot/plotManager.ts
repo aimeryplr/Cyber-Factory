@@ -4,6 +4,7 @@ import Plot from "./plot";
 import { HttpService, Players, ReplicatedStorage, RunService } from "@rbxts/services";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
+const playerQuest = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 /**
  * holds every plot in the game with a owner or not
@@ -72,20 +73,27 @@ class PlotManager {
             plot.getGridBase().Touched.Connect((part) => {
                 const player = Players.GetPlayerFromCharacter(part.Parent);
                 if (!player || this.hasPlayerClaimedPlot(player.UserId)) return;
+                const playerData = getPlayerData(player.UserId);
 
                 plot.addOwner(player);
-                
-                // load the grid
-                const encodedGrid = getPlayerData(player.UserId)?.grid;
-                if (encodedGrid) {
-                    const grid = TileGrid.decode(encodedGrid);
-                    print(grid);
-                    plot.loadGrid(grid);
-                }
 
-                sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
+                if (playerData) {
+                    plot.setQuests(playerData.quests);    
+                    // load the grid
+                    const encodedGrid = getPlayerData(player.UserId)?.grid;
+                    if (encodedGrid) {
+                        const grid = TileGrid.decode(encodedGrid);
+                        plot.loadGrid(grid);
+                    }
+                };
+                this.sendGridTile(player, plot)
+                playerQuest.FireClient(player, plot.getQuests());
             });
         });
+    }
+
+    private sendGridTile(player: Player, plot: Plot) {
+        sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
 }
 

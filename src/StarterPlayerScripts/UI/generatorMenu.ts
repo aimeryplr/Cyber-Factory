@@ -4,21 +4,28 @@ import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
 import {InteractionMenu} from "./InteractionMenu";
 import { getImage } from "./imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
+import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
+import { EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
+import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
+const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 class GeneratorMenu implements InteractionMenu {
     player: Player;
     menu: generatorMenu;
+    quests = new Array<Quest>();
     tileEntity: Generator | undefined;
-    private timeGeneratorAdded: number | undefined; 
+    private timeGeneratorAdded: number | undefined;
 
     private barTween: Tween | undefined;
 
     constructor(player: Player) {
         this.player = player;
         this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("generatorMenu") as generatorMenu;
+        playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => this.setupQuests(quests));
     }
 
     setTileEntity(generator: Generator) {
@@ -29,17 +36,24 @@ class GeneratorMenu implements InteractionMenu {
         this.setupMenu();
     }
 
+    setupQuests(quests: Quest[]) {
+        if (areSameQuests(this.quests, quests)) return;
+
+        this.quests = quests;
+        this.setupResources();
+        this.setupButtons();
+    }
+
     setupMenu(): void {
         if (!this.tileEntity) return;
 
+        this.setupResources();
         this.setupCurrentRessource(this.tileEntity);
         this.setupButtons()
 
         // setup the progression bar if it's outputing
-        if (this.tileEntity.outputTiles.isEmpty()) return;
         this.setupProgressBar();
         this.setupClose()
-
     }
 
     setupClose() {
@@ -60,7 +74,29 @@ class GeneratorMenu implements InteractionMenu {
         if (!ressource) return;
 
         (ressource.FindFirstChild("ImageButton")!.FindFirstChild("UIStroke")! as UIStroke).Transparency = 0;
-        this.menu.progression.speed.Text = generator.speed + "/s";
+        this.menu.progression.speed.Text = generator.speed + "/min";
+    }
+
+    destroyResources() {
+        for (const resource of this.menu.ressources.GetChildren()) {
+            if (!resource.IsA("Frame")) continue;
+            resource.Destroy();
+        }
+    }
+
+    setupResources() {
+        this.destroyResources();
+        const resources = getUnlockedEntities(this.quests).filter(entity => entitiesList.get(entity)?.type === EntityType.RESOURCE);
+        const prefabResource = ReplicatedStorage.FindFirstChild("prefab")!.FindFirstChild("UI")!.FindFirstChild("resource") as Frame;
+        for (const resourceName of resources) {
+            const resource = entitiesList.get(resourceName)!;
+            const resourceFrame = prefabResource.Clone();
+            resourceFrame.Name = resourceName;
+            (resourceFrame.FindFirstChild("ImageButton") as ImageButton)!.Image = getImage(resource);
+            (resourceFrame.FindFirstChild("TextLabel") as TextLabel)!.Text = resourceName;
+            (resourceFrame.FindFirstChild("price")?.FindFirstChild("TextLabel") as TextLabel)!.Text = tostring(resource.price);
+            resourceFrame.Parent = this.menu.ressources;
+        }
     }
 
     setupButtons() {
@@ -91,7 +127,7 @@ class GeneratorMenu implements InteractionMenu {
         const timeToFill = 60 / this.tileEntity!.speed;
         const calculatedProgression = this.tileEntity!.lastProgress + ((tick() - this.timeGeneratorAdded!) % timeToFill) / timeToFill
 
-        if (!this.tileEntity!.ressource) return;
+        if (!this.tileEntity!.ressource) return this.resetBartween();
 
         const barTweenInfo = new TweenInfo(timeToFill * (1 - calculatedProgression), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
         progression.progressionBar.bar.Size = new UDim2(calculatedProgression, 0, 1, 0);
@@ -104,6 +140,11 @@ class GeneratorMenu implements InteractionMenu {
             this.barTween = TweenService.Create(progression.progressionBar.bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
             this.barTween.Play();
         });
+    }
+
+    resetBartween(): void {
+        this.barTween?.Cancel();
+        this.menu.progression.progressionBar.bar.Size = new UDim2(0, 0, 1, 0);
     }
 
     public show(): void {

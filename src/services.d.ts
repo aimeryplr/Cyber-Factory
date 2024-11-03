@@ -176,3 +176,10 @@ type assemblerMenu = Frame & {
 		};
 	};
 }
+
+type itemPrefab = ImageLabel & {
+	UICorner: UICorner;
+	UIStroke: UIStroke;
+	UIAspectRatioConstraint: UIAspectRatioConstraint;
+	TextLabel: TextLabel;
+}

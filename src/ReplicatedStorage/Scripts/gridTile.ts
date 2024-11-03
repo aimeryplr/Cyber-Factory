@@ -1,7 +1,7 @@
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import { HttpService } from "@rbxts/services";
-import { decodeVector2, encodeArray, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { decodeTiles } from "ReplicatedStorage/Scripts/gridTileUtils";
 
@@ -23,8 +23,7 @@ class TileGrid {
     }
 
     getTile(x: number, y: number): Tile | undefined {
-        const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
-        if (!isInBounds) return undefined;
+        if (!this.isInBounds(x, y)) return undefined;
         return this.tileGrid[y][x];
     }
 
@@ -53,8 +52,7 @@ class TileGrid {
                 const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
                 const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
-                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
-                if (this.tileGrid[y][x] !== undefined && isInBounds) {
+                if (this.tileGrid[y][x] !== undefined && this.isInBounds(x, y)) {
                     occupiedTiles.push(new Vector2(x, y));
                 }
             }
@@ -75,9 +73,8 @@ class TileGrid {
                 const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
                 const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
-                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
                 if (this.tileGrid[y][x] !== undefined) error("Tile is already occupied");
-                if (isInBounds) this.tileGrid[y][x] = tile;
+                if (this.isInBounds(x, y)) this.tileGrid[y][x] = tile;
             }
         }
     }
@@ -90,8 +87,7 @@ class TileGrid {
                 const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
                 const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
-                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
-                if (isInBounds) this.tileGrid[y][x] = undefined;
+                if (this.isInBounds(x, y)) this.tileGrid[y][x] = undefined;
             }
         }
     }
@@ -107,13 +103,16 @@ class TileGrid {
                 const y = math.floor(this.gridSize.Y / 2) + gridPosition.Y + i;
                 const x = math.floor(this.gridSize.X / 2) + gridPosition.X + j;
 
-                const isInBounds = x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
-                if (this.tileGrid[y][x] !== undefined || !isInBounds) {
+                if (this.tileGrid[y][x] !== undefined || !this.isInBounds(x, y)) {
                     return false;
                 }
             }
         }
         return true
+    }
+
+    isInBounds(x: number, y: number): boolean {
+        return x >= 0 && x < this.gridSize.X && y >= 0 && y < this.gridSize.Y;
     }
 
     getGrid(): Array<Array<Tile | undefined>> {
@@ -141,7 +140,7 @@ class TileGrid {
      * @returns the position in grid tile list index
     */
     public static localPositionToGridTilePosition(position: Vector3): Vector2 {
-        return new Vector2(math.ceil(position.X / GRID_SIZE), math.ceil(position.Z / GRID_SIZE));
+        return new Vector2(math.floor(position.X / GRID_SIZE), math.floor(position.Z / GRID_SIZE));
     }
 
     public encode(): any {

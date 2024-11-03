@@ -4,19 +4,21 @@ import { decodeMap, decodeVector2, decodeVector3, decodeVector3Array, encodeVect
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 
 // Settings
-const MAX_INPUTS = 1;
+const MAX_INPUTS = 2;
 const MAX_OUTPUTS = 1;
 const MAX_CAPACITY = 20;
 const category: string = "assembler";
 
 class Assembler extends TileEntity {
-    // mettre type component
     currentCraft: Component | undefined;
     resource = new Map<string, number>();
     craftedComponent = 0;
+    isCrafting = false;
+    lastCraftingProgress = 0;
+    private craftingCoroutine: thread | undefined;
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, 0, category, MAX_INPUTS, MAX_OUTPUTS);
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     initResources() {
@@ -28,27 +30,25 @@ class Assembler extends TileEntity {
     }
 
     tick(progress: number): void {
+        if (this.getCraftingProgress(progress) < this.lastCraftingProgress) {
+            this.craft();
+        }
         if (this.getProgress(progress) < this.lastProgress) {
             if (!this.currentCraft) return;
             this.sendItemCrafted();
         };
 
         this.lastProgress = this.getProgress(progress);
+        this.lastCraftingProgress = this.getCraftingProgress(progress);
     }
 
     private sendItemCrafted(): void {
-        const craftedComponent = this.craft();
         if (this.outputTiles.isEmpty()) return;
 
-        if (!craftedComponent) {
-            if (this.craftedComponent === 0) return;
-            this.craftedComponent--;
-            this.craftedComponent += this.outputTiles[0].addEntity([table.clone(this.currentCraft!)]).size()
-            return
-        };
-
-        const hasComponentBeenSend = this.outputTiles[0].addEntity([craftedComponent]).isEmpty();
-        if (hasComponentBeenSend) this.craftedComponent--;
+        if (this.craftedComponent === 0) return;
+        this.craftedComponent--;
+        this.craftedComponent += this.outputTiles[0].addEntity([table.clone(this.currentCraft!)]).size()
+        return
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -73,6 +73,8 @@ class Assembler extends TileEntity {
             "position": encodeVector3(this.position),
             "size": encodeVector2(this.size),
             "direction": encodeVector2(this.direction),
+            "speed": this.speed,
+            "isCrafting": this.isCrafting,
             "currentCraft": this.currentCraft?.name,
             "resource": this.resource,
             "craftedComponent": this.craftedComponent,
@@ -83,10 +85,11 @@ class Assembler extends TileEntity {
     }
 
     static decode(decoded: unknown): Assembler {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, resource: Map<string, number>, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
-        const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed:number, resource: Map<string, number>, isCrafting:boolean, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = decodeMap(data.resource) as Map<string, number>;
+        crafter.isCrafting = data.isCrafting;
         crafter.craftedComponent = data.craftedComponent;
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
@@ -102,7 +105,6 @@ class Assembler extends TileEntity {
         assert(craft.type === EntityType.MODULE, "The entity is not a module");
 
         this.currentCraft = craft;
-        this.speed = craft.speed
         this.craftedComponent = 0;
         this.initResources();
     }
@@ -116,6 +118,8 @@ class Assembler extends TileEntity {
     }
 
     private canCraft(): boolean {
+        if (this.craftingCoroutine && coroutine.status(this.craftingCoroutine) === "running") return false; // because we use this.isCrafting to send the status
+        if (!this.currentCraft) return false;
         if (!this.currentCraft) return false;
         for (const [resource, quantity] of this.currentCraft.buildRessources) {
             if (this.resource.get(string.lower(resource))! < quantity) return false;
@@ -123,7 +127,7 @@ class Assembler extends TileEntity {
         return true;
     }
 
-    private craft(): Component | undefined {
+    private craft() {
         if (!this.currentCraft) return;
         if (this.craftedComponent >= MAX_CAPACITY) return;
         if (!this.canCraft()) return;
@@ -131,8 +135,18 @@ class Assembler extends TileEntity {
         for (const [resource, quantity] of this.currentCraft.buildRessources) {
             this.resource.set(string.lower(resource), this.resource.get(string.lower(resource))! - quantity);
         }
-        this.craftedComponent++;
-        return table.clone(this.currentCraft);
+        this.isCrafting = true;
+        this.craftingCoroutine = coroutine.create(() => {
+            wait(60 / this.currentCraft!.speed - 0.05);
+            this.craftedComponent += this.currentCraft!.amount;
+            this.isCrafting = false;
+        });
+        coroutine.resume(this.craftingCoroutine);
+    }
+
+    getCraftingProgress(progress: number): number {
+        if (!this.currentCraft) return 0;
+        return (progress * (this.currentCraft.speed / 60)) % 1;
     }
 }
 

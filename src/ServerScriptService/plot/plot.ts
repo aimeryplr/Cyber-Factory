@@ -3,14 +3,19 @@ import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
-import { changeShapes, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
-import { findBasepartByName, removeAllTileFromAllConnectedTiles, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
+import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
 import { ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
+import { Quest, RewardType } from "ReplicatedStorage/Scripts/quest/quest";
+import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/quest/questUtils";
+import { isQuestCompleted, questList, questTreeArray } from "ReplicatedStorage/Scripts/quest/questList";
+import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
+const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 /**
  * holds all classes of the player's plot
@@ -22,9 +27,12 @@ class Plot {
 	private tileGrid: TileGrid;
 	private endingTiles = new Array<TileEntity>();
 
+	private quests: Array<Quest> = new Array<Quest>();
+
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
 		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(gridBase.Size));
+		this.addQuest(questList.get("Beginning of the end")!);
 	}
 
 	/**
@@ -55,11 +63,11 @@ class Plot {
 							continue;
 						}
 					}
-					
+
 					appendInputTiles(newInputTiles, [child]);
 					currentTile.tick(progress);
 				}
-				
+
 				if (currentTile.inputTiles.isEmpty()) {
 					currentTile.tick(progress);
 				}
@@ -70,10 +78,59 @@ class Plot {
 		}
 	}
 
+	updateQuests(entitySoldName: string) {
+		for (let i = this.quests.size() - 1; i >= 0; i--) {
+			const quest = this.quests[i];
+			updateGoals(quest, entitySoldName);
+			if (isQuestCompleted(quest)) {
+				print(`Quest ${quest.name} completed`);
+
+				this.claimReward(quest);
+				print(questTreeArray[quest.tier - 1].getNextQuests(quest))
+				for (const _quest of questTreeArray[quest.tier - 1].getNextQuests(quest)) {
+					this.addQuest(_quest);
+				}
+				this.quests.remove(i);
+				if (this.quests.isEmpty()) {
+					this.claimTierReward(getPlayerFromUserId(this.owner as number), quest.tier);
+				}
+			}
+		}
+		playerQuestEvent.FireClient(getPlayerFromUserId(this.owner as number), this.quests);
+	}
+
+	claimTierReward(player: Player, tier: number) {
+		this.setQuests(getQuestFromQuestNodes(questTreeArray[tier].roots));
+	}
+
+	private claimReward(quest: Quest) {
+		for (const reward of quest.rewards) {
+			switch (reward.type) {
+				case RewardType.MONEY:
+					getMoneyReward(getPlayerFromUserId(this.owner!), reward.amount);
+					break;
+				case RewardType.CRAFT:
+					print("Craft reward not implemented");
+					break;
+				case RewardType.TILE:
+					print("Tile reward not implemented");
+					break;
+				default:
+					error("Reward type not found");
+			}
+		}
+	}
+
 	public setOwner(userID: number | undefined): void {
 		this.owner = userID;
 	}
 
+	setQuests(quests: Quest[]) {
+		this.quests = new Array<Quest>();
+		for (const quest of quests) {
+			this.addQuest(quest);
+		}
+    }
 
 	public getOwner(): number | undefined {
 		return this.owner;
@@ -93,7 +150,10 @@ class Plot {
 		if (tile instanceof TileEntity) {
 			tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
 
-			if (tile instanceof Seller && player) tile.setOwner(player)
+			if (tile instanceof Seller && player) {
+				tile.setOwner(player)
+				tile.setSellingCallBack((entitySoldName: string) => {this.updateQuests(entitySoldName)});
+			}
 
 			changeShapes(tile, this.gridBase, this.tileGrid);
 			resetBeamsOffset(this.gridBase);
@@ -115,7 +175,7 @@ class Plot {
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
 		}
-		
+
 		tile.findThisPartInWorld(this.gridBase)?.Destroy();
 		this.tileGrid.removeTile(tile);
 		this.endingTiles = this.tileGrid.getAllEndingTiles()
@@ -128,6 +188,12 @@ class Plot {
 			setPlayerPlot.FireClient(player, this.getGridBase());
 			print(`Player ${player.Name} claimed the plot`);
 		}
+	}
+
+	addQuest(quest: Quest) {
+		const clone = cloneQuest(quest)
+		this.quests.push(resetQuestGoals(clone));
+		print(this.quests)
 	}
 
 	removeOwner() {
@@ -147,8 +213,12 @@ class Plot {
 		}
 	}
 
+	public getQuests() {
+		return this.quests;
+	}
+
 	public loadGrid(tileGrid: TileGrid): void {
-		this.tileGrid = tileGrid;
+		this.tileGrid.tileGrid = tileGrid.tileGrid;
 
 		this.loadGridBaseparts();
 	}
@@ -163,7 +233,10 @@ class Plot {
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
 			if (tile instanceof TileEntity) tile.updateShape(this.gridBase)
 
-			if (tile instanceof Seller) tile.setOwner(this.owner as number);
+			if (tile instanceof Seller) {
+				tile.setOwner(this.owner as number)
+				tile.setSellingCallBack((entitySoldName: string) => {this.updateQuests(entitySoldName)})
+			};
 
 		}
 		this.endingTiles = this.tileGrid.getAllEndingTiles()
@@ -173,7 +246,7 @@ class Plot {
 		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(this.gridBase.Size));
 		this.gridBase.FindFirstChild("PlacedObjects")!.ClearAllChildren();
 		this.gridBase.FindFirstChild("Entities")!.ClearAllChildren();
-    }
+	}
 
 	public getGridTiles(): TileGrid {
 		return this.tileGrid;

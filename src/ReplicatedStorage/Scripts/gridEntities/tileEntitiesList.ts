@@ -6,7 +6,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 60,
             tier: 1,
             price: 50,
-            image: "rbxassetid://0",
+            image: "88240255345711",
         }],
         ["conveyer_t2", {
             name: "conveyer_t2",
@@ -14,7 +14,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 120,
             tier: 2,
             price: 1000,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["conveyer_t3", {
             name: "conveyer_t3",
@@ -22,7 +22,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 240,
             tier: 3,
             price: 100000,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["generator", new Map([
@@ -32,7 +32,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 0,
             tier: 1,
             price: 500,
-            image: "rbxassetid://0",
+            image: "82799492428452",
         }],
         ["generator_t2", {
             name: "generator_t2",
@@ -40,7 +40,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 0,
             tier: 2,
             price: 10000,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["generator_t3", {
             name: "generator_t3",
@@ -48,7 +48,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 0,
             tier: 3,
             price: 1000000,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["seller", new Map([
@@ -58,7 +58,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             tier: 1,
             speed: 1,
             price: 1000,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["merger", new Map([
@@ -68,7 +68,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 60,
             tier: 1,
             price: 150,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["merger_t2", {
             name: "merger_t2",
@@ -76,7 +76,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 120,
             tier: 2,
             price: 3000,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["merger_t3", {
             name: "merger_t3",
@@ -84,7 +84,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 240,
             tier: 3,
             price: 300000,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["splitter", new Map([
@@ -94,7 +94,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 60,
             tier: 1,
             price: 150,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["splitter_t2", {
             name: "splitter_t2",
@@ -102,7 +102,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 120,
             tier: 2,
             price: 3000,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["splitter_t3", {
             name: "splitter_t3",
@@ -110,7 +110,7 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 240,
             tier: 3,
             price: 300000,
-            image: "rbxassetid://0",
+            image: "",
         }],
         ["splitter_intelligent", {
             name: "splitter_intelligent",
@@ -118,27 +118,27 @@ const tileEntitiesList: Map<string, Map<string, { name: string, category: string
             speed: 240,
             tier: 4,
             price: 600000,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["crafter", new Map([
         ["crafter", {
             name: "crafter",
             category: "crafter",
-            speed: 1,
+            speed: 60,
             tier: 1,
             price: 500,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])],
     ["assembler", new Map([
         ["assembler", {
             name: "assembler",
             category: "assembler",
-            speed: 1,
+            speed: 60,
             tier: 1,
             price: 500,
-            image: "rbxassetid://0",
+            image: "",
         }]
     ])]
 ]);

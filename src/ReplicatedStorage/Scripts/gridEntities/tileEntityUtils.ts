@@ -71,4 +71,17 @@ function getLocalPosition(position: Vector3, gridBase: BasePart): Vector3 {
     return position.sub(gridBase.Position);
 }
 
+export function getTileEntityNames() {
+    const entities = ReplicatedStorage.FindFirstChild("GridEntities");
+    if (!entities) error("no entities found");
+
+    const tileEntityNames = new Array<string>();
+    for (const category of entities.GetChildren()) {
+        for (const tileEntity of category.GetChildren()) {
+            tileEntityNames.push(tileEntity.Name);
+        }
+    }
+    return tileEntityNames;
+}
+
 export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition, getLocalPosition, removeConectedTiles };

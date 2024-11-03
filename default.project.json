@@ -62,6 +62,18 @@
 				},
 				"resetPlot": {
 					"$className": "BindableEvent"
+				},
+				"playerQuests": {
+					"$className": "RemoteEvent"
+				},
+				"resetQuests": {
+					"$className": "BindableEvent"
+				},
+				"tileEntityProccessing": {
+					"$className": "RemoteEvent"
+				},
+				"tileEntityUpdate": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

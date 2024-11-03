@@ -5,28 +5,40 @@ import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
 import { getImage } from "./imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
+import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
+import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
+const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 class CrafterMenu implements InteractionMenu {
     player: Player;
     tileEntity: Crafter | undefined;
+    quests = new Array<Quest>();
+    wasCrafting = false;
     menu: crafterMenu;
-    private timeCrafterAdded: number | undefined;
 
     private barTween: Tween | undefined;
 
     constructor(player: Player) {
         this.player = player;
         this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("crafterMenu") as crafterMenu;
+        playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => this.setupQuests(quests));
+    }
+
+    setupQuests(quests: Quest[]) {
+        if (areSameQuests(this.quests, quests)) return;
+
+        this.quests = quests;
+        this.loadCraftList();
     }
 
     setTileEntity(crafter: Crafter): void {
         if (this.tileEntity?.position === crafter.position && this.tileEntity.currentCraft?.name === crafter.currentCraft?.name) return;
         this.tileEntity = crafter;
 
-        this.timeCrafterAdded = tick();
         this.setupMenu();
     }
 
@@ -57,10 +69,10 @@ class CrafterMenu implements InteractionMenu {
             if (child.IsA("TextButton")) child.Destroy();
         }
 
-        const components = entitiesList
-        for (const [componentName, component] of components) {
-            if (component.type !== EntityType.COMPONENT) continue;
-            
+        const components = getUnlockedEntities(this.quests).filter(entity => entitiesList.get(entity)?.type === EntityType.COMPONENT);
+
+        for (const componentName of components) {
+            const component = entitiesList.get(componentName) as Component;
             const newComponent = componentPrefab.Clone();
             newComponent.Name = componentName;
             (newComponent.FindFirstChild("itemName")! as TextLabel).Text = componentName;
@@ -89,7 +101,6 @@ class CrafterMenu implements InteractionMenu {
             this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position))) as Crafter;
             wait(0.1);
         }
-        this.timeCrafterAdded = tick();
 
         this.setupProgressBar();
     }
@@ -102,7 +113,7 @@ class CrafterMenu implements InteractionMenu {
         this.menu.craft.itemName.price.TextLabel.Text = component.price as unknown as string;
         this.menu.craft.progression["3itemOut"].Image = getImage(component);
         this.menu.craft.progression["1itemIn"].Image = getImage(componentInImg);
-        this.menu.craft.speed.Text = component.speed + "/s";
+        this.menu.craft.speed.Text = component.speed + "/min";
     }
 
     removeBorder() {
@@ -113,29 +124,28 @@ class CrafterMenu implements InteractionMenu {
     }
 
     private setupProgressBar(): void {
+        if (this.wasCrafting === true || this.tileEntity?.isCrafting === false) return;
+
         const progression = this.menu.craft.progression;
-        const timeToFill = 60 / this.tileEntity!.speed;
-        const calculatedProgression = this.tileEntity!.lastProgress + ((tick() - this.timeCrafterAdded!) % timeToFill) / timeToFill
+        const timeToFill = 60 / this.tileEntity!.currentCraft!.speed;
 
-        const barTweenInfo = new TweenInfo(timeToFill * (1 - calculatedProgression), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
-        progression["2progressionBar"].bar.Size = new UDim2(calculatedProgression, 0, 1, 0);
-        const tween = TweenService.Create(progression["2progressionBar"].bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
-        tween.Play();
-
-        tween.Completed.Connect(() => {
+        progression["2progressionBar"].bar.Size = new UDim2(0, 0, 1, 0);
+        const barTweenInfo = new TweenInfo(timeToFill, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
+        this.barTween = TweenService.Create(progression["2progressionBar"].bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
+        this.barTween.Play();
+        this.barTween.Completed.Connect(() => {
             progression["2progressionBar"].bar.Size = new UDim2(0, 0, 1, 0);
-            const barTweenInfo = new TweenInfo(timeToFill, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1);
-            this.barTween = TweenService.Create(progression["2progressionBar"].bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
-            this.barTween.Play();
-        });
+        })
     }
 
     public show(): void {
         this.menu.Visible = true;
         RunService.BindToRenderStep("crafterMenu", 1, () => {
             if (!this.tileEntity) return;
+            this.wasCrafting = this.tileEntity.isCrafting;
             this.tileEntity = Crafter.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
             this.updateAmount();
+            this.setupProgressBar();
         });
     }
 

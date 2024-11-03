@@ -65,4 +65,10 @@ function sellConveyerContent(player: Player, conveyer: TileEntity): void {
     }
 }
 
+export function getMoneyReward(player: Player, reward: number): void {
+    const money = player.FindFirstChild("leaderstats")?.FindFirstChild("Money") as IntValue;
+    if (!money) error("Money on leaderstat not found");
+    money.Value += reward;
+}
+
 export { changeShapes, resetBeamsOffset, getPlayerFromUserId, hasEnoughMoney, removeMoney, addMoney, sellConveyerContent };
