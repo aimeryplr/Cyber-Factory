@@ -1,9 +1,11 @@
 import { getEntitiesListName } from "../Entities/entityUtils";
-import { getTileEntityNames } from "../gridEntities/tileEntityUtils";
+import { getAllTilesNames } from "../gridEntities/tileEntityProvider";
 import { CraftReward, Quest, Reward, RewardType, TileReward } from "./quest";
 import { QuestNode } from "./questNode";
 import { QuestTree } from "./questTree";
 import { concat } from "./questTreeUtils";
+import { getCraftRewards, getTileRewards } from "./questUtils";
+import { Tier } from "./tier";
 
 /**
  * List of all quests
@@ -67,9 +69,9 @@ export const questList: Map<string, Quest> = new Map([
     }]
 ]);
 
-export const tiers: {rewards: Reward[], nextQuests: string[]}[] = [
+export const tierList: Tier[] = [
     {
-        rewards: [{ type: RewardType.MONEY, amount: 145000 }, { type: RewardType.TILE, tile: ["assembler"] }, { type: RewardType.CRAFT, craft: ["Reinforced Plate", "Reinforced Tube", "Reinforced Wire"]}],
+        rewards: [{ type: RewardType.MONEY, amount: 145000 }, { type: RewardType.TILE, tile: ["assembler"] }, { type: RewardType.CRAFT, craft: ["Reinforced Plate", "Reinforced Tube", "Reinforced Wire"] }],
         nextQuests: ["Reinforced Plate", "Reinforced Tube", "Reinforced Wire"],
     },
     {
@@ -78,8 +80,8 @@ export const tiers: {rewards: Reward[], nextQuests: string[]}[] = [
     }
 ]
 
-const questListNode = new Array<Array<QuestNode>>(tiers.size() + 1);
-for (let i = 0; i < tiers.size() + 1; i++) {
+const questListNode = new Array<Array<QuestNode>>(tierList.size() + 1);
+for (let i = 0; i < tierList.size() + 1; i++) {
     questListNode[i] = new Array<QuestNode>();
 }
 
@@ -89,8 +91,8 @@ for (const [name, quest] of questList) {
 }
 const questTreeArray: Array<QuestTree> = [new QuestTree([questListNode[0].find(questNode => questNode.quest.name === "Beginning of the end")!])];
 
-for (let i = 0; i < tiers.size(); i++) {
-    const tier = tiers[i];
+for (let i = 0; i < tierList.size(); i++) {
+    const tier = tierList[i];
     const questTree = new QuestTree([]);
     questTreeArray.push(questTree);
     for (const questName of tier.nextQuests) {
@@ -121,7 +123,7 @@ export function isQuestCompleted(quest: Quest) {
 }
 
 const alreadyUnlockedCraft: string[] = getEntitiesListName();
-const alreadyUnlockeTile: string[] = getTileEntityNames();
+const alreadyUnlockeTile: string[] = getAllTilesNames();
 
 /**
  * Calcule alredy unlocked rewards
@@ -146,7 +148,7 @@ for (const [name, quest] of questList) {
     }
 }
 
-for (const tier of tiers) {
+for (const tier of tierList) {
     for (const reward of tier.rewards) {
         if (reward.type === RewardType.MONEY) continue;
         removeRewardEntitiesFromAlreadyUnlocked(reward);
@@ -161,6 +163,7 @@ export function getUnlockedEntities(quests: Quest[]): string[] {
 
     for (let i = 0; i < maxTier - 1; i++) {
         unlockedEntities = concat(unlockedEntities, questTreeArray[i].getUnlockedEntities([]));
+        unlockedEntities = concat(unlockedEntities, getCraftRewards(tierList[i]));
     }
     unlockedEntities = concat(unlockedEntities, questTreeArray[maxTier - 1].getUnlockedEntities(quests));
 
@@ -173,6 +176,7 @@ export function getUnlockedTile(quests: Quest[]): string[] {
 
     for (let i = 0; i < maxTier - 1; i++) {
         unlockedEntities = concat(unlockedEntities, questTreeArray[i].getUnlockedTile([]));
+        unlockedEntities = concat(unlockedEntities, getTileRewards(tierList[i]));
     }
 
     unlockedEntities = concat(unlockedEntities, questTreeArray[maxTier - 1].getUnlockedTile(quests));

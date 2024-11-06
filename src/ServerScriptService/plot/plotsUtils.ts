@@ -1,7 +1,7 @@
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
+import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
@@ -55,7 +55,7 @@ function addMoney(player: Player, price: number): void {
 }
 
 function sellConveyerContent(player: Player, conveyer: TileEntity): void {
-    if (conveyer instanceof Conveyer) {
+    if (conveyer instanceof Conveyor) {
         const content = conveyer.content;
         for (const entity of content) {
             if (entity !== undefined) {

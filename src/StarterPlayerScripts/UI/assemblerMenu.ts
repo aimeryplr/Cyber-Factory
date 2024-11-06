@@ -1,4 +1,3 @@
-import { InteractionMenu } from "./InteractionMenu";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
@@ -8,12 +7,13 @@ import { getImage } from "./imageUtils";
 import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
 import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
 import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
+import { Menu } from "./menu";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
-class AssemblerMenu implements InteractionMenu {
+class AssemblerMenu implements Menu {
     player: Player;
     tileEntity: Assembler | undefined;
     quests = new Array<Quest>();

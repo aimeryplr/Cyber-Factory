@@ -1,19 +1,19 @@
 import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
-import {InteractionMenu} from "./InteractionMenu";
 import { getImage } from "./imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
 import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
 import { EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
+import { Menu } from "./menu";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
-class GeneratorMenu implements InteractionMenu {
+class GeneratorMenu implements Menu {
     player: Player;
     menu: generatorMenu;
     quests = new Array<Quest>();

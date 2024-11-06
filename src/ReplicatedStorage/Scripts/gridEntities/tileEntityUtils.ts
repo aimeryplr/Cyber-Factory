@@ -8,25 +8,11 @@ import { GRID_SIZE } from "ReplicatedStorage/parameters";
  * @param name part name
  * @returns the part found or error
  */
-function findBasepartByName(name: string, category?: string): BasePart {
-    if (category) {
-        const tileObj = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild(category)?.FindFirstChild(name) as BasePart;
-        if (!tileObj) {
-            error(`gridEntity ${name} not found`);
-        }
-        return tileObj;
-    } else {
-        const categories = ReplicatedStorage.FindFirstChild("GridEntities")?.GetChildren()
-        if (!categories) error(`no categories found`);
-
-        for (const category of categories) {
-            const tileObj = category.FindFirstChild(name) as BasePart;
-            if (tileObj !== undefined) {
-                return tileObj;
-            }
-        }
-    }
-    error(`tileObj ${name} not found`);
+function findBasepartByName(name: string): BasePart {
+    const tileObj = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild(name) as BasePart;
+    assert(tileObj, `gridEntity ${name} not found`);
+    
+    return tileObj;
 }
 
 function objSizeToTileSize(size: Vector3 | Vector2): Vector2 {
@@ -69,19 +55,6 @@ function getGlobalPosition(position: Vector3, gridBase: BasePart): Vector3 {
 
 function getLocalPosition(position: Vector3, gridBase: BasePart): Vector3 {
     return position.sub(gridBase.Position);
-}
-
-export function getTileEntityNames() {
-    const entities = ReplicatedStorage.FindFirstChild("GridEntities");
-    if (!entities) error("no entities found");
-
-    const tileEntityNames = new Array<string>();
-    for (const category of entities.GetChildren()) {
-        for (const tileEntity of category.GetChildren()) {
-            tileEntityNames.push(tileEntity.Name);
-        }
-    }
-    return tileEntityNames;
 }
 
 export { findBasepartByName, objSizeToTileSize, removeAllTileFromAllConnectedTiles, connectTileEntityToAllInputsAndOutputs, getGlobalPosition, getLocalPosition, removeConectedTiles };

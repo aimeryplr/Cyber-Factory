@@ -1,5 +1,5 @@
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
+import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 import Splitter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/splitter";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
@@ -15,8 +15,8 @@ function decodeTile(decoded: unknown) {
     switch (data.category) {
         case "tile":
             return Tile.decode(decoded);
-        case "conveyer":
-            return Conveyer.decode(decoded);
+        case "conveyor":
+            return Conveyor.decode(decoded);
         case "splitter":
             return Splitter.decode(decoded);
         case "seller":

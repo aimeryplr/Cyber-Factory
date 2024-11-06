@@ -1,5 +1,5 @@
 import Assembler from "./tileEntitiesChilds/assembler";
-import Conveyer from "./tileEntitiesChilds/conveyer";
+import Conveyor from "./tileEntitiesChilds/conveyor";
 import Crafter from "./tileEntitiesChilds/crafter";
 import tileEntitiesList from "./tileEntitiesList";
 import Splitter from "./tileEntitiesChilds/splitter";
@@ -10,7 +10,7 @@ import Merger from "./tileEntitiesChilds/merger";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
-    "conveyer": Conveyer,
+    "conveyor": Conveyor,
     "splitter": Splitter,
     "crafter": Crafter,
     "assembler": Assembler,
@@ -39,27 +39,27 @@ function getTileEntityByCategory(className: string, name: string, position: Vect
  * @param name gridEntity name like generator_t1
  * @returns all the information of the gridEntity
  */
-function getTileEntityInformation(name: string, category?: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
-    if (category) {
-        const tileEntity = tileEntitiesList.get(category)?.get(name);
-        if (!tileEntity) {
-            error(`gridEntity ${name} not found`);
-        }
-    } else {
-        for (const [_, category] of tileEntitiesList) {
-            for (const [tileEntityName, tileEntityInfo] of category) {
-                if (name.find(tileEntityName)[0] === 1) {
-                    return tileEntityInfo;
-                }
-            }
-        }
+function getTileEntityInformation(name: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
+    const tileEntity = tileEntitiesList.get(name);
+    if (tileEntity) return tileEntity;
+
+    for (const [tileName, tile] of tileEntitiesList) {
+        if (tileName === name.sub(0, tileName.size())) return tile;
     }
-    error(`gridEntity ${name} not found`);
+    error(`tileEntity ${name} not found`);
 }
 
 
 export const isMachine = (category: string): boolean => {
     return ["generator", "crafter", "assembler"].includes(category);
+}
+
+export function getAllTilesNames(): string[] {
+    const tilesNames: string[] = [];
+    for (const [tileName, _] of tileEntitiesList) {
+        tilesNames.push(tileName);
+    }
+    return tilesNames;
 }
 
 export { getTileEntityByCategory, getTileEntityInformation };

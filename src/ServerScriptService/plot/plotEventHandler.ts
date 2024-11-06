@@ -1,7 +1,7 @@
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
 import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
+import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/datastore";
@@ -31,13 +31,13 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
     if (!plot) return;
 
     const removedTile = plot.removeGridTile(tile as BasePart);
-    if (removedTile instanceof Conveyer) sellConveyerContent((player as Player), removedTile);
+    if (removedTile instanceof Conveyor) sellConveyerContent((player as Player), removedTile);
     if (removedTile) {
         const tilePrice = getTileEntityInformation(removedTile.name).price;
         addMoney(player as Player, tilePrice);
         sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
     }
-    print(plot.encode());
+    // print(plot.encode());
 }
 
 export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName: unknown, pos: unknown, orientation: unknown, size: unknown, gridBase: unknown): boolean => {
@@ -62,7 +62,7 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
         plot.addGridTile(tileEntity, player.UserId);
         sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
-    print(plot.encode());
+    // print(plot.encode());
     return isPlaceable;
 }
 
@@ -120,7 +120,7 @@ export const rotateTile = (plotManager: PlotManager, player: Player, position: u
         sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
 
-    if (tile instanceof Conveyer) {
+    if (tile instanceof Conveyor) {
         resetBeamsOffset(plot.getGridBase());
     }
 }
@@ -137,6 +137,9 @@ export const resetQuests = (plotManager: PlotManager, player: Player) => {
     const plot = plotManager.getPlotByOwner(player.UserId);
     if (!plot) return;
 
-    plot.setQuests(getQuestFromQuestNodes(questTreeArray[0].roots));
+    plot.setQuests([]);
+    for (const quest of getQuestFromQuestNodes(questTreeArray[0].roots)) {
+        plot.addQuest(quest);
+    }
     playerQuests.FireClient(player, plot.getQuests());
 }

@@ -19,7 +19,7 @@ export interface Component extends Entity {
 	buildRessources: Map<string, number>;
 	tier: number;
 	amount: number;
-}
+}	
 
 
 export enum EntityType {

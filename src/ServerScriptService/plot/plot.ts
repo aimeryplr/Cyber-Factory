@@ -5,17 +5,18 @@ import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/se
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
 import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
-import Conveyer from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyer";
+import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 import { ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
-import { Quest, RewardType } from "ReplicatedStorage/Scripts/quest/quest";
+import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/quest/quest";
 import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/quest/questUtils";
-import { isQuestCompleted, questList, questTreeArray } from "ReplicatedStorage/Scripts/quest/questList";
+import { getUnlockedTile, isQuestCompleted, questList, questTreeArray, tierList } from "ReplicatedStorage/Scripts/quest/questList";
 import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
+const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
 
 /**
  * holds all classes of the player's plot
@@ -85,7 +86,7 @@ class Plot {
 			if (isQuestCompleted(quest)) {
 				print(`Quest ${quest.name} completed`);
 
-				this.claimReward(quest);
+				this.claimRewards(quest.rewards);
 				for (const _quest of questTreeArray[quest.tier - 1].getNextQuests(quest)) {
 					this.addQuest(_quest);
 				}
@@ -100,22 +101,19 @@ class Plot {
 
 	claimTierReward(player: Player, tier: number) {
 		this.setQuests(getQuestFromQuestNodes(questTreeArray[tier].roots));
+		this.claimRewards(tierList[tier - 1].rewards);
+
 	}
 
-	private claimReward(quest: Quest) {
-		for (const reward of quest.rewards) {
+	private claimRewards(rewards: Reward[]) {
+		for (const reward of rewards) {
 			switch (reward.type) {
 				case RewardType.MONEY:
 					getMoneyReward(getPlayerFromUserId(this.owner!), reward.amount);
 					break;
-				case RewardType.CRAFT:
-					print("Craft reward not implemented");
-					break;
 				case RewardType.TILE:
-					print("Tile reward not implemented");
+					unlockedTileListEvent.FireClient(getPlayerFromUserId(this.owner!), getUnlockedTile(this.quests));
 					break;
-				default:
-					error("Reward type not found");
 			}
 		}
 	}
@@ -125,11 +123,8 @@ class Plot {
 	}
 
 	setQuests(quests: Quest[]) {
-		this.quests = new Array<Quest>();
-		for (const quest of quests) {
-			this.addQuest(quest);
-		}
-    }
+		this.quests = quests;
+	}
 
 	public getOwner(): number | undefined {
 		return this.owner;
@@ -151,7 +146,7 @@ class Plot {
 
 			if (tile instanceof Seller && player) {
 				tile.setOwner(player)
-				tile.setSellingCallBack((entitySoldName: string) => {this.updateQuests(entitySoldName)});
+				tile.setSellingCallBack((entitySoldName: string) => { this.updateQuests(entitySoldName) });
 			}
 
 			changeShapes(tile, this.gridBase, this.tileGrid);
@@ -169,7 +164,7 @@ class Plot {
 		if (tile === undefined) error("Tile not found when removing it");
 
 		if (tile instanceof TileEntity) {
-			if (tile instanceof Conveyer && this.owner) destroyConveyerEvent.FireClient(getPlayerFromUserId(this.owner), tile.copy());
+			if (tile instanceof Conveyor && this.owner) destroyConveyerEvent.FireClient(getPlayerFromUserId(this.owner), tile.copy());
 			removeConectedTiles(tile);
 			resetBeamsOffset(this.gridBase);
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
@@ -225,7 +220,7 @@ class Plot {
 		for (const tile of this.tileGrid.getTiles()) {
 			if (!tile) continue;
 
-			if (tile instanceof Conveyer) tile.content = []; // change to spawn immediatly the content
+			if (tile instanceof Conveyor) tile.content = []; // change to spawn immediatly the content
 
 			const basepart = findBasepartByName(tile.name).Clone();
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
@@ -233,7 +228,7 @@ class Plot {
 
 			if (tile instanceof Seller) {
 				tile.setOwner(this.owner as number)
-				tile.setSellingCallBack((entitySoldName: string) => {this.updateQuests(entitySoldName)})
+				tile.setSellingCallBack((entitySoldName: string) => { this.updateQuests(entitySoldName) })
 			};
 
 		}

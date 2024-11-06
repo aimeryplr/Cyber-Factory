@@ -1,4 +1,5 @@
-import { Quest } from "./quest";
+import { CraftReward, Quest, Reward, RewardType, TileReward } from "./quest";
+import { Tier } from "./tier";
 
 export function resetQuestGoals(quest: Quest): Quest {
     for (const goal of quest.goal) {
@@ -28,4 +29,12 @@ export function areSameQuests(questsA: Quest[], questsB: Quest[]): boolean {
     }
 
     return true;
+}
+
+export function getTileRewards(tier: Tier): string[] {
+    return (tier.rewards.find(reward => reward.type === RewardType.TILE) as TileReward)?.tile ?? [];
+}
+
+export function getCraftRewards(tier: Tier): string[] {
+    return (tier.rewards.find(reward => reward.type === RewardType.CRAFT) as CraftReward)?.craft ?? [];
 }

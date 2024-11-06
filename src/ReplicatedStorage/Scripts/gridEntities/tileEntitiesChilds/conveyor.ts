@@ -1,4 +1,4 @@
-import {type Entity} from "ReplicatedStorage/Scripts/Entities/entity";
+import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
@@ -10,10 +10,10 @@ import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 //Setings
 const MAX_INPUTS = 1; // help to upgrade to merger or splitter
 const MAX_OUTPUTS = 1; // help to upgrade to merger or splitter
-const category: string = "conveyer";
+const category: string = "conveyor";
 const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;
 
-class Conveyer extends TileEntity {
+class Conveyor extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
     isTurning = false;
@@ -42,7 +42,7 @@ class Conveyer extends TileEntity {
     }
 
     addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        if (!(this.inputTiles[0] instanceof Conveyer)) this.setupIds(entities);
+        if (!(this.inputTiles[0] instanceof Conveyor)) this.setupIds(entities);
         const transferdEntities = transferArrayContent(entities, this.content, CONTENT_SIZE) as Array<Entity | undefined>;
         updateContentEvent.FireAllClients(HttpService.JSONEncode(this.encode()));
         return transferdEntities;
@@ -70,13 +70,13 @@ class Conveyer extends TileEntity {
 
             if (isTurningConveyer && !isAlreadyTurningConveyer) {
                 const isTurningLeft = this.inputTiles[0].direction.X === -this.direction.Y && this.inputTiles[0].direction.Y === this.direction.X;
-                return findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"), this.category);
+                return findBasepartByName(this.name + (isTurningLeft ? "T" : "TR"));
             }
         }
 
         const isAlreadyStraightConveyer = conveyerBasepart?.Name === this.name;
         if (!isAlreadyStraightConveyer) {
-            return findBasepartByName((this.name) as string, this.category)
+            return findBasepartByName(this.name as string)
         }
 
         this.isTurning = this.getIsTurning();
@@ -100,8 +100,8 @@ class Conveyer extends TileEntity {
         return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
     }
 
-    copy(): Conveyer {
-        const newConveyer = new Conveyer(this.name, this.position, this.size, this.direction, this.speed);
+    copy(): Conveyor {
+        const newConveyer = new Conveyor(this.name, this.position, this.size, this.direction, this.speed);
         newConveyer.content = this.content;
         newConveyer.isTurning = this.isTurning;
         return newConveyer;
@@ -127,9 +127,9 @@ class Conveyer extends TileEntity {
         return copy;
     }
 
-    static decode(decoded: unknown): Conveyer {
+    static decode(decoded: unknown): Conveyor {
         const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, content: Array<Entity | undefined>, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }>, isTurning: boolean };
-        const conveyer = new Conveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        const conveyer = new Conveyor(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         conveyer.content = decodeArray(data.content);
         conveyer.isTurning = data.isTurning;
         conveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[];
@@ -138,4 +138,4 @@ class Conveyer extends TileEntity {
     }
 }
 
-export default Conveyer;
+export default Conveyor;

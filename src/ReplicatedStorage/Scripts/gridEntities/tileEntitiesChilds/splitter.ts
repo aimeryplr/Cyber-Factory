@@ -1,10 +1,10 @@
 import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
-import Conveyer from "./conveyer";
+import Conveyor from "./conveyor";
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
-import {type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
+import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -23,7 +23,7 @@ class Splitter extends TileEntity {
         if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
             for (const outputTile of this.outputTiles) {
-                const canOutpoutEntity = outputTile instanceof Conveyer && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
+                const canOutpoutEntity = outputTile instanceof Conveyor && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
                 if (!canOutpoutEntity) continue;
                 shiftOrder(this.outputTiles);
 

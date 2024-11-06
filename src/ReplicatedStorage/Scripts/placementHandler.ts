@@ -4,7 +4,7 @@ import { TileGrid } from "./gridTile";
 import { TileEntity } from "./gridEntities/tileEntity";
 import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/tileEntityUtils";
 import { getTileEntityByCategory, getTileEntityInformation, isMachine } from "./gridEntities/tileEntityProvider";
-import { GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
+import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -280,9 +280,23 @@ class PlacementHandler {
 
         const arrow = arrowType === ArrowType.INPUT ? inputArrowPrefab.Clone() : outputArrowPrefab.Clone();
 
-        let offsetPosition = new Vector3((this.size!.X - 1) * GRID_SIZE / 2 , 0, (this.size!.Y - 1) * GRID_SIZE / 2)
-        if (this.size!.X % 2 === 0 && arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(-3, 0, 0));
-        if (this.size!.Y % 2 === 0 && arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(3, 0, 0));
+        let offsetPosition = CFrame.fromOrientation(0, this.rotation, 0).mul(new Vector3((this.size!.X - 1) * GRID_SIZE / 2 , 0, (this.size!.Y - 1) * GRID_SIZE / 2))
+        if (this.size!.X !== this.size!.Y) {
+            switch (this.rotation) {
+                case math.rad(0):
+                    if (arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(-GRID_SIZE, 0, 0));
+                    break;
+                case math.rad(-90):
+                    if (arrowType === ArrowType.OUTPUT) offsetPosition = offsetPosition.add(new Vector3(GRID_SIZE, 0, 0));
+                    break;
+                case math.rad(-180):
+                    if (arrowType === ArrowType.OUTPUT) offsetPosition = offsetPosition.add(new Vector3(GRID_SIZE, 0, 0));
+                    break;
+                case math.rad(-270):
+                    if (arrowType === ArrowType.INPUT) offsetPosition = offsetPosition.add(new Vector3(-GRID_SIZE, 0, 0));
+                    break;
+            }
+        }
         
         arrow.PivotOffset = new CFrame(relativePosition.add(offsetPosition)).mul(CFrame.fromEulerAnglesYXZ(0, math.rad(orientationDeg), math.rad(-90)));
         arrow.Position = this.currentTile!.Position.add(arrow.PivotOffset.Position);
@@ -296,6 +310,7 @@ class PlacementHandler {
     }
 
     resetMode() {
+        if (this.placementStatus === placementType.INTERACTING) return;
         RunService.UnbindFromRenderStep("place");
         RunService.UnbindFromRenderStep("destroy");
         this.targetPos = undefined;
@@ -372,12 +387,14 @@ class PlacementHandler {
         this.selectionTile.Visible = true;
         this.selectionTile.Parent = this.currentTile;
         this.selectionTile.Adornee = this.currentTile;
-        this.selectionTile.Color3 = new Color3(1, 1, 1);
+        this.selectionTile.Color3 = BLUE;
+        this.selectionTile.Transparency = 0.5;
 
         const tileInfo = getTileEntityInformation(this.currentTile!.Name);
         if (!tileInfo) return;
         if (isMachine(tileInfo.category)) {
-            this.selectionTile.Color3 = new Color3(1, 1, 0)
+            this.selectionTile.Transparency = 0.2
+            this.selectionTile.Color3 = new Color3(1, 1, 1)
         };
     }
 

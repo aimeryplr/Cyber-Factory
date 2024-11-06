@@ -3,6 +3,7 @@ import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 import { getImage } from "./imageUtils";
+import { BLUE, GRAY } from "ReplicatedStorage/parameters";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
 
@@ -10,15 +11,21 @@ const TRANSPARENCE_TIME = 0.8;
 
 export class Hotbar {
     private hotbar;
+    private placementHandler: PlacementHandler;
+
     private currentSlot: number | undefined;
     private itemName = hotbarFrame.WaitForChild("itemName") as itemName;
     private tweenCoroutine: thread | undefined;
 
-    constructor() {
-        this.hotbar = new Array<HotbarSlot | undefined>(9);
-        
+    constructor(placementHandler: PlacementHandler) {
+        this.hotbar = new Array<HotbarSlot>(9);
+        this.placementHandler = placementHandler;
+
         for (let i = 0; i < 9; i++) {
-            this.hotbar[i] = new HotbarSlot(i+1);
+            this.hotbar[i] = new HotbarSlot(i + 1);
+            (this.getSlot(i).getSlotFrame().FindFirstChild("ImageButton") as ImageButton)!.MouseButton1Click.Connect(() => {
+                this.activatePlacingFromHotbar(i, this.placementHandler);
+            });
         }
     }
 
@@ -33,7 +40,17 @@ export class Hotbar {
     }
 
     public removeSlot(slot: number) {
-        this.hotbar[slot] = undefined;
+        this.hotbar[slot].resetSlot();
+    }
+
+    // find an empty slot and set the slot to the name
+    addSlotFromName(name: string) {
+        for (let i = 0; i < 9; i++) {
+            if (this.hotbar[i]!.isSlotEmpty()) {
+                this.setSlotFromName(i, name);
+                return;
+            }
+        }
     }
 
     setSlotFromName(slot: number, name: string) {
@@ -49,13 +66,22 @@ export class Hotbar {
         const slot = this.getSlot(index);
         return slot.getImage();
     }
-    
+
+    deselectAllSlots() {
+        for (let i = 0; i < 9; i++) {
+            this.getSlot(i).deselectSlot();
+        }
+    }
+
     activatePlacingFromHotbar(index: number, placementHandler: PlacementHandler) {
+        this.deselectAllSlots()
         if (this.getSlot(index).isSlotEmpty()) return placementHandler.resetMode();
         if (this.currentSlot === index && placementHandler.placementStatus === placementType.PLACING) return placementHandler.resetMode();
 
         this.showItemName(index);
         const slot = this.getSlot(index);
+        slot.selectSlot();
+
         const playerMoney = Players.LocalPlayer!.FindFirstChild("leaderstats")!.FindFirstChild("Money") as NumberValue
         placementHandler.activatePlacing(slot.getPart()!, slot.getPrice()!, playerMoney);
         this.currentSlot = index;
@@ -70,13 +96,13 @@ export class Hotbar {
         this.itemName.UIStroke.Transparency = 0;
 
         this.tweenCoroutine = coroutine.create(() => {
-            const FPS = 1/60
+            const FPS = 1 / 60
             wait(1);
             while (this.itemName.itemName.Transparency < 1) {
                 wait(FPS);
                 this.itemName.itemName.Transparency += FPS * (1 / TRANSPARENCE_TIME);
                 this.itemName.UIStroke.Transparency += FPS * (1 / TRANSPARENCE_TIME);
-                
+
             }
             this.itemName.itemName.Transparency = 1;
             this.itemName.UIStroke.Transparency = 1;
@@ -101,6 +127,7 @@ class HotbarSlot {
             this.image = info.image;
             this.price = info.price;
         }
+
         this.setupSlot();
     }
 
@@ -112,6 +139,16 @@ class HotbarSlot {
         this.setupSlot();
     }
 
+    // Function to move the selected slot up or deselect it
+    selectSlot() {
+        const stroke = (this.slotFrame.FindFirstChild("UIStroke") as UIStroke)!
+        stroke.Color = BLUE;
+    };
+
+    deselectSlot() {
+        (this.slotFrame.FindFirstChild("UIStroke") as UIStroke)!.Color = GRAY;
+    }
+
     public setupSlot() {
         if (!this.image) {
             (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = false;
@@ -119,6 +156,13 @@ class HotbarSlot {
             (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = true;
             (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Image = this.getImage();
         }
+    }
+
+    public resetSlot() {
+        this.part = undefined;
+        this.image = undefined;
+        this.price = undefined;
+        this.setupSlot();
     }
 
     public getPart(): BasePart | undefined {
@@ -135,6 +179,10 @@ class HotbarSlot {
 
     public getPrice(): number | undefined {
         return this.price;
+    }
+
+    public getSlotFrame(): Frame {
+        return this.slotFrame;
     }
 }
 

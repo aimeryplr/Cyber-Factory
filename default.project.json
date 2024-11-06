@@ -74,6 +74,9 @@
 				},
 				"tileEntityUpdate": {
 					"$className": "RemoteEvent"
+				},
+				"unlockedTileList": {
+					"$className": "RemoteEvent"
 				}
 			}
 		},
