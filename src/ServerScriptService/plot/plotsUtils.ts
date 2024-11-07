@@ -2,6 +2,8 @@ import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
+import Plot from "./plot";
+import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 

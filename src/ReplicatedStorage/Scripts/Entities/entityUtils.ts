@@ -19,17 +19,3 @@ export function getEntitiesListName(): string[] {
     });
     return entitiesName;
 }
-
-export function calculatePrice(entity: Entity): number {
-	if (entity.type === EntityType.RESOURCE) return entity.price;
-	if (entity.type === EntityType.COMPONENT) {
-		let price = 0;
-        const [resource] = (entity as Component).buildRessources;
-        price += resource[1] * calculatePrice(entitiesList.get(resource[0])!);
-        price *= 60 / (entity as Component).speed;
-        price /= (entity as Component).amount; 
-		return price;
-	}
-    if (entity.type === EntityType.MODULE) return entity.price;
-    error(`Entity ${entity.name} not found`);
-}

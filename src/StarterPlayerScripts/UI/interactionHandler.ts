@@ -13,9 +13,11 @@ import { QuestBoard } from "./questsBord";
 import { Hotbar } from "./hotbar";
 import { DEFAULT_HOTBAR, DESTROY_MODE_KEY, ROTATE_KEY, TERMINATE_KEY } from "ReplicatedStorage/parameters";
 import { isMouseInMenu, Menu } from "./menu";
+import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
+const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 
 const hotBarKeyBinds = [Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four, Enum.KeyCode.Five, Enum.KeyCode.Six, Enum.KeyCode.Seven, Enum.KeyCode.Eight, Enum.KeyCode.Nine];
 
@@ -31,6 +33,8 @@ class InteractionHandler {
     private assemblerMenu = new AssemblerMenu(Players.LocalPlayer);
     private hotbar: Hotbar;
 
+    private tileGrid: TileGrid | undefined;
+
     private lastMenu: Menu | undefined;
 
     constructor(gridBase: BasePart) {
@@ -44,6 +48,11 @@ class InteractionHandler {
             this.handleInputs(undefined, false)
         })
         unlockedTileListEvent.OnClientEvent.Connect((tiles: string[]) => this.setUnlockedTiles(tiles));
+        sendTileGrid.OnClientEvent.Connect((tileGrid: string) => {
+            this.tileGrid = TileGrid.decode(tileGrid)
+            this.placementHandler.setTileGrid(this.tileGrid);
+            this.hotbar.setTileGrid(this.tileGrid);
+        });
     }
 
     setUnlockedTiles(tiles: string[]): any {
@@ -70,6 +79,7 @@ class InteractionHandler {
             if (isMouseInMenu(screenGui.FindFirstChild("hotbar") as Frame)) return;
             this.placementHandler.destroyObject();
             this.placementHandler.placeObject();
+            this.hotbar.tilePlaced()
         }
 
         if (!input) return;

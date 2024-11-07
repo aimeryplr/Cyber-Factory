@@ -185,9 +185,19 @@ type itemPrefab = ImageLabel & {
 }
 
 type itemName = Frame & {
-	UICorner: UICorner;
-	itemName: TextLabel & {
+	UIPadding: UIPadding;
+	["1itemName"]: TextLabel & {
 		UICorner: UICorner;
+		UIPadding: UIPadding;
 	};
+	UIListLayout: UIListLayout;
 	UIStroke: UIStroke;
+	UICorner: UICorner;
+	["2price"]: Frame & {
+		UIListLayout: UIListLayout;
+		TextLabel: TextLabel;
+		ImageLabel: ImageLabel & {
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
+		};
+	};
 }

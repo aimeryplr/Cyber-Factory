@@ -41,4 +41,12 @@ function decodeTiles(decodedTiles: Array<unknown>, tileGrid: TileGrid) {
     }
 }
 
+export function getPlacedGenerator(tileGrid: TileGrid): number {
+    let generatorCount = 0;
+    tileGrid.getTiles().forEach((tile) => {
+        if (tile instanceof Generator) generatorCount++;
+    });
+    return generatorCount;
+}
+
 export { decodeTiles, decodeTile };

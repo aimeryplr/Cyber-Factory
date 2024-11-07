@@ -1,4 +1,4 @@
-import { Entity, EntityType } from "./entity";
+import { Component, Entity, EntityType } from "./entity";
 
 const entitiesList: Map<string, Entity> = new Map([
     ["Carbon", {
@@ -28,7 +28,7 @@ const entitiesList: Map<string, Entity> = new Map([
     ["Carbon Plate", {
         name: "Carbon Plate",
         type: EntityType.COMPONENT,
-        price: 30,
+        price: 0,
         speed: 60,
         tier: 2,
         amount: 1,
@@ -126,5 +126,36 @@ const entitiesList: Map<string, Entity> = new Map([
         img: "78163969660914"
     }],
 ]);
+
+function calculateBalancedPrice(entity: Entity): number {
+    if (entity.type === EntityType.RESOURCE) return entity.price;
+	if (entity.type === EntityType.COMPONENT) {
+		let price = 0;
+        const [resource] = (entity as Component).buildRessources;
+        price += resource[1] * calculateBalancedPrice(entitiesList.get(resource[0])!);
+        price *= 60 / (entity as Component).speed;
+        price /= (entity as Component).amount; 
+		return price
+	}
+    if (entity.type === EntityType.MODULE) {
+        let price = 0;
+        const [resourceOne, resourceTwo] = (entity as Component).buildRessources;
+        price += resourceOne[1] * calculateBalancedPrice(entitiesList.get(resourceOne[0])!);
+        price += resourceTwo[1] * calculateBalancedPrice(entitiesList.get(resourceTwo[0])!);
+        price *= 60 / (entity as Component).speed;
+        price /= (entity as Component).amount; 
+		return price;
+    };
+    error(`Entity ${entity.name} not found`);
+}
+
+function calculatePrice(entity: Entity): number {
+	return math.round(calculateBalancedPrice(entity) * entity.tier*10)/10;
+}
+
+for (const [name, entity] of entitiesList) {
+    entity.price = calculatePrice(entity);
+    entitiesList.set(name, entity);
+}
 
 export { entitiesList };

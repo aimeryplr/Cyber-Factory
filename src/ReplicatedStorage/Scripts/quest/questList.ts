@@ -23,14 +23,14 @@ export const questList: Map<string, Quest> = new Map([
         tier: 1,
         nextQuests: ["And some more and more Carbon"],
         goal: new Map([["Carbon Plate", 60]]),
-        rewards: [{ type: RewardType.MONEY, amount: 5000 }, { type: RewardType.CRAFT, craft: ["Graphene, Carbon Tube"] }]
+        rewards: [{ type: RewardType.MONEY, amount: 500 }, { type: RewardType.CRAFT, craft: ["Graphene, Carbon Tube"] }]
     }],
     ["And some more and more Carbon", {
         name: "And some more and more Carbon",
         tier: 1,
         nextQuests: ["That's some good structure", "Connecting your grandpa"],
         goal: new Map([["Graphene", 300]]),
-        rewards: [{ type: RewardType.MONEY, amount: 5000 }, { type: RewardType.CRAFT, craft: ["Copper", "Polymer", "Polymer Plate", "Copper Wire"] }]
+        rewards: [{ type: RewardType.MONEY, amount: 2000 }, { type: RewardType.CRAFT, craft: ["Copper", "Polymer", "Polymer Plate", "Copper Wire"] }]
     }],
     ["That's some good structure", {
         name: "That's some good structure",

@@ -9,7 +9,6 @@ import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } fr
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
 const removeTileEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("removeTile") as RemoteEvent;
-const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 const rotateTile = ReplicatedStorage.WaitForChild("Events").WaitForChild("rotateTile") as RemoteEvent;
 
 enum placementType {
@@ -52,8 +51,11 @@ class PlacementHandler {
         this.placedObjects = this.gridBase.FindFirstChild("PlacedObjects") as Folder
         this.rotation = math.rad(this.gridBase.Orientation.Y)
 
-        sendTileGrid.OnClientEvent.Connect((tileGrid: string) => {this.tileGrid = TileGrid.decode(tileGrid)});
         this.activateInteracting();
+    }
+
+    setTileGrid(tileGrid: TileGrid) {
+        this.tileGrid = tileGrid;
     }
 
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {

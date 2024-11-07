@@ -4,6 +4,9 @@ import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileE
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 import { getImage } from "./imageUtils";
 import { BLUE, GRAY } from "ReplicatedStorage/parameters";
+import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
+import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
+import { getPlacedGenerator } from "ReplicatedStorage/Scripts/gridTileUtils";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
 
@@ -12,6 +15,7 @@ const TRANSPARENCE_TIME = 0.8;
 export class Hotbar {
     private hotbar;
     private placementHandler: PlacementHandler;
+    private tileGrid: TileGrid | undefined;
 
     private currentSlot: number | undefined;
     private itemName = hotbarFrame.WaitForChild("itemName") as itemName;
@@ -27,6 +31,10 @@ export class Hotbar {
                 this.activatePlacingFromHotbar(i, this.placementHandler);
             });
         }
+    }
+
+    setTileGrid(tileGrid: TileGrid) {
+        this.tileGrid = tileGrid;
     }
 
     public getSlot(slotIndex: number): HotbarSlot {
@@ -87,25 +95,41 @@ export class Hotbar {
         this.currentSlot = index;
     }
 
+    tilePlaced() {
+        if (this.currentSlot === undefined) return;
+        if (getTileEntityInformation(this.getSlot(this.currentSlot).getPart()!.Name).category === "generator") this.showItemName(this.currentSlot);
+    }
+
     showItemName(index: number) {
         if (this.tweenCoroutine && coroutine.status(this.tweenCoroutine) === "suspended") {
             coroutine.close(this.tweenCoroutine)
         }
-        this.itemName.itemName.Text = getShowingNameFromPartName(this.getSlot(index).getPart()!.Name);
-        this.itemName.itemName.Transparency = 0;
+        this.itemName["1itemName"].Text = getShowingNameFromPartName(this.getSlot(index).getPart()!.Name);
+        const entityInfo = getTileEntityInformation(this.getSlot(index).getPart()!.Name);
+        this.itemName["2price"].TextLabel.Text = tostring(entityInfo.category === "generator" ? Generator.getPrice(getPlacedGenerator(this.tileGrid!)) : this.getSlot(index).getPrice()!);
+
+        this.itemName["1itemName"].TextTransparency = 0;
         this.itemName.UIStroke.Transparency = 0;
+        this.itemName.BackgroundTransparency = 0;
+        this.itemName["2price"].TextLabel.TextTransparency = 0;
+        this.itemName["2price"].ImageLabel.ImageTransparency = 0;
 
         this.tweenCoroutine = coroutine.create(() => {
             const FPS = 1 / 60
             wait(1);
-            while (this.itemName.itemName.Transparency < 1) {
+            while (this.itemName["1itemName"].TextTransparency < 1) {
                 wait(FPS);
-                this.itemName.itemName.Transparency += FPS * (1 / TRANSPARENCE_TIME);
+                this.itemName["1itemName"].TextTransparency += FPS * (1 / TRANSPARENCE_TIME);
                 this.itemName.UIStroke.Transparency += FPS * (1 / TRANSPARENCE_TIME);
-
+                this.itemName.BackgroundTransparency += FPS * (1 / TRANSPARENCE_TIME);
+                this.itemName["2price"].TextLabel.TextTransparency += FPS * (1 / TRANSPARENCE_TIME);
+                this.itemName["2price"].ImageLabel.ImageTransparency += FPS * (1 / TRANSPARENCE_TIME);
             }
-            this.itemName.itemName.Transparency = 1;
+            this.itemName["1itemName"].TextTransparency = 1;
             this.itemName.UIStroke.Transparency = 1;
+            this.itemName.BackgroundTransparency = 1;
+            this.itemName["2price"].TextLabel.TextTransparency = 1;
+            this.itemName["2price"].ImageLabel.ImageTransparency = 1;
         })
         coroutine.resume(this.tweenCoroutine);
     }
