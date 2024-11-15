@@ -1,6 +1,6 @@
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { decodeVector2, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 
 // Settings
 const MAX_INPUTS = 4;

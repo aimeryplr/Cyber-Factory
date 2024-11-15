@@ -8,6 +8,8 @@ import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
 import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
 import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
 import { Menu } from "./menu";
+import { FormatCompact } from "@rbxts/format-number";
+import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -77,7 +79,7 @@ class AssemblerMenu implements Menu {
             newComponent.Name = componentName;
             (newComponent.FindFirstChild("itemName")! as TextLabel).Text = componentName;
             (newComponent.FindFirstChild("itemImage")! as ImageLabel).Image = getImage(component);
-            (newComponent.FindFirstChild("price")!.FindFirstChild("price")! as TextLabel).Text = tostring(component.price);
+            (newComponent.FindFirstChild("price")!.FindFirstChild("price")! as TextLabel).Text = formatCompact(component.price);
             newComponent.Parent = this.menu.searchCraft;
 
             newComponent.MouseButton1Click.Connect(() => {
@@ -109,18 +111,19 @@ class AssemblerMenu implements Menu {
         const resourceFrame = this.menu.craft.progression["1itemIn"]
 
         this.menu.craft.itemName.Text = component.name;
-        this.menu.craft.itemName.price.TextLabel.Text = component.price as unknown as string;
+        this.menu.craft.itemName.price.TextLabel.Text = FormatCompact(component.price);
         this.menu.craft.progression["3itemOut"].Image = getImage(component);
+        this.menu.craft.progression["3itemOut"].speed.Text = component.speed * component.amount + "/min";
 
         let i = 0;
         for (const [resource, quantity] of component.buildRessources) {
             const componentInImg = entitiesList.get(resource);
             const resourceImage = resourceFrame.GetChildren()[i] as ImageLabel;
             resourceImage.Image = getImage(componentInImg);
+            (resourceImage.FindFirstChild("speed") as TextLabel)!.Text = quantity * component.speed + "/min"
             resourceImage.Name = resource;
             i++;
         }
-        this.menu.craft.speed.Text = component.speed + "/min";
     }
 
     removeBorder() {

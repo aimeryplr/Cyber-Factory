@@ -2,7 +2,7 @@ import { TileEntity } from "../tileEntity";
 import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContentToArrayPart } from "../conveyerUtils";
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 

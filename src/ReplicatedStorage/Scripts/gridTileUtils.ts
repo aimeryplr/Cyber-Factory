@@ -7,7 +7,7 @@ import Merger from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/me
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import type { TileGrid } from "./gridTile";
-import { decodeArray } from "ReplicatedStorage/Scripts/encoding";
+import { decodeArray } from "ReplicatedStorage/Scripts/Utils/encoding";
 
 function decodeTile(decoded: unknown) {
     const data = decoded as { category: string }

@@ -10,3 +10,4 @@ export const BLUE = Color3.fromHex("2e8fde");
 export const GRAY = Color3.fromHex("262626");
 export const PINK = Color3.fromHex("ff4d6d");
 export const DEFAULT_HOTBAR = new Map<string, number>([["conveyor", 0], ["generator", 1], ["seller", 2], ["splitter", 3], ["merger", 4], ["crafter", 5], ["assembler", 6]]);
+export const EARNING_MEAN_TIME = 12;

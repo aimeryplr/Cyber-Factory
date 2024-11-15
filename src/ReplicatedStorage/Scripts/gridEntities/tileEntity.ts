@@ -135,7 +135,6 @@ abstract class TileEntity extends Tile {
     }
 
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
-        if (neighbourTile.category === "splitter") return this.direction === neighbourTileDirection.mul(-1)
         return neighbourTile.direction === neighbourTileDirection.mul(-1)
     }
 

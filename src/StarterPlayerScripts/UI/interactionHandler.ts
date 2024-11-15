@@ -14,6 +14,7 @@ import { Hotbar } from "./hotbar";
 import { DEFAULT_HOTBAR, DESTROY_MODE_KEY, ROTATE_KEY, TERMINATE_KEY } from "ReplicatedStorage/parameters";
 import { isMouseInMenu, Menu } from "./menu";
 import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
+import CounterUpdater from "./counterUpdater";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
@@ -28,6 +29,7 @@ class InteractionHandler {
     private placementHandler: PlacementHandler;
 
     private questBoard = new QuestBoard(Players.LocalPlayer);
+    private counterUpdater = new CounterUpdater();
     private generatorMenu = new GeneratorMenu(Players.LocalPlayer);
     private crafterMenu = new CrafterMenu(Players.LocalPlayer);
     private assemblerMenu = new AssemblerMenu(Players.LocalPlayer);
@@ -75,7 +77,7 @@ class InteractionHandler {
 
         if (input && input.UserInputType === TERMINATE_KEY && this.placementHandler.placementStatus === placementType.INTERACTING) {
             this.interact();
-        } else if (UserInputService.GetMouseButtonsPressed()[0] && UserInputService.GetMouseButtonsPressed()[0].UserInputType === TERMINATE_KEY) {
+        } else if (UserInputService.GetMouseButtonsPressed()[0] && UserInputService.GetMouseButtonsPressed()[0].UserInputType === TERMINATE_KEY && this.placementHandler.placementStatus !== placementType.INTERACTING) {
             if (isMouseInMenu(screenGui.FindFirstChild("hotbar") as Frame)) return;
             this.placementHandler.destroyObject();
             this.placementHandler.placeObject();
@@ -87,6 +89,7 @@ class InteractionHandler {
             this.placementHandler.rotate();
         }
         if (input.KeyCode === DESTROY_MODE_KEY) {
+            this.hotbar.deselectAllSlots();
             this.placementHandler.activateDestroying();
         }
 

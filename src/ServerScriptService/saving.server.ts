@@ -1,5 +1,5 @@
 import { Players } from "@rbxts/services";
-import { getPlayerData, playerData, savePlayerData } from "./datastore";
+import { getPlayerData } from "./datastore";
 
 
 Players.PlayerAdded.Connect((player) => {

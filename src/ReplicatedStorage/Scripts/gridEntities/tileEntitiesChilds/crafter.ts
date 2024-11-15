@@ -1,6 +1,6 @@
 import { Component, Entity, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 
@@ -76,7 +76,7 @@ class Crafter extends TileEntity {
     }
 
     static decode(decoded: unknown): Crafter {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed:number, isCrafting:boolean, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, isCrafting: boolean, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = data.resource;

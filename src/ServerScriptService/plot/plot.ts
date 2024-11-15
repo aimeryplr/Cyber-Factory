@@ -92,17 +92,18 @@ class Plot {
 				}
 				this.quests.remove(i);
 				if (this.quests.isEmpty()) {
-					this.claimTierReward(getPlayerFromUserId(this.owner as number), quest.tier);
+					this.claimTierReward(quest.tier);
 				}
 			}
 		}
 		playerQuestEvent.FireClient(getPlayerFromUserId(this.owner as number), this.quests);
 	}
 
-	claimTierReward(player: Player, tier: number) {
-		this.setQuests(getQuestFromQuestNodes(questTreeArray[tier].roots));
-		this.claimRewards(tierList[tier - 1].rewards);
-
+	claimTierReward(tier: number) {
+		for (const quest of getQuestFromQuestNodes(questTreeArray[tier].roots)) {
+			this.addQuest(quest)
+		}
+		this.claimRewards(tierList[tier].rewards);
 	}
 
 	private claimRewards(rewards: Reward[]) {
@@ -214,6 +215,13 @@ class Plot {
 		this.tileGrid.tileGrid = tileGrid.tileGrid;
 
 		this.loadGridBaseparts();
+		
+		coroutine.wrap(() => {
+			for (let i = 0; i < 10; i++) {
+				wait(1);
+				resetBeamsOffset(this.gridBase);
+			}
+		})();
 	}
 
 	loadGridBaseparts() {
@@ -222,7 +230,7 @@ class Plot {
 
 			if (tile instanceof Conveyor) tile.content = []; // change to spawn immediatly the content
 
-			const basepart = findBasepartByName(tile.name).Clone();
+			const basepart = findBasepartByName(tile.name);
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
 			if (tile instanceof TileEntity) tile.updateShape(this.gridBase)
 

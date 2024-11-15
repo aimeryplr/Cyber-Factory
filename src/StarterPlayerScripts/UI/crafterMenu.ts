@@ -113,7 +113,8 @@ class CrafterMenu implements Menu {
         this.menu.craft.itemName.price.TextLabel.Text = component.price as unknown as string;
         this.menu.craft.progression["3itemOut"].Image = getImage(component);
         this.menu.craft.progression["1itemIn"].Image = getImage(componentInImg);
-        this.menu.craft.speed.Text = component.speed + "/min";
+        this.menu.craft.progression["3itemOut"].speed.Text = component.speed * component.amount + "/min";
+        this.menu.craft.progression["1itemIn"].speed.Text = compBuildRessource[1] * component.speed + "/min";
     }
 
     removeBorder() {
@@ -156,15 +157,15 @@ class CrafterMenu implements Menu {
         if (!this.tileEntity) return
 
         if (!this.tileEntity.currentCraft) {
-            this.menu.craft.progression["1itemIn"].TextLabel.Text = "0/0";
-            this.menu.craft.progression["3itemOut"].TextLabel.Text = "0/0";
+            this.menu.craft.progression["1itemIn"].amount.Text = "0/0";
+            this.menu.craft.progression["3itemOut"].amount.Text = "0/0";
             return;
         }
 
         const [amountIn] = this.tileEntity.currentCraft.buildRessources
 
-        this.menu.craft.progression["1itemIn"].TextLabel.Text = (tostring(this.tileEntity.resource) ?? "0") + "/" + tostring(amountIn[1]);
-        this.menu.craft.progression["3itemOut"].TextLabel.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
+        this.menu.craft.progression["1itemIn"].amount.Text = (tostring(this.tileEntity.resource) ?? "0") + "/" + tostring(amountIn[1]);
+        this.menu.craft.progression["3itemOut"].amount.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
     }
 
     public isVisible(): boolean {

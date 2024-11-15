@@ -7,7 +7,7 @@ const entitiesList: Map<string, Entity> = new Map([
         price: 5,
         speed: 60,
         tier: 1,
-        img: "137293900370769"
+        img: "93301290863222"
     }],
     ["Copper", {
         name: "Copper",
@@ -33,7 +33,7 @@ const entitiesList: Map<string, Entity> = new Map([
         tier: 2,
         amount: 1,
         buildRessources: new Map([["Carbon", 1]]),
-        img: "121133500136214"
+        img: "137293900370769"
     }],
     ["Carbon Tube", {
         name: "Carbon Tube",
@@ -73,7 +73,7 @@ const entitiesList: Map<string, Entity> = new Map([
         tier: 3,
         amount: 1,
         buildRessources: new Map([["Copper Wire", 1]]),
-        img: "132068672463196"
+        img: "83365248520022"
     }],
     ["Polymer Plate", {
         name: "Polymer Plate",
@@ -93,7 +93,7 @@ const entitiesList: Map<string, Entity> = new Map([
         tier: 4,
         amount: 4,
         buildRessources: new Map([["Polymer Plate", 4], ["Carbon Plate", 1]]),
-        img: "117139242770582"
+        img: "72135719150285"
     }],
     ["Reinforced Tube", {
         name: "Reinforced Tube",
@@ -103,7 +103,7 @@ const entitiesList: Map<string, Entity> = new Map([
         tier: 4,
         amount: 1,
         buildRessources: new Map([["Copper Wire", 1], ["Carbon Tube", 1]]),
-        img: "78163969660914"
+        img: "80960427076344"
     }],
     ["Reinforced Wire", {
         name: "Reinforced Wire",
@@ -113,18 +113,18 @@ const entitiesList: Map<string, Entity> = new Map([
         tier: 4,
         amount: 1,
         buildRessources: new Map([["Carbon Tube", 1], ["Copper Wire", 1]]),
-        img: "78163969660914"
+        img: "99029709439290"
     }],
-    ["Transistor", {
-        name: "Transistor",
-        type: EntityType.MODULE,
-        price: 500,
-        speed: 20,
-        tier: 5,
-        amount: 1,
-        buildRessources: new Map([["Copper Wire", 1], ["Graphene", 2]]),
-        img: "78163969660914"
-    }],
+    // ["Transistor", {
+    //     name: "Transistor",
+    //     type: EntityType.MODULE,
+    //     price: 500,
+    //     speed: 20,
+    //     tier: 5,
+    //     amount: 1,
+    //     buildRessources: new Map([["Copper Wire", 1], ["Graphene", 2]]),
+    //     img: "78163969660914"
+    // }],
 ]);
 
 function calculateBalancedPrice(entity: Entity): number {

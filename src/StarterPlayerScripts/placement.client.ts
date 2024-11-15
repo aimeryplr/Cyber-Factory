@@ -1,5 +1,6 @@
 import { ReplicatedStorage, Players } from "@rbxts/services";
 import InteractionHandler from "./UI/interactionHandler";
+import { FormatAsBinaryIEEE, FormatCompact } from "@rbxts/format-number";
 
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;

@@ -23,7 +23,7 @@ export const questList: Map<string, Quest> = new Map([
         tier: 1,
         nextQuests: ["And some more and more Carbon"],
         goal: new Map([["Carbon Plate", 60]]),
-        rewards: [{ type: RewardType.MONEY, amount: 500 }, { type: RewardType.CRAFT, craft: ["Graphene, Carbon Tube"] }]
+        rewards: [{ type: RewardType.MONEY, amount: 500 }, { type: RewardType.CRAFT, craft: ["Graphene", "Carbon Tube"] }]
     }],
     ["And some more and more Carbon", {
         name: "And some more and more Carbon",
@@ -96,10 +96,9 @@ for (let i = 0; i < tierList.size(); i++) {
     const questTree = new QuestTree([]);
     questTreeArray.push(questTree);
     for (const questName of tier.nextQuests) {
-        questTree.addRoot(questListNode[i].find(questNode => questNode.quest.name === questName)!);
+        questTree.addRoot(questListNode[i+1].find(questNode => questNode.quest.name === questName)!);
     }
 }
-
 
 for (const tierQuestNode of questListNode) {
     for (const questNode of tierQuestNode) {

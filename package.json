@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@rbxts/cmdr": "^1.12.1",
+    "@rbxts/format-number": "^3.0.9-b3",
     "@rbxts/fusion": "^0.2.0",
     "@rbxts/services": "^1.5.5"
   }

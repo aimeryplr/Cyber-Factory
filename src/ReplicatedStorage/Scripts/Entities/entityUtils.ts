@@ -1,5 +1,5 @@
 import { ReplicatedStorage } from "@rbxts/services";
-import { Component, Entity, EntityType } from "./entity";
+import { Entity } from "./entity";
 import { entitiesList } from "./EntitiesList";
 
 /**

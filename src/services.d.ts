@@ -72,11 +72,33 @@ type generatorMenu = Frame & {
 	};
 }
 
-
 type crafterMenu = Frame & {
 	UICorner: UICorner;
 	craft: Frame & {
-		speed: TextLabel;
+		progression: Frame & {
+			UIListLayout: UIListLayout;
+			["1itemIn"]: ImageLabel & {
+				amount: TextLabel;
+				UICorner: UICorner;
+				UIStroke: UIStroke;
+				UIAspectRatioConstraint: UIAspectRatioConstraint;
+				speed: TextLabel;
+			};
+			["2progressionBar"]: Frame & {
+				UICorner: UICorner;
+				UIStroke: UIStroke;
+				bar: Frame & {
+					UICorner: UICorner;
+				};
+			};
+			["3itemOut"]: ImageLabel & {
+				amount: TextLabel;
+				UICorner: UICorner;
+				UIStroke: UIStroke;
+				UIAspectRatioConstraint: UIAspectRatioConstraint;
+				speed: TextLabel;
+			};
+		};
 		itemName: TextLabel & {
 			UIAspectRatioConstraint: UIAspectRatioConstraint;
 			price: Frame & {
@@ -87,31 +109,10 @@ type crafterMenu = Frame & {
 				};
 			};
 		};
-		progression: Frame & {
-			UIListLayout: UIListLayout;
-			["1itemIn"]: ImageLabel & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-				TextLabel: TextLabel;
-				UIAspectRatioConstraint: UIAspectRatioConstraint;
-			};
-			["2progressionBar"]: Frame & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-				bar: Frame & {
-					UICorner: UICorner;
-				};
-			};
-			["3itemOut"]: ImageLabel & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-				TextLabel: TextLabel;
-				UIAspectRatioConstraint: UIAspectRatioConstraint;
-			};
-		};
 	};
 	searchCraft: ScrollingFrame & {
 		UIListLayout: UIListLayout;
+		UIPadding: UIPadding;
 	};
 	toptop: Frame & {
 		top: Frame;
@@ -129,17 +130,6 @@ type crafterMenu = Frame & {
 type assemblerMenu = Frame & {
 	UICorner: UICorner;
 	craft: Frame & {
-		speed: TextLabel;
-		itemName: TextLabel & {
-			UIAspectRatioConstraint: UIAspectRatioConstraint;
-			price: Frame & {
-				UIListLayout: UIListLayout;
-				TextLabel: TextLabel;
-				ImageLabel: ImageLabel & {
-					UIAspectRatioConstraint: UIAspectRatioConstraint;
-				};
-			};
-		};
 		progression: Frame & {
 			UIListLayout: UIListLayout;
 			["1itemIn"]: Frame & {
@@ -153,16 +143,33 @@ type assemblerMenu = Frame & {
 				};
 			};
 			["3itemOut"]: ImageLabel & {
+				TextLabel: TextLabel;
 				UICorner: UICorner;
 				UIStroke: UIStroke;
 				UIAspectRatioConstraint: UIAspectRatioConstraint;
+				speed: TextLabel;
+			};
+		};
+		itemName: TextLabel & {
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
+			price: Frame & {
+				UIListLayout: UIListLayout;
 				TextLabel: TextLabel;
+				ImageLabel: ImageLabel & {
+					UIAspectRatioConstraint: UIAspectRatioConstraint;
+				};
 			};
 		};
 	};
 	searchCraft: ScrollingFrame & {
 		UIListLayout: UIListLayout;
 		UIPadding: UIPadding;
+		TextButton: TextButton & {
+			UIAspectRatioConstraint: UIAspectRatioConstraint;
+			ImageLabel: ImageLabel & {
+				UIAspectRatioConstraint: UIAspectRatioConstraint;
+			};
+		};
 	};
 	toptop: Frame & {
 		top: Frame;

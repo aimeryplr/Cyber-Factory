@@ -4,7 +4,7 @@ import { addBackContent, moveItemsInArray, removeSegment, transferArrayContent }
 import { findBasepartByName } from "../tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 
 //Setings
@@ -64,7 +64,7 @@ class Conveyor extends TileEntity {
     getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
         const conveyerBasepart = tilePart ?? this.findThisPartInWorld(gridBase);
 
-        if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity && this.inputTiles[0].category !== "splitter") {
+        if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity) {
             const isTurningConveyer = this.getIsTurning();
             const isAlreadyTurningConveyer = conveyerBasepart?.Name.match('/T|TR/') !== undefined;
 
@@ -97,7 +97,15 @@ class Conveyor extends TileEntity {
 
     getIsTurning() {
         if (this.inputTiles.isEmpty()) return false;
+
+        const neighbourDirection = this.position.sub(this.inputTiles[0].position) 
+        if (this.inputTiles[0].category === "splitter") return this.direction !== new Vector2(neighbourDirection.X, neighbourDirection.Z).Unit;
         return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
+    }
+
+    canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
+        if (neighbourTile.category === "splitter" && neighbourTileDirection.mul(-1) !== this.direction && neighbourTile.direction !== neighbourTileDirection) return true;
+        return neighbourTile.direction === neighbourTileDirection.mul(-1)
     }
 
     copy(): Conveyor {

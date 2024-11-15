@@ -45,7 +45,7 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         speed: 60,
         tier: 1,
         price: 500,
-        image: "",
+        image: "128911947018595",
     }],
     ["assembler", {
         name: "assembler",

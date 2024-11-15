@@ -1,6 +1,6 @@
 import { Entity, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { TileEntity } from "../tileEntity";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import tileEntitiesList from "../tileEntitiesList";
 
@@ -68,7 +68,7 @@ class Generator extends TileEntity {
     }
 
     static getPrice(timesPlaced: number): number {
-        return tileEntitiesList.get("generator")!.price * math.pow(timesPlaced + 1, 2);
+        return tileEntitiesList.get("generator")!.price * math.pow(2, timesPlaced);
     }
 }
 

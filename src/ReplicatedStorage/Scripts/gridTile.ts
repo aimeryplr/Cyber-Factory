@@ -1,7 +1,7 @@
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import { HttpService } from "@rbxts/services";
-import { decodeVector2, encodeVector2 } from "ReplicatedStorage/Scripts/encoding";
+import { decodeVector2, encodeVector2 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import { decodeTiles } from "ReplicatedStorage/Scripts/gridTileUtils";
 
@@ -125,7 +125,7 @@ class TileGrid {
             for (let j = 0; j < this.gridSize.X; j++) {
                 const currentTile = this.tileGrid[i][j];
                 if (!currentTile) continue;
-                
+
                 const isTileAlreadyInList = tiles.some((tile) => tile.position === currentTile.position)
                 if (!isTileAlreadyInList) {
                     tiles.push(currentTile);
@@ -162,7 +162,7 @@ class TileGrid {
 
     connectTiles() {
         for (const tile of this.getTiles()) {
-            this.connectTile(tile)    
+            this.connectTile(tile)
         }
     }
 
@@ -191,7 +191,7 @@ class TileGrid {
         }
     }
 
-    getAllEndingTiles() : Array<TileEntity> {
+    getAllEndingTiles(): Array<TileEntity> {
         const endingTiles = new Array<TileEntity>();
 
         for (const tile of this.getTiles()) {

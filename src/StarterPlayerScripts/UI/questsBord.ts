@@ -4,6 +4,7 @@ import { CraftReward, MoneyReward, Quest, Reward, RewardType, TileReward } from 
 import { questList } from "ReplicatedStorage/Scripts/quest/questList";
 import { getImage } from "./imageUtils";
 import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
+import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 const questboardPrefab = ReplicatedStorage.WaitForChild("prefab").WaitForChild("UI").WaitForChild("questBoard") as Frame;
@@ -83,7 +84,7 @@ export class QuestBoard {
 
     private addMoneyReward(reward: MoneyReward, rewardFrame: Frame) {
         const priceFrame = questboardPrefab.FindFirstChild("price")!.Clone() as Frame;
-        (priceFrame.FindFirstChild("TextLabel") as TextLabel)!.Text = tostring(reward.amount);
+        (priceFrame.FindFirstChild("TextLabel") as TextLabel)!.Text = formatCompact(reward.amount);
         priceFrame.Parent = rewardFrame;
     }
 

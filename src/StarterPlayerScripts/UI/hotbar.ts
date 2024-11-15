@@ -7,6 +7,7 @@ import { BLUE, GRAY } from "ReplicatedStorage/parameters";
 import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import { getPlacedGenerator } from "ReplicatedStorage/Scripts/gridTileUtils";
+import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
 
@@ -97,6 +98,8 @@ export class Hotbar {
 
     tilePlaced() {
         if (this.currentSlot === undefined) return;
+        if (this.placementHandler.placementStatus !== placementType.PLACING) return
+
         if (getTileEntityInformation(this.getSlot(this.currentSlot).getPart()!.Name).category === "generator") this.showItemName(this.currentSlot);
     }
 
@@ -106,7 +109,7 @@ export class Hotbar {
         }
         this.itemName["1itemName"].Text = getShowingNameFromPartName(this.getSlot(index).getPart()!.Name);
         const entityInfo = getTileEntityInformation(this.getSlot(index).getPart()!.Name);
-        this.itemName["2price"].TextLabel.Text = tostring(entityInfo.category === "generator" ? Generator.getPrice(getPlacedGenerator(this.tileGrid!)) : this.getSlot(index).getPrice()!);
+        this.itemName["2price"].TextLabel.Text = formatCompact(entityInfo.category === "generator" ? Generator.getPrice(getPlacedGenerator(this.tileGrid!)) : this.getSlot(index).getPrice()!);
 
         this.itemName["1itemName"].TextTransparency = 0;
         this.itemName.UIStroke.Transparency = 0;
