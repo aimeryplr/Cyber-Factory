@@ -3,12 +3,14 @@ import { TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
+import { Efficiency } from "../efficiency";
 
 // Settings
 const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 1;
 const MAX_CAPACITY = 20;
 const category: string = "crafter";
+const EFFICIENCY_HISTORY_SIZE = 10;
 
 
 class Crafter extends TileEntity {
@@ -18,6 +20,7 @@ class Crafter extends TileEntity {
     isCrafting = false;
     lastCraftingProgress = 0;
     private craftingCoroutine: thread | undefined;
+    private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -25,7 +28,7 @@ class Crafter extends TileEntity {
 
     tick(progress: number): void {
         if (this.getCraftingProgress(progress) < this.lastCraftingProgress) {
-            this.craft();
+            this.efficiency.addSuccess(this.craft());
         }
         if (this.getProgress(progress) < this.lastProgress) {
             if (!this.currentCraft) return;
@@ -36,13 +39,18 @@ class Crafter extends TileEntity {
         this.lastProgress = this.getProgress(progress);
     }
 
-    private sendItemCrafted(): void {
-        if (this.outputTiles.isEmpty()) return;
-        if (this.craftedComponent === 0) return;
+    private sendItemCrafted(): boolean {
+        if (this.outputTiles.isEmpty()) return false;
+        if (this.craftedComponent === 0) return false;
 
         this.craftedComponent--;
-        this.craftedComponent += this.outputTiles[0].addEntity([table.clone(this.currentCraft!)]).size()
-        return
+        const addedEntity = this.outputTiles[0].addEntity([table.clone(this.currentCraft!)])
+        if (!addedEntity.isEmpty()) {
+            this.craftedComponent++;
+            return false
+        }
+
+        return true;
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -70,13 +78,14 @@ class Crafter extends TileEntity {
             "resource": this.resource,
             "craftedComponent": this.craftedComponent,
             "lastProgress": this.lastProgress,
+            "efficiency": this.efficiency.encode(),
             "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }
     }
 
     static decode(decoded: unknown): Crafter {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, isCrafting: boolean, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, isCrafting: boolean, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, efficiency: { efficiency: number, successHistory: boolean[], successHistorySize: number; }, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = data.resource;
@@ -85,6 +94,7 @@ class Crafter extends TileEntity {
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         crafter.lastProgress = data.lastProgress;
+        crafter.efficiency = data.efficiency ? Efficiency.decode(data.efficiency) : new Efficiency(EFFICIENCY_HISTORY_SIZE);
         return crafter;
     }
 
@@ -102,6 +112,10 @@ class Crafter extends TileEntity {
 
     getNewShape(): BasePart | undefined {
         return;
+    }
+
+    public getEfficiency(): number {
+        return this.efficiency.getEfficiency();
     }
 
     public setCraft(craft: Component) {
@@ -129,10 +143,10 @@ class Crafter extends TileEntity {
         return this.resource >= ressource[1]
     }
 
-    private craft(): void {
-        if (!this.currentCraft) return;
-        if (this.craftedComponent >= MAX_CAPACITY) return;
-        if (!this.canCraft()) return;
+    private craft(): boolean {
+        if (!this.currentCraft) return false;
+        if (this.craftedComponent >= MAX_CAPACITY) return false;
+        if (!this.canCraft()) return false;
 
         const [resource] = this.currentCraft.buildRessources
         this.resource -= resource[1];
@@ -143,6 +157,7 @@ class Crafter extends TileEntity {
             this.isCrafting = false;
         });
         coroutine.resume(this.craftingCoroutine);
+        return true
     }
 
     getCraftingProgress(progress: number): number {

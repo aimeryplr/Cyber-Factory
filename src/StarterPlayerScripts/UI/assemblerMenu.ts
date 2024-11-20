@@ -171,6 +171,7 @@ class AssemblerMenu implements Menu {
                 if (!child.IsA("ImageLabel")) continue;
                 (child.FindFirstChild("TextLabel") as TextLabel)!.Text = "0/0";
             }
+            (this.menu.craft.FindFirstChild("efficiency")!.FindFirstChild("efficiency") as TextLabel)!.Text = tostring(math.floor(this.tileEntity.getEfficiency() * 100)) + "%"
             progression["3itemOut"].TextLabel.Text = "0/0";
             return;
         }

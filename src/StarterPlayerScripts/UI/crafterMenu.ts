@@ -8,6 +8,7 @@ import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
 import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
 import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
 import { Menu } from "./menu";
+import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -47,7 +48,7 @@ class CrafterMenu implements Menu {
         this.loadCraftList();
 
         if (this.tileEntity.currentCraft) {
-            (this.menu.searchCraft.FindFirstChild(this.tileEntity.currentCraft.name) as TextButton)!.BorderSizePixel = 4;
+            (this.menu.searchCraft.FindFirstChild(this.tileEntity.currentCraft.name) as TextButton)!.BorderSizePixel = 2;
             this.setupCraft(this.tileEntity.currentCraft);
             this.setupProgressBar();
         }
@@ -162,8 +163,9 @@ class CrafterMenu implements Menu {
             return;
         }
 
-        const [amountIn] = this.tileEntity.currentCraft.buildRessources
+        const [amountIn] = this.tileEntity.currentCraft.buildRessources;
 
+        (this.menu.craft.FindFirstChild("efficiency")!.FindFirstChild("efficiency") as TextLabel).Text = tostring(math.floor(this.tileEntity.getEfficiency() * 100)) + "%";
         this.menu.craft.progression["1itemIn"].amount.Text = (tostring(this.tileEntity.resource) ?? "0") + "/" + tostring(amountIn[1]);
         this.menu.craft.progression["3itemOut"].amount.Text = (tostring(this.tileEntity.craftedComponent) ?? "0") + "/" + tostring(this.tileEntity.currentCraft.amount);
     }

@@ -10,10 +10,10 @@ const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("
 const questboardPrefab = ReplicatedStorage.WaitForChild("prefab").WaitForChild("UI").WaitForChild("questBoard") as Frame;
 
 export class QuestBoard {
-    questBoard: Frame;
+    questBoard: questBoard;
 
     constructor(player: Player) {
-        this.questBoard = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("questBoard") as Frame;
+        this.questBoard = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("questBoard") as questBoard;
 
         playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => {
             this.loadQuests(quests);
@@ -21,7 +21,7 @@ export class QuestBoard {
     }
 
     private destroyQuests() {
-        for (const child of this.questBoard.GetChildren()) {
+        for (const child of this.questBoard.quests.GetChildren()) {
             if (!child.Name.find("2").isEmpty()) child.Destroy();
         }
     }
@@ -41,7 +41,7 @@ export class QuestBoard {
             this.addReward(reward, questFrame);
         }
 
-        questFrame.Parent = this.questBoard;
+        questFrame.Parent = this.questBoard.quests;
     }
 
     private addReward(reward: Reward, questFrame: Frame) {

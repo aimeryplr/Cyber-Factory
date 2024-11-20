@@ -5,6 +5,7 @@ import { TileEntity } from "./gridEntities/tileEntity";
 import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/tileEntityUtils";
 import { getTileEntityByCategory, getTileEntityInformation, isMachine } from "./gridEntities/tileEntityProvider";
 import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
+import { getSoundEffect, playSoundEffectAtRandomPitch, playSoundEffectWithoutStopping } from "./Utils/playSound";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -40,6 +41,7 @@ class PlacementHandler {
     tileName: string | undefined;
 
     isCurrentltyPlacing: boolean = false;
+    isClicking: boolean = false;
 
     // Bools
     placementStatus = placementType.INTERACTING;
@@ -61,12 +63,14 @@ class PlacementHandler {
     private calculateObjectPos(obj: BasePart): Vector3 | undefined {
         assert(this.currentTile, "Object not found");
         const mouseRay = this.mouse.UnitRay;
-        const castRay = new Ray(mouseRay.Origin, mouseRay.Direction.mul(1000));
-        const ignoreList = [obj, Players.LocalPlayer.Character!];
-        const [hit, position] = Workspace.FindPartOnRayWithIgnoreList(castRay, ignoreList);
-        const localPos = position.sub(this.gridBase.Position);
+        const raycastParameters = new RaycastParams();
+        raycastParameters.FilterType = Enum.RaycastFilterType.Include
+        raycastParameters.FilterDescendantsInstances = [this.gridBase];
 
-        if (hit === this.gridBase) {
+        const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(1000), raycastParameters);
+        const localPos = raycastResult!.Position.sub(this.gridBase.Position);
+
+        if (raycastResult) {
             let x = math.floor(localPos.X / GRID_SIZE) * GRID_SIZE;
             const y = this.gridBase.Size.Y / 2 + obj.Size.Y / 2;
             let z = math.floor(localPos.Z / GRID_SIZE) * GRID_SIZE;
@@ -337,10 +341,15 @@ class PlacementHandler {
     }
 
     placeObject() {
-        if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING || this.isCurrentltyPlacing) return;
-        if (this.selectionTile && this.selectionTile.SurfaceColor3 === new Color3(1, 0, 0)) return;
-        this.isCurrentltyPlacing = true;
-        placeTileCheck.InvokeServer(this.tileName, this.targetPos, -this.rotation , this.size, this.gridBase)
+        if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
+        if (this.selectionTile && this.selectionTile.SurfaceColor3 === new Color3(1, 0, 0)) {
+            if (!this.isClicking) playSoundEffectWithoutStopping(getSoundEffect("error"));
+        } 
+        else if (!this.isCurrentltyPlacing) {
+            this.isCurrentltyPlacing = true;
+            placeTileCheck.InvokeServer(this.tileName, this.targetPos, -this.rotation , this.size, this.gridBase)
+            playSoundEffectAtRandomPitch(getSoundEffect("placement"), 0.97, 1.03);
+        }
     }
 
     setupDestroying() {

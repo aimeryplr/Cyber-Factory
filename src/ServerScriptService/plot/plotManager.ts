@@ -2,13 +2,12 @@ import { getPlayerData } from "ServerScriptService/datastore";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import Plot from "./plot";
 import { HttpService, Players, ReplicatedStorage, RunService } from "@rbxts/services";
-import { getUnlockedTile, questList } from "ReplicatedStorage/Scripts/quest/questList";
-import { sendPlayerMessage, sendMessage as sendWebhookMessage } from "ServerScriptService/webhookMessageService";
+import { getUnlockedTile } from "ReplicatedStorage/Scripts/quest/questList";
+import { sendPlayerMessage } from "ServerScriptService/webhookMessageService";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 const playerQuest = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
-const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 
 /**
  * holds every plot in the game with a owner or not
@@ -75,6 +74,7 @@ class PlotManager {
     private setupPlots() {
         this.getPlots().forEach((plot) => {
             plot.getGridBase().Touched.Connect((part) => {
+                wait(0.2);
                 const player = Players.GetPlayerFromCharacter(part.Parent);
                 if (!player || this.hasPlayerClaimedPlot(player.UserId)) return;
                 const playerData = getPlayerData(player.UserId);

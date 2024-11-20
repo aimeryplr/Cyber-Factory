@@ -21,7 +21,7 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         tier: 1,
         speed: 1,
         price: 1000,
-        image: "",
+        image: "71422763354668",
     }],
     ["merger", {
         name: "merger",
@@ -29,7 +29,7 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         speed: 60,
         tier: 1,
         price: 150,
-        image: "",
+        image: "116731642169244",
     }],
     ["splitter", {
         name: "splitter",
@@ -37,7 +37,7 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         speed: 60,
         tier: 1,
         price: 150,
-        image: "",
+        image: "132392789948593",
     }],
     ["crafter", {
         name: "crafter",
@@ -53,6 +53,14 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         speed: 60,
         tier: 1,
         price: 500,
+        image: "",
+    }],
+    ["subConveyerInput", {
+        name: "subConveyerInput",
+        category: "subConveyer",
+        speed: 60,
+        tier: 1,
+        price: 2000,
         image: "",
     }]
 ]);

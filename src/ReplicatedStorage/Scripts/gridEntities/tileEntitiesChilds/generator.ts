@@ -3,14 +3,17 @@ import { TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import tileEntitiesList from "../tileEntitiesList";
+import { Efficiency } from "../efficiency";
 
 // Settings
 const MAX_INPUTS = 0;
 const MAX_OUTPUTS = 1;
 const category: string = "generator";
+const EFFICIENCY_HISTORY_SIZE = 10;
 
 class Generator extends TileEntity {
     ressource: Entity | undefined;
+    private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE);
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -23,7 +26,7 @@ class Generator extends TileEntity {
         if (this.getProgress(progress) < this.lastProgress) {
             if (this.outputTiles[0]) {
                 const ressourceToTransfer = [table.clone(this.ressource)];
-                this.outputTiles[0].addEntity(ressourceToTransfer);
+                this.efficiency.addSuccess(this.outputTiles[0].addEntity(ressourceToTransfer).isEmpty());
             }
         }
         this.lastProgress = this.getProgress(progress);
@@ -54,21 +57,27 @@ class Generator extends TileEntity {
             "direction": encodeVector2(this.direction),
             "ressource": this.ressource?.name,
             "lastProgress": this.lastProgress,
+            "efficiency": this.efficiency.encode(),
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }
     }
 
     static decode(decoded: unknown): Generator {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, ressource: string, lastProgress: number, outputTiles: Array<{ x: number, y: number, z: number }> }
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, ressource: string, lastProgress: number, efficiency: { efficiency: number, successHistory: boolean[], successHistorySize: number; }, outputTiles: Array<{ x: number, y: number, z: number }> }
         const generator = new Generator(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), 1);
         generator.lastProgress = data.lastProgress;
         if (data.ressource) generator.setRessource(entitiesList.get(data.ressource) as Entity);
+        generator.efficiency = data.efficiency ? Efficiency.decode(data.efficiency) : new Efficiency(EFFICIENCY_HISTORY_SIZE);
         generator.outputTiles = decodeVector3Array(data.outputTiles) as Array<TileEntity>;
         return generator;
     }
 
     static getPrice(timesPlaced: number): number {
         return tileEntitiesList.get("generator")!.price * math.pow(2, timesPlaced);
+    }
+
+    public getEfficiency(): number {
+        return this.efficiency.getEfficiency();
     }
 }
 

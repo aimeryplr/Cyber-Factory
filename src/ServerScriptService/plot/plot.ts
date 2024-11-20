@@ -11,7 +11,7 @@ import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
 import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/quest/quest";
 import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/quest/questUtils";
 import { getUnlockedTile, isQuestCompleted, questList, questTreeArray, tierList } from "ReplicatedStorage/Scripts/quest/questList";
-import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
+import { concat, getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
@@ -113,7 +113,7 @@ class Plot {
 					getMoneyReward(getPlayerFromUserId(this.owner!), reward.amount);
 					break;
 				case RewardType.TILE:
-					unlockedTileListEvent.FireClient(getPlayerFromUserId(this.owner!), getUnlockedTile(this.quests));
+					unlockedTileListEvent.FireClient(getPlayerFromUserId(this.owner!), concat(getUnlockedTile(this.quests), reward.tile));
 					break;
 			}
 		}

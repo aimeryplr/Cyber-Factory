@@ -2,12 +2,15 @@ import { Component, Entity, EntityType } from "ReplicatedStorage/Scripts/Entitie
 import { TileEntity } from "../tileEntity";
 import { decodeMap, decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
+import { Efficiency } from "../efficiency";
 
 // Settings
 const MAX_INPUTS = 2;
 const MAX_OUTPUTS = 1;
 const MAX_CAPACITY = 20;
 const category: string = "assembler";
+const EFFICIENCY_HISTORY_SIZE = 10;
+
 
 class Assembler extends TileEntity {
     currentCraft: Component | undefined;
@@ -15,7 +18,9 @@ class Assembler extends TileEntity {
     craftedComponent = 0;
     isCrafting = false;
     lastCraftingProgress = 0;
+    
     private craftingCoroutine: thread | undefined;
+    private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE)
 
     constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
@@ -35,20 +40,25 @@ class Assembler extends TileEntity {
         }
         if (this.getProgress(progress) < this.lastProgress) {
             if (!this.currentCraft) return;
-            this.sendItemCrafted();
+            this.efficiency.addSuccess(this.sendItemCrafted());
         };
 
         this.lastProgress = this.getProgress(progress);
         this.lastCraftingProgress = this.getCraftingProgress(progress);
     }
 
-    private sendItemCrafted(): void {
-        if (this.outputTiles.isEmpty()) return;
+    private sendItemCrafted(): boolean {
+        if (this.outputTiles.isEmpty()) return false;
 
-        if (this.craftedComponent === 0) return;
+        if (this.craftedComponent === 0) return false;
         this.craftedComponent--;
-        this.craftedComponent += this.outputTiles[0].addEntity([table.clone(this.currentCraft!)]).size()
-        return
+        
+        const addedEntity = this.outputTiles[0].addEntity([table.clone(this.currentCraft!)])
+        if (!addedEntity.isEmpty()) {
+            this.craftedComponent++;
+            return false
+        }
+        return true
     }
 
     addEntity(entities: Array<Entity>): Array<Entity> {
@@ -79,13 +89,14 @@ class Assembler extends TileEntity {
             "resource": this.resource,
             "craftedComponent": this.craftedComponent,
             "lastProgress": this.lastProgress,
+            "efficiency": this.efficiency.encode(),
             "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
             "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }
     }
 
     static decode(decoded: unknown): Assembler {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, resource: Map<string, number>, isCrafting: boolean, craftedComponent: number, currentCraft: string, lastProgress: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, resource: Map<string, number>, isCrafting: boolean, craftedComponent: number, currentCraft: string, lastProgress: number, efficiency: { efficiency: number, successHistory: boolean[], successHistorySize: number; }, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
         const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = decodeMap(data.resource) as Map<string, number>;
@@ -94,6 +105,7 @@ class Assembler extends TileEntity {
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         crafter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         crafter.lastProgress = data.lastProgress;
+        crafter.efficiency = data.efficiency ? Efficiency.decode(data.efficiency) : new Efficiency(EFFICIENCY_HISTORY_SIZE);
         return crafter;
     }
 
@@ -147,6 +159,10 @@ class Assembler extends TileEntity {
     getCraftingProgress(progress: number): number {
         if (!this.currentCraft) return 0;
         return (progress * (this.currentCraft.speed / 60)) % 1;
+    }
+
+    getEfficiency(): number {
+        return this.efficiency.getEfficiency();
     }
 }
 

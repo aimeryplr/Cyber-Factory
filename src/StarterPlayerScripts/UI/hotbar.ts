@@ -1,4 +1,4 @@
-import { Players, TweenService } from "@rbxts/services";
+import { Players, TweenService, Workspace } from "@rbxts/services";
 import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
@@ -92,7 +92,7 @@ export class Hotbar {
         slot.selectSlot();
 
         const playerMoney = Players.LocalPlayer!.FindFirstChild("leaderstats")!.FindFirstChild("Money") as NumberValue
-        placementHandler.activatePlacing(slot.getPart()!, slot.getPrice()!, playerMoney);
+        placementHandler.activatePlacing(slot.getPart()!, slot.getPrice(this.tileGrid)!, playerMoney);
         this.currentSlot = index;
     }
 
@@ -108,8 +108,7 @@ export class Hotbar {
             coroutine.close(this.tweenCoroutine)
         }
         this.itemName["1itemName"].Text = getShowingNameFromPartName(this.getSlot(index).getPart()!.Name);
-        const entityInfo = getTileEntityInformation(this.getSlot(index).getPart()!.Name);
-        this.itemName["2price"].TextLabel.Text = formatCompact(entityInfo.category === "generator" ? Generator.getPrice(getPlacedGenerator(this.tileGrid!)) : this.getSlot(index).getPrice()!);
+        this.itemName["2price"].TextLabel.Text = formatCompact(this.getSlot(index).getPrice(this.tileGrid)!);
 
         this.itemName["1itemName"].TextTransparency = 0;
         this.itemName.UIStroke.Transparency = 0;
@@ -141,28 +140,30 @@ export class Hotbar {
 class HotbarSlot {
     private slotFrame: Frame;
 
+    private info: {
+        name: string;
+        category: string;
+        tier: number;
+        price: number;
+        speed: number;
+        image: string;
+    } | undefined;
+
     private part: BasePart | undefined;
-    private image: string | undefined;
-    private price: number | undefined;
 
     constructor(index: number, tileName?: string) {
         this.slotFrame = hotbarFrame.WaitForChild("slots")!.WaitForChild(index)! as Frame;
         if (tileName) {
-            const info = getTileEntityInformation(tileName);
-
-            this.part = findBasepartByName(info.name);
-            this.image = info.image;
-            this.price = info.price;
+            this.info = getTileEntityInformation(tileName);
+            this.part = findBasepartByName(this.info.name);
         }
 
         this.setupSlot();
     }
 
     setSlot(tileName: string) {
-        const info = getTileEntityInformation(tileName);
-        this.part = findBasepartByName(info.name);
-        this.image = info.image;
-        this.price = info.price;
+        this.info = getTileEntityInformation(tileName);
+        this.part = findBasepartByName(this.info.name);
         this.setupSlot();
     }
 
@@ -177,7 +178,7 @@ class HotbarSlot {
     }
 
     public setupSlot() {
-        if (!this.image) {
+        if (!this.info || !this.info!.image) {
             (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = false;
         } else {
             (this.slotFrame.FindFirstChild("ImageButton") as ImageButton)!.Visible = true;
@@ -187,8 +188,7 @@ class HotbarSlot {
 
     public resetSlot() {
         this.part = undefined;
-        this.image = undefined;
-        this.price = undefined;
+        this.info = undefined;
         this.setupSlot();
     }
 
@@ -197,15 +197,18 @@ class HotbarSlot {
     }
 
     public getImage(): string {
-        return getImage(this.image);
+        return getImage(this.info!.image);
     }
 
     public isSlotEmpty(): boolean {
         return this.part === undefined;
     }
 
-    public getPrice(): number | undefined {
-        return this.price;
+    public getPrice(tileGrid?: TileGrid): number {
+        if (!tileGrid) return this.info!.price;
+        if (!this.info) return 0;
+
+        return this.info!.category === "generator" ? Generator.getPrice(getPlacedGenerator(tileGrid)) : this.info!.price;
     }
 
     public getSlotFrame(): Frame {

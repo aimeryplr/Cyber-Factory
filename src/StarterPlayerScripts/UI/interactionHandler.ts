@@ -59,6 +59,8 @@ class InteractionHandler {
 
     setUnlockedTiles(tiles: string[]): any {
         for (const tile of tiles) {
+            if(!DEFAULT_HOTBAR.get(tile)) continue;
+            
             this.hotbar.setSlotFromName(DEFAULT_HOTBAR.get(tile)!, tile);
         }
     }
@@ -75,14 +77,17 @@ class InteractionHandler {
         if (gameProcessed) return;
         if (!this.placementHandler) return;
 
-        if (input && input.UserInputType === TERMINATE_KEY && this.placementHandler.placementStatus === placementType.INTERACTING) {
-            this.interact();
+        if (input && input.UserInputType === TERMINATE_KEY) {
+            this.placementHandler.isClicking = false;
+            if (this.placementHandler.placementStatus === placementType.INTERACTING)  this.interact();
         } else if (UserInputService.GetMouseButtonsPressed()[0] && UserInputService.GetMouseButtonsPressed()[0].UserInputType === TERMINATE_KEY && this.placementHandler.placementStatus !== placementType.INTERACTING) {
             if (isMouseInMenu(screenGui.FindFirstChild("hotbar") as Frame)) return;
             this.placementHandler.destroyObject();
             this.placementHandler.placeObject();
+            this.placementHandler.isClicking = true;
             this.hotbar.tilePlaced()
         }
+
 
         if (!input) return;
         if (input.KeyCode === ROTATE_KEY) {

@@ -7,6 +7,7 @@ import Generator from "./tileEntitiesChilds/generator";
 import Seller from "./tileEntitiesChilds/seller";
 import { TileEntity } from "./tileEntity";
 import Merger from "./tileEntitiesChilds/merger";
+import { SubConveyerInput } from "./tileEntitiesChilds/subConveyer";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
@@ -16,7 +17,8 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "assembler": Assembler,
     "generator": Generator,
     "seller": Seller,
-    "merger": Merger
+    "merger": Merger,
+    "subConveyerInput": SubConveyerInput
 };
 
 /**

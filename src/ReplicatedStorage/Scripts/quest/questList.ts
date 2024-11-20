@@ -180,5 +180,6 @@ export function getUnlockedTile(quests: Quest[]): string[] {
 
     unlockedEntities = concat(unlockedEntities, questTreeArray[maxTier - 1].getUnlockedTile(quests));
 
+
     return concat(alreadyUnlockeTile, unlockedEntities);
 }

@@ -1,4 +1,4 @@
-import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
+import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
 import { getImage } from "./imageUtils";
@@ -74,7 +74,7 @@ class GeneratorMenu implements Menu {
         if (!ressource) return;
 
         (ressource.FindFirstChild("ImageButton")!.FindFirstChild("UIStroke")! as UIStroke).Transparency = 0;
-        this.menu.progression.speed.Text = generator.speed + "/min";
+        this.menu.progression["1speed"].Text = generator.speed + "/min";
     }
 
     destroyResources() {
@@ -130,33 +130,43 @@ class GeneratorMenu implements Menu {
         if (!this.tileEntity!.ressource) return this.resetBartween();
 
         const barTweenInfo = new TweenInfo(timeToFill * (1 - calculatedProgression), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
-        progression.progressionBar.bar.Size = new UDim2(calculatedProgression, 0, 1, 0);
-        const tween = TweenService.Create(progression.progressionBar.bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
+        progression["2progressionBar"].bar.Size = new UDim2(calculatedProgression, 0, 1, 0);
+        const tween = TweenService.Create(progression["2progressionBar"].bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
         tween.Play();
 
         tween.Completed.Connect(() => {
-            progression.progressionBar.bar.Size = new UDim2(0, 0, 1, 0);
+            progression["2progressionBar"].bar.Size = new UDim2(0, 0, 1, 0);
             const barTweenInfo = new TweenInfo(timeToFill, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1);
-            this.barTween = TweenService.Create(progression.progressionBar.bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
+            this.barTween = TweenService.Create(progression["2progressionBar"].bar, barTweenInfo, { Size: new UDim2(1, 0, 1, 0) });
             this.barTween.Play();
         });
     }
 
+    updateAmount() {
+        (this.menu.progression["3efficiency"].efficiency as TextLabel).Text = tostring(math.floor(this.tileEntity!.getEfficiency() * 100)) + "%";
+    }
+
     resetBartween(): void {
         this.barTween?.Cancel();
-        this.menu.progression.progressionBar.bar.Size = new UDim2(0, 0, 1, 0);
+        this.menu.progression["2progressionBar"].bar.Size = new UDim2(0, 0, 1, 0);
     }
 
     public show(): void {
         this.menu.Visible = true;
+        RunService.BindToRenderStep("generatorMenu", 1, () => {
+            if (!this.tileEntity) return;
+            this.tileEntity = Generator.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.updateAmount();
+        })
     }
-
+    
     public isVisible(): boolean {
         return this.menu.Visible;
     }
 
     public hide(): void {
         this.menu.Visible = false;
+        RunService.UnbindFromRenderStep("generatorMenu");
     }
 
     public getMenu(): Frame {

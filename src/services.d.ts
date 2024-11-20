@@ -2,62 +2,24 @@ type generatorMenu = Frame & {
 	UICorner: UICorner;
 	ressources: Frame & {
 		UIListLayout: UIListLayout;
-		polymer: Frame & {
-			price: Frame & {
-				UIListLayout: UIListLayout;
-				TextLabel: TextLabel;
-				ImageLabel: ImageLabel & {
-					UIAspectRatioConstraint: UIAspectRatioConstraint;
-				};
-			};
-			UIAspectRatioConstraint: UIAspectRatioConstraint;
-			TextLabel: TextLabel;
-			ImageButton: ImageButton & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-			};
-		};
-		copper: Frame & {
-			price: Frame & {
-				UIListLayout: UIListLayout;
-				TextLabel: TextLabel;
-				ImageLabel: ImageLabel & {
-					UIAspectRatioConstraint: UIAspectRatioConstraint;
-				};
-			};
-			UIAspectRatioConstraint: UIAspectRatioConstraint;
-			TextLabel: TextLabel;
-			ImageButton: ImageButton & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-			};
-		};
-		carbon: Frame & {
-			price: Frame & {
-				UIListLayout: UIListLayout;
-				TextLabel: TextLabel;
-				ImageLabel: ImageLabel & {
-					UIAspectRatioConstraint: UIAspectRatioConstraint;
-				};
-			};
-			UIAspectRatioConstraint: UIAspectRatioConstraint;
-			TextLabel: TextLabel;
-			ImageButton: ImageButton & {
-				UICorner: UICorner;
-				UIStroke: UIStroke;
-			};
-		};
 	};
 	progression: Frame & {
 		UIListLayout: UIListLayout;
-		speed: TextLabel;
-		progressionBar: Frame & {
+		["3efficiency"]: Frame & {
+			UIListLayout: UIListLayout;
+			Icon: ImageLabel & {
+				UIAspectRatioConstraint: UIAspectRatioConstraint;
+			};
+			efficiency: TextLabel;
+		};
+		["2progressionBar"]: Frame & {
 			UICorner: UICorner;
 			UIStroke: UIStroke;
 			bar: Frame & {
 				UICorner: UICorner;
 			};
 		};
+		["1speed"]: TextLabel;
 	};
 	toptop: Frame & {
 		top: Frame;
@@ -71,6 +33,7 @@ type generatorMenu = Frame & {
 		};
 	};
 }
+
 
 type crafterMenu = Frame & {
 	UICorner: UICorner;
@@ -205,6 +168,27 @@ type itemName = Frame & {
 		TextLabel: TextLabel;
 		ImageLabel: ImageLabel & {
 			UIAspectRatioConstraint: UIAspectRatioConstraint;
+		};
+	};
+}
+
+type questBoard = Frame & {
+	quests: Frame & {
+		["1top"]: Frame & {
+			["1toptop"]: Frame & {
+				top: Frame;
+				title: TextLabel;
+				UICorner: UICorner;
+			};
+		};
+		UIListLayout: UIListLayout;
+	};
+	foldArrow: Frame & {
+		UICorner: UICorner;
+		UIStroke: UIStroke;
+		UIAspectRatioConstraint: UIAspectRatioConstraint;
+		arrow: ImageButton & {
+			foldQuests: LocalScript;
 		};
 	};
 }
