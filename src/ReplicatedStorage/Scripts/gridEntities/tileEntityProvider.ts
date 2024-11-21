@@ -7,7 +7,7 @@ import Generator from "./tileEntitiesChilds/generator";
 import Seller from "./tileEntitiesChilds/seller";
 import { TileEntity } from "./tileEntity";
 import Merger from "./tileEntitiesChilds/merger";
-import { SubConveyerInput } from "./tileEntitiesChilds/subConveyer";
+import { SubConveyer } from "./tileEntitiesChilds/subConveyer";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
@@ -18,7 +18,7 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "generator": Generator,
     "seller": Seller,
     "merger": Merger,
-    "subConveyerInput": SubConveyerInput
+    "subConveyer": SubConveyer
 };
 
 /**
@@ -52,7 +52,7 @@ function getTileEntityInformation(name: string): { name: string, category: strin
 }
 
 
-export const isMachine = (category: string): boolean => {
+export const isInteractable = (category: string): boolean => {
     return ["generator", "crafter", "assembler"].includes(category);
 }
 

@@ -4,7 +4,7 @@ import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
 import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
 import GeneratorMenu from "./generatorMenu";
-import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
 import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
 import CrafterMenu from "./crafterMenu";
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
@@ -71,6 +71,7 @@ class InteractionHandler {
         this.hotbar.setSlotFromName(2, "seller");
         this.hotbar.setSlotFromName(3, "splitter");
         this.hotbar.setSlotFromName(4, "merger");
+        this.hotbar.setSlotFromName(7, "underground conveyer");
     }
 
     handleInputs(input: InputObject | undefined, gameProcessed: boolean) {

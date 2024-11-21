@@ -1,5 +1,5 @@
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
-import { TileEntity } from "../tileEntity";
+import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 
 // Settings
@@ -40,36 +40,21 @@ class Seller extends TileEntity {
         return;
     }
 
-    addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined> {
-        if (entities.isEmpty() || !this.playerMoney) return entities;
+    addEntity(entity: Entity): Entity | undefined {
+        if (!this.playerMoney) return entity;
 
-        for (let i = 0; i < entities.size(); i++) {
-            const entity = entities[i];
-            if (entity !== undefined) {
-                this.playerMoney.Value += entity.price;
-                entities[i] = undefined;
+        this.playerMoney.Value += entity.price;
 
-                const player = game.GetService("Players").GetPlayerByUserId(this.owner ?? 0);
-                if (!player) continue;
-                earnMoneyEvent?.FireClient(player, entity.price);
-                this.sellingCallBack(entity.name);
-            }
-        }
+        const player = game.GetService("Players").GetPlayerByUserId(this.owner ?? 0);
+        if (!player) return entity;
+        earnMoneyEvent!.FireClient(player, entity.price);
+        this.sellingCallBack(entity.name);
 
-        return new Array<Entity | undefined>(entities.size(), undefined);
-    }
-
-    encode(): {} {
-        return {
-            "category": this.category,
-            "position": encodeVector3(this.position),
-            "size": encodeVector2(this.size),
-            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
-        }
+        return;
     }
 
     static decode(decoded: unknown): Seller {
-        const data = decoded as { position: { x: number, y: number, z: number }, size: { x: number, y: number }, inputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as EncodedTileEntity;
         const seller = new Seller("seller", new Vector3(data.position.x, data.position.y, data.position.z), decodeVector2(data.size), new Vector2(1, 0), 0);
         seller.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         return seller;

@@ -1,10 +1,10 @@
-import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/conveyerUtils";
+import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/Utils/conveyerUtils";
 import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
 import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
-import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
 import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 import { ReplicatedStorage } from "@rbxts/services";
 import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
@@ -12,6 +12,7 @@ import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/quest/quest
 import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/quest/questUtils";
 import { getUnlockedTile, isQuestCompleted, questList, questTreeArray, tierList } from "ReplicatedStorage/Scripts/quest/questList";
 import { concat, getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
+import { localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/gridTileUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
@@ -32,7 +33,7 @@ class Plot {
 
 	constructor(gridBase: BasePart) {
 		this.gridBase = gridBase;
-		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(gridBase.Size));
+		this.tileGrid = new TileGrid(localPositionToGridTilePosition(gridBase.Size));
 		this.addQuest(questList.get("Beginning of the end")!);
 	}
 
@@ -244,7 +245,7 @@ class Plot {
 	}
 
 	reset() {
-		this.tileGrid = new TileGrid(TileGrid.localPositionToGridTilePosition(this.gridBase.Size));
+		this.tileGrid = new TileGrid(localPositionToGridTilePosition(this.gridBase.Size));
 		this.gridBase.FindFirstChild("PlacedObjects")!.ClearAllChildren();
 		this.gridBase.FindFirstChild("Entities")!.ClearAllChildren();
 	}

@@ -1,6 +1,6 @@
 import { Players, TweenService, Workspace } from "@rbxts/services";
 import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
-import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { findBasepartByName } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
 import { getImage } from "./imageUtils";
 import { BLUE, GRAY } from "ReplicatedStorage/parameters";

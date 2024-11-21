@@ -1,5 +1,12 @@
 import { decodeVector2, decodeVector3, encodeVector2, encodeVector3 } from "../Utils/encoding";
 
+export interface encodedTile {
+    name: string,
+    position: { x: number, y: number, z: number },
+    size: { x: number, y: number },
+    direction: { x: number, y: number }
+}
+
 class Tile {
     //position local par rapport au plot
     position: Vector3;

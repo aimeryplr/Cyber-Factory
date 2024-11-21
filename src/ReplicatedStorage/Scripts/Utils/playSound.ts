@@ -11,7 +11,7 @@ export function getSoundEffect(soundName: string): Sound {
  * Duplicate the sound to not have to wait for it to finish playing
  * @param soundName The name of the sound to play
  */
-export function playSoundEffectDuplicated(sound: Sound) {
+export function playSoundEffectDuplicated(sound: Sound): Sound {
     const newSound = sound.Clone();
     newSound.Parent = sound.Parent;
     newSound.Play();
@@ -19,21 +19,19 @@ export function playSoundEffectDuplicated(sound: Sound) {
     newSound.Ended.Connect(() => {
         newSound.Destroy();
     });
+
+    return newSound;
 }
 
-export function playSoundEffectAtRandomPitch(sound: Sound, min: number, max: number) {
-    const newSound = sound.Clone();
-    newSound.Parent = sound.Parent;
+export function playSoundEffectAtRandomTime(sound: Sound) {
+    sound.TimePosition = math.random(0, sound.TimeLength);
+    sound.Play();
+}
 
-    const pitch = new Instance("PitchShiftSoundEffect", newSound);
+export function setRandomPitch(sound: Sound, min: number, max: number) {
+    const pitch = new Instance("PitchShiftSoundEffect", sound);
     const rand = math.random(min * 100, max * 100) / 100;
     pitch.Octave = rand
-
-    newSound.Play();
-
-    newSound.Ended.Connect(() => {
-        newSound.Destroy();
-    });
 }
 
 export function playSoundEffectWithoutStopping(sound: Sound) {

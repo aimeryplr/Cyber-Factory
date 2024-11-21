@@ -1,9 +1,9 @@
 import { Component, Entity, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
-import { TileEntity } from "../tileEntity";
+import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
-import { Efficiency } from "../efficiency";
+import { Efficiency, EncodedEfficiency } from "../Utils/efficiency";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -12,6 +12,14 @@ const MAX_CAPACITY = 20;
 const category: string = "crafter";
 const EFFICIENCY_HISTORY_SIZE = 10;
 
+export interface EncodedCrafter extends EncodedTileEntity {
+    isCrafting: boolean,
+    resource: number,
+    craftedComponent: number,
+    currentCraft: string,
+    lastProgress: number,
+    efficiency: EncodedEfficiency
+}
 
 class Crafter extends TileEntity {
     currentCraft: Component | undefined;
@@ -44,8 +52,8 @@ class Crafter extends TileEntity {
         if (this.craftedComponent === 0) return false;
 
         this.craftedComponent--;
-        const addedEntity = this.outputTiles[0].addEntity([table.clone(this.currentCraft!)])
-        if (!addedEntity.isEmpty()) {
+        const addedEntity = this.outputTiles[0].addEntity(table.clone(this.currentCraft!))
+        if (addedEntity) {
             this.craftedComponent++;
             return false
         }
@@ -53,39 +61,28 @@ class Crafter extends TileEntity {
         return true;
     }
 
-    addEntity(entities: Array<Entity>): Array<Entity> {
-        if (entities.isEmpty()) return entities;
-        if (this.resource >= MAX_CAPACITY) return entities;
-
-        const entity = entities[0];
-        if (!this.isRessourceNeeded(entity)) return entities;
+    addEntity(entity: Entity): Entity | undefined {
+        if (this.resource >= MAX_CAPACITY) return entity;
+        if (!this.isRessourceNeeded(entity)) return entity;
 
         this.resource++;
-
-        return new Array<Entity>();
     }
 
     encode(): {} {
         return {
-            "name": this.name,
-            "category": this.category,
-            "position": encodeVector3(this.position),
-            "size": encodeVector2(this.size),
-            "direction": encodeVector2(this.direction),
-            "speed": this.speed,
+            ...super.encode(),
             "isCrafting": this.isCrafting,
             "currentCraft": this.currentCraft?.name,
             "resource": this.resource,
             "craftedComponent": this.craftedComponent,
             "lastProgress": this.lastProgress,
             "efficiency": this.efficiency.encode(),
-            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
-            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
         }
     }
 
+
     static decode(decoded: unknown): Crafter {
-        const data = decoded as { name: string, category: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, isCrafting: boolean, resource: number, craftedComponent: number, currentCraft: string, lastProgress: number, efficiency: { efficiency: number, successHistory: boolean[], successHistorySize: number; }, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as EncodedCrafter;
         const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = data.resource;

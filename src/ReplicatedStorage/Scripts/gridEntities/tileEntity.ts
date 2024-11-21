@@ -1,10 +1,18 @@
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
-import Tile from "./tile";
-import { getGlobalPosition } from "./tileEntityUtils";
+import Tile, { encodedTile } from "./tile";
+import { getGlobalPosition } from "./Utils/tileEntityUtils";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { encodeVector2, encodeVector3 } from "../Utils/encoding";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
+
+export interface EncodedTileEntity extends encodedTile {
+    direction: { x: number, y: number },
+    speed: number,
+    inputTiles: Array<{x: number, y: number, z: number}>,
+    outputTiles: Array<{x: number, y: number, z: number}>,
+}
 
 abstract class TileEntity extends Tile {
     category: string;
@@ -36,7 +44,7 @@ abstract class TileEntity extends Tile {
 
     /**
      * send an entity to the next GridEntity
-     * @param entities the entities to send
+     * @param entity the entities to send
      * @returns the entities that could not be added to the next GridEntity
      * @example 
      * const entities = [entity1, entity2, entity3]
@@ -44,7 +52,7 @@ abstract class TileEntity extends Tile {
      * print(entitiesNotAdded) // [entity1, entity2, entity3]
      * // no entities were send here
      */
-    abstract addEntity(entities: Array<Entity | undefined>): Array<Entity | undefined>;
+    abstract addEntity(entity: Entity): Entity | undefined;
 
     abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
     updateShape(gridBase: BasePart): void {
@@ -55,13 +63,24 @@ abstract class TileEntity extends Tile {
         currentBasePart.Position = getGlobalPosition(this.position, gridBase);
     };
 
-    abstract encode(): {};
+    encode(): {} {
+        return {
+            name: this.name,
+            category: this.category,
+            position: encodeVector3(this.position),
+            size: encodeVector2(this.size),
+            direction: encodeVector2(this.direction),
+            speed: this.speed,
+            inputTiles: this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            outputTiles: this.outputTiles.map((tile) => encodeVector3(tile.position)),
+        };
+    };
 
-    setInput(previousTileEntity: TileEntity): void {
+    addInput(previousTileEntity: TileEntity): void {
         this.inputTiles.push(previousTileEntity);
     };
 
-    setOutput(nexTileEntity: TileEntity): void {
+    addOutput(nexTileEntity: TileEntity): void {
         this.outputTiles.push(nexTileEntity);
     };
 
@@ -75,20 +94,21 @@ abstract class TileEntity extends Tile {
             } else {
                 this.connectInput(neighbourTile, direction);
             }
+
         }
     };
 
     connectOutput(neighbourTile: TileEntity, direction: Vector2) {
-        if (this.canConnectOutput(neighbourTile, direction) && neighbourTile.hasEnoughInput()) {
+        if (this.canConnectOutput(neighbourTile, direction) && neighbourTile.canConnectInput(this, direction.mul(-1)) && this.hasEnoughOutput() && neighbourTile.hasEnoughInput()) {
             this.outputTiles.push(neighbourTile);
-            neighbourTile.setInput(this);
+            neighbourTile.addInput(this);
         }
     }
 
     connectInput(neighbourTile: TileEntity, direction: Vector2) {
-        if (this.canConnectInput(neighbourTile, direction) && neighbourTile.hasEnoughOutput()) {
+        if (this.canConnectInput(neighbourTile, direction) && neighbourTile.canConnectOutput(this, direction.mul(-1)) && this.hasEnoughInput() && neighbourTile.hasEnoughOutput()) {
             this.inputTiles.push(neighbourTile);
-            neighbourTile.setOutput(this);
+            neighbourTile.addOutput(this);
         }
     }
 

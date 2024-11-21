@@ -1,5 +1,5 @@
 import { ReplicatedStorage } from "@rbxts/services";
-import { TileEntity } from "./tileEntity";
+import { TileEntity } from "../tileEntity";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 

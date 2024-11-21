@@ -1,6 +1,6 @@
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
-import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/tileEntityUtils";
+import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
 import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
 import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";

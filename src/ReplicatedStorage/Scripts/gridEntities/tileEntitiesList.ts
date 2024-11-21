@@ -55,8 +55,8 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         price: 500,
         image: "",
     }],
-    ["subConveyerInput", {
-        name: "subConveyerInput",
+    ["underground conveyer", {
+        name: "underground conveyer",
         category: "subConveyer",
         speed: 60,
         tier: 1,

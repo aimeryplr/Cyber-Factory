@@ -2,10 +2,10 @@
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
 import { TileGrid } from "./gridTile";
 import { TileEntity } from "./gridEntities/tileEntity";
-import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/tileEntityUtils";
-import { getTileEntityByCategory, getTileEntityInformation, isMachine } from "./gridEntities/tileEntityProvider";
+import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/Utils/tileEntityUtils";
+import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "./gridEntities/tileEntityProvider";
 import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
-import { getSoundEffect, playSoundEffectAtRandomPitch, playSoundEffectWithoutStopping } from "./Utils/playSound";
+import { getSoundEffect, setRandomPitch, playSoundEffectWithoutStopping, playSoundEffectDuplicated } from "./Utils/playSound";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -16,7 +16,7 @@ enum placementType {
     PLACING,
     DESTROYING,
     INTERACTING,
-} 
+}
 
 class PlacementHandler {
     player: Player = Players.LocalPlayer;
@@ -31,7 +31,7 @@ class PlacementHandler {
     size: Vector2 | undefined;
     rotation: number;
     targetPos: Vector3 | undefined;
-    
+
     selectionTile: SelectionBox | undefined;
     turningArrow: BasePart | undefined;
 
@@ -64,8 +64,8 @@ class PlacementHandler {
         assert(this.currentTile, "Object not found");
         const mouseRay = this.mouse.UnitRay;
         const raycastParameters = new RaycastParams();
-        raycastParameters.FilterType = Enum.RaycastFilterType.Include
-        raycastParameters.FilterDescendantsInstances = [this.gridBase];
+        raycastParameters.FilterType = Enum.RaycastFilterType.Exclude
+        raycastParameters.FilterDescendantsInstances = [this.gridBase.FindFirstChild("PlacedObjects")!, Players.LocalPlayer.Character!];
 
         const raycastResult = Workspace.Raycast(mouseRay.Origin, mouseRay.Direction.mul(1000), raycastParameters);
         const localPos = raycastResult!.Position.sub(this.gridBase.Position);
@@ -74,7 +74,7 @@ class PlacementHandler {
             let x = math.floor(localPos.X / GRID_SIZE) * GRID_SIZE;
             const y = this.gridBase.Size.Y / 2 + obj.Size.Y / 2;
             let z = math.floor(localPos.Z / GRID_SIZE) * GRID_SIZE;
-            
+
             if (this.size && this.size.X % 2 === 1) x += GRID_SIZE / 2;
             if (this.size && this.size.Y % 2 === 1) z += GRID_SIZE / 2;
 
@@ -118,7 +118,7 @@ class PlacementHandler {
                 this.setupObject();
                 this.setupArrowsPosition(newPos);
             }
-            
+
             //set target position
             if (newPos !== undefined && newPos !== this.targetPos && this.checkPlacement(newPos) && this.selectionTile !== undefined) {
                 this.lastPos = this.targetPos;
@@ -161,13 +161,13 @@ class PlacementHandler {
         if (!this.currentTile) return;
         if (!this.tileGrid) return;
 
-        if (!this.hasEnoughMoney(price, playerMoney)) {this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0);return;}
+        if (!this.hasEnoughMoney(price, playerMoney)) { this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0); return; }
         const hasTheTileMoved = this.targetPos !== this.lastPos || this.rotation !== this.lastRotation
         if (hasTheTileMoved) {
             this.lastRotation = this.rotation;
             const tile = this.getTileFromBasePart(this.currentTile);
-            if (!tile) {this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0);return;};
-            if (!this.tileGrid.checkPlacement(tile)) {this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0);return;}
+            if (!tile) { this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0); return; };
+            if (!this.tileGrid.checkPlacement(tile)) { this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0); return; }
             this.changeCurrentTileShape(tile)
             this.selectionTile.SurfaceColor3 = new Color3(0, 1, 0);
         }
@@ -230,13 +230,13 @@ class PlacementHandler {
         if (this.placementStatus !== placementType.INTERACTING) this.resetMode();
         this.desactivateInteracting();
         this.currentTile = obj.Clone();
-        if(!this.currentTile) error("Object not found");
+        if (!this.currentTile) error("Object not found");
 
         this.calculateSize();
         this.setupArrows();
         this.placementStatus = placementType.PLACING;
-        
-        RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => {this.moveObj(); this.checkPlacementStatus(price, playerMoney)});
+
+        RunService.BindToRenderStep("place", Enum.RenderPriority.Input.Value, () => { this.moveObj(); this.checkPlacementStatus(price, playerMoney) });
     }
 
     setupArrows() {
@@ -277,7 +277,7 @@ class PlacementHandler {
             default:
                 break
         }
-            
+
     }
 
     private addArrow(arrowType: ArrowType, relativePosition: Vector3, orientationDeg: number) {
@@ -286,7 +286,7 @@ class PlacementHandler {
 
         const arrow = arrowType === ArrowType.INPUT ? inputArrowPrefab.Clone() : outputArrowPrefab.Clone();
 
-        let offsetPosition = CFrame.fromOrientation(0, this.rotation, 0).mul(new Vector3((this.size!.X - 1) * GRID_SIZE / 2 , 0, (this.size!.Y - 1) * GRID_SIZE / 2))
+        let offsetPosition = CFrame.fromOrientation(0, this.rotation, 0).mul(new Vector3((this.size!.X - 1) * GRID_SIZE / 2, 0, (this.size!.Y - 1) * GRID_SIZE / 2))
         if (this.size!.X !== this.size!.Y) {
             switch (this.rotation) {
                 case math.rad(0):
@@ -303,7 +303,7 @@ class PlacementHandler {
                     break;
             }
         }
-        
+
         arrow.PivotOffset = new CFrame(relativePosition.add(offsetPosition)).mul(CFrame.fromEulerAnglesYXZ(0, math.rad(orientationDeg), math.rad(-90)));
         arrow.Position = this.currentTile!.Position.add(arrow.PivotOffset.Position);
         arrow.Parent = this.currentTile;
@@ -312,7 +312,7 @@ class PlacementHandler {
     activateInteracting() {
         this.selectionTile = ReplicatedStorage.FindFirstChild("prefab")?.FindFirstChild("selectionInteractionTile")?.Clone() as SelectionBox;
         if (!this.selectionTile) error("Selection tile not found");
-        RunService.BindToRenderStep("inspect", Enum.RenderPriority.Input.Value, () => {this.setupInteracting()});
+        RunService.BindToRenderStep("inspect", Enum.RenderPriority.Input.Value, () => { this.setupInteracting() });
     }
 
     resetMode() {
@@ -328,7 +328,7 @@ class PlacementHandler {
         this.placementStatus = placementType.INTERACTING;
         this.turningArrow?.Destroy();
         this.turningArrow = undefined;
-        
+
         this.activateInteracting()
     }
 
@@ -344,11 +344,11 @@ class PlacementHandler {
         if (this.currentTile === undefined || this.placementStatus !== placementType.PLACING) return;
         if (this.selectionTile && this.selectionTile.SurfaceColor3 === new Color3(1, 0, 0)) {
             if (!this.isClicking) playSoundEffectWithoutStopping(getSoundEffect("error"));
-        } 
+        }
         else if (!this.isCurrentltyPlacing) {
             this.isCurrentltyPlacing = true;
-            placeTileCheck.InvokeServer(this.tileName, this.targetPos, -this.rotation , this.size, this.gridBase)
-            playSoundEffectAtRandomPitch(getSoundEffect("placement"), 0.97, 1.03);
+            placeTileCheck.InvokeServer(this.tileName, this.targetPos, -this.rotation, this.size, this.gridBase)
+            setRandomPitch(playSoundEffectDuplicated(getSoundEffect("placement")), 0.97, 1.03);
         }
     }
 
@@ -403,7 +403,7 @@ class PlacementHandler {
 
         const tileInfo = getTileEntityInformation(this.currentTile!.Name);
         if (!tileInfo) return;
-        if (isMachine(tileInfo.category)) {
+        if (isInteractable(tileInfo.category)) {
             this.selectionTile.Transparency = 0.2
             this.selectionTile.Color3 = new Color3(1, 1, 1)
         };
@@ -440,7 +440,7 @@ class PlacementHandler {
         this.selectionTile.SurfaceColor3 = new Color3(1, 0, 0);
         if (!this.selectionTile) error("Selection tile not found");
 
-        RunService.BindToRenderStep("destroy", Enum.RenderPriority.Input.Value, () => {this.setupDestroying()});
+        RunService.BindToRenderStep("destroy", Enum.RenderPriority.Input.Value, () => { this.setupDestroying() });
     }
 
 

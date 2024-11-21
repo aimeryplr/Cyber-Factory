@@ -1,3 +1,9 @@
+export interface EncodedEfficiency {
+    efficiency: number,
+    successHistory: boolean[],
+    successHistorySize: number
+}
+
 export class Efficiency {
     private efficiency = 1;
     private successHistory = new Array<boolean>();
@@ -46,7 +52,8 @@ export class Efficiency {
         }
     }
 
-    static decode(data: {efficiency: number, successHistory: boolean[], successHistorySize: number}) {
+    static decode(decoded: unknown): Efficiency {
+        const data = decoded as EncodedEfficiency
         const efficiency = new Efficiency(data.successHistorySize)
         efficiency.efficiency = data.efficiency
         efficiency.successHistory = data.successHistory

@@ -7,7 +7,8 @@ import Merger from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/me
 import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
 import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
 import type { TileGrid } from "./gridTile";
-import { decodeArray } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { SubConveyer } from "./gridEntities/tileEntitiesChilds/subConveyer";
 
 function decodeTile(decoded: unknown) {
     const data = decoded as { category: string }
@@ -29,6 +30,8 @@ function decodeTile(decoded: unknown) {
             return Merger.decode(decoded);
         case "assembler":
             return Assembler.decode(decoded);
+        case "subConveyer":
+            return SubConveyer.decode(decoded);
         default:
             error("Tile category not found");
     }
@@ -47,6 +50,14 @@ export function getPlacedGenerator(tileGrid: TileGrid): number {
         if (tile instanceof Generator) generatorCount++;
     });
     return generatorCount;
+}
+
+/**
+     * @param position local position
+     * @returns the position in grid tile list index
+    */
+export function localPositionToGridTilePosition(position: Vector3): Vector2 {
+    return new Vector2(math.floor(position.X / GRID_SIZE), math.floor(position.Z / GRID_SIZE));
 }
 
 export { decodeTiles, decodeTile };

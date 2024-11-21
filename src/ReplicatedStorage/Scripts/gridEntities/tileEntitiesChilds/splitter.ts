@@ -1,8 +1,8 @@
-import { TileEntity } from "../tileEntity";
-import { addBackContent, moveItemsInArray, removeSegment, shiftOrder, transferArrayContent } from "../conveyerUtils";
+import { EncodedTileEntity, TileEntity } from "../tileEntity";
+import { moveItemsInArray, shiftOrder } from "../Utils/conveyerUtils";
 import Conveyor from "./conveyor";
 import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
@@ -10,6 +10,10 @@ import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 3;
 const category: string = "splitter";
+
+export interface EncodedSplitter extends EncodedTileEntity {
+    content: Array<Entity | undefined>
+}
 
 class Splitter extends TileEntity {
     content: Array<Entity | undefined>;
@@ -22,14 +26,15 @@ class Splitter extends TileEntity {
     tick(progress: number): void {
         if (this.getProgress(progress) < this.lastProgress) {
             // send the item to the next gridEntity
-            for (const outputTile of this.outputTiles) {
-                const canOutpoutEntity = outputTile instanceof Conveyor && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
-                if (!canOutpoutEntity) continue;
-                shiftOrder(this.outputTiles);
-
-                const arrayToAddBack = outputTile.addEntity(removeSegment(this.content, 0, 0) as Array<Entity | undefined>);
-                addBackContent(arrayToAddBack, this.content, CONTENT_SIZE);
-                break;
+            if (this.content[0]) {
+                for (const outputTile of this.outputTiles) {
+                    const canOutpoutEntity = outputTile instanceof Conveyor && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
+                    if (!canOutpoutEntity) continue;
+                    shiftOrder(this.outputTiles);
+    
+                    this.content[0] = this.outputTiles[0].addEntity(this.content[0]);
+                    break;
+                }
             }
 
             // move all the items by the speed amount
@@ -38,26 +43,21 @@ class Splitter extends TileEntity {
         this.lastProgress = this.getProgress(progress);
     }
 
-    addEntity(entities: Array<Entity>): Array<Entity | undefined> {
-        const transferdEntities = transferArrayContent(entities, this.content, CONTENT_SIZE) as Array<Entity | undefined>;
-        return transferdEntities;
+    addEntity(entity: Entity): Entity | undefined {
+        if (this.content[CONTENT_SIZE - 1] !== undefined) return entity;
+        this.content[CONTENT_SIZE - 1] = entity;
+        return
     }
 
     encode(): {} {
         return {
-            "name": this.name,
-            "category": this.category,
-            "position": encodeVector3(this.position),
-            "size": encodeVector2(this.size),
-            "direction": encodeVector2(this.direction),
-            "speed": this.speed,
-            "inputTiles": this.inputTiles.map((tile) => encodeVector3(tile.position)),
-            "outputTiles": this.outputTiles.map((tile) => encodeVector3(tile.position)),
+            ...super.encode(),
+            "content": encodeArray(this.content, CONTENT_SIZE)
         }
     }
 
     static decode(decoded: unknown): Splitter {
-        const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number }, speed: number, inputTiles: Array<{ x: number, y: number, z: number }>, outputTiles: Array<{ x: number, y: number, z: number }> };
+        const data = decoded as EncodedSplitter;
         const splitter = new Splitter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
         splitter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         splitter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
