@@ -16,11 +16,10 @@ export interface EncodedSplitter extends EncodedTileEntity {
 }
 
 class Splitter extends TileEntity {
-    content: Array<Entity | undefined>;
+    content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
-        this.content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
     tick(progress: number): void {

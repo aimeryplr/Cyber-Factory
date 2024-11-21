@@ -2,7 +2,6 @@ import { ReplicatedStorage } from "@rbxts/services";
 import { TileEntity } from "../tileEntity";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
-
 /**
  * find the part in the entities folder in the replicated storage
  * @param name part name

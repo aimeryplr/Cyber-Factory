@@ -24,8 +24,8 @@ class Conveyor extends TileEntity {
     isTurning = false;
     count = 0
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
     /**
@@ -63,7 +63,7 @@ class Conveyor extends TileEntity {
      * change the basepart depending if the conveyer is turning
      */
     getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
-        const conveyerBasepart = tilePart ?? this.findThisPartInWorld(gridBase);
+        const conveyerBasepart = tilePart ?? this.findThisPartInWorld();
 
         if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity) {
             const isTurningConveyer = this.getIsTurning();
@@ -85,7 +85,7 @@ class Conveyor extends TileEntity {
 
     updateShape(gridBase: BasePart): void {
         const newShape = this.getNewShape(gridBase);
-        const currentBasePart = this.findThisPartInWorld(gridBase);
+        const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;
 
         if (newShape) {

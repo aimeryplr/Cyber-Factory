@@ -12,8 +12,8 @@ const category = "subConveyer";
 
 
 export class SubConveyer extends TileEntity {
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
     tick(progression: number): void {

@@ -88,7 +88,7 @@ class PlotManager {
                     // load the grid
                     const encodedGrid = getPlayerData(player.UserId)?.grid;
                     if (encodedGrid) {
-                        const grid = TileGrid.decode(encodedGrid);
+                        const grid = TileGrid.decode(encodedGrid, plot.getGridBase());
                         plot.loadGrid(grid);
                     }
                 };

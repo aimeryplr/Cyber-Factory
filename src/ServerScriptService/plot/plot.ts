@@ -172,7 +172,7 @@ class Plot {
 			changeShapes(tile as TileEntity, this.gridBase, this.tileGrid);
 		}
 
-		tile.findThisPartInWorld(this.gridBase)?.Destroy();
+		tile.findThisPartInWorld()?.Destroy();
 		this.tileGrid.removeTile(tile);
 		this.endingTiles = this.tileGrid.getAllEndingTiles()
 		return tile

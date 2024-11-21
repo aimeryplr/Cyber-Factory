@@ -37,9 +37,10 @@ function decodeTile(decoded: unknown) {
     }
 }
 
-function decodeTiles(decodedTiles: Array<unknown>, tileGrid: TileGrid) {
+function decodeTiles(decodedTiles: Array<unknown>, tileGrid: TileGrid, gridBase: BasePart) {
     for (const tile of decodedTiles) {
         const decodedTile = decodeTile(tile);
+        decodedTile.gridBase = gridBase;
         tileGrid.addTile(decodedTile);
     }
 }

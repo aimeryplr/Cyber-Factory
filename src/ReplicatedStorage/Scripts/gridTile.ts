@@ -146,11 +146,11 @@ class TileGrid {
         }
     }
 
-    static decode(encoded: string): TileGrid {
+    static decode(encoded: string, gridBase: BasePart): TileGrid {
         const decoded = HttpService.JSONDecode(encoded) as { gridSize: { x: number, y: number }, tileGrid: Array<Array<unknown>> };
         const tileGrid = new TileGrid(decodeVector2(decoded.gridSize));
 
-        decodeTiles(decoded.tileGrid, tileGrid);
+        decodeTiles(decoded.tileGrid, tileGrid, gridBase);
         tileGrid.connectTiles()
 
         return tileGrid;

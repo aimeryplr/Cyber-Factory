@@ -15,7 +15,7 @@ export const setupObject = (obj: BasePart, pos: Vector3, orientation: number, gr
     newObject.Parent = gridBase.FindFirstChild("PlacedObjects")
 
     newObject.GetChildren().forEach((child) => {
-        if (child.IsA("Sound")) {
+        if (child.IsA("Sound") && child.Looped) {
             setRandomPitch(child as Sound, 0.98, 1.02);
             playSoundEffectAtRandomTime(child as Sound);
         }

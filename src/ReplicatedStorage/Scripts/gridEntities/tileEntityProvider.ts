@@ -27,10 +27,10 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
  * @param args argument of the constructor
  * @returns the class created
  */
-function getTileEntityByCategory(className: string, name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number): TileEntity {
+function getTileEntityByCategory(className: string, name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart): TileEntity {
     const ClassConstructor = tileEntityRegistry[className];
     if (ClassConstructor) {
-        return new ClassConstructor(name, position, size, direction, speed);
+        return new ClassConstructor(name, position, size, direction, speed, gridBase);
     } else {
         error(`Class ${className} not found`);
     }

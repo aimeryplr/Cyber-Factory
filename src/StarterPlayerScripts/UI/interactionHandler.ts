@@ -51,7 +51,7 @@ class InteractionHandler {
         })
         unlockedTileListEvent.OnClientEvent.Connect((tiles: string[]) => this.setUnlockedTiles(tiles));
         sendTileGrid.OnClientEvent.Connect((tileGrid: string) => {
-            this.tileGrid = TileGrid.decode(tileGrid)
+            this.tileGrid = TileGrid.decode(tileGrid, gridBase)
             this.placementHandler.setTileGrid(this.tileGrid);
             this.hotbar.setTileGrid(this.tileGrid);
         });

@@ -29,7 +29,7 @@ export function playSoundEffectAtRandomTime(sound: Sound) {
 }
 
 export function setRandomPitch(sound: Sound, min: number, max: number) {
-    const pitch = new Instance("PitchShiftSoundEffect", sound);
+    const pitch = sound.FindFirstChild("PitchShiftSoundEffect") ? sound.FindFirstChild("PitchShiftSoundEffect") as PitchShiftSoundEffect : new Instance("PitchShiftSoundEffect", sound);
     const rand = math.random(min * 100, max * 100) / 100;
     pitch.Octave = rand
 }

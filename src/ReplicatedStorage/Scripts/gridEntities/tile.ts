@@ -13,17 +13,21 @@ class Tile {
     name: string;
     size: Vector2;
     direction: Vector2;
+    gridBase: BasePart | undefined;
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase?: BasePart) {
         this.position = position;
         this.name = name;
         this.size = size;
         this.direction = direction;
+        this.gridBase = gridBase;
     }
 
-    findThisPartInWorld(gridBase: BasePart): BasePart | undefined {
-        const gridPart = gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
-        const gridBasePosition = gridBase.Position;
+    findThisPartInWorld(): BasePart | undefined {
+        if (!this.gridBase) error("gridBase not defined");
+        
+        const gridPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
+        const gridBasePosition = this.gridBase.Position;
 
         for (let i = 0; i < gridPart.size(); i++) {
             if (gridPart[i].Position.X === this.position.X + gridBasePosition.X && gridPart[i].Position.Z === this.position.Z + gridBasePosition.Z) {

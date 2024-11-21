@@ -197,7 +197,7 @@ class PlacementHandler {
         const direction = new Vector2(math.round(math.cos(this.rotation as number)), math.round(math.sin(this.rotation as number)));
         const localPos = getLocalPosition(this.targetPos as Vector3, this.gridBase as BasePart);
         const tileInformation = getTileEntityInformation(obj.Name as string);
-        const tileEntity = getTileEntityByCategory(tileInformation.category, tileInformation.name, localPos as Vector3, this.size as Vector2, direction, tileInformation.speed as number);
+        const tileEntity = getTileEntityByCategory(tileInformation.category, tileInformation.name, localPos as Vector3, this.size as Vector2, direction, tileInformation.speed as number, this.gridBase);
         this.tileName = tileInformation.name;
 
         return tileEntity;
@@ -241,7 +241,7 @@ class PlacementHandler {
 
     setupArrows() {
         if (!this.currentTile) return;
-        const tileEntity = getTileEntityByCategory(getTileEntityInformation(this.currentTile.Name).category, "test", new Vector3(0, 0, 0), new Vector2(1, 1), new Vector2(1, 0), 1);
+        const tileEntity = getTileEntityByCategory(getTileEntityInformation(this.currentTile.Name).category, "test", new Vector3(0, 0, 0), new Vector2(1, 1), new Vector2(1, 0), 1, this.gridBase);
         if (!tileEntity) return;
 
         if (["assembler"].includes(tileEntity.category)) {

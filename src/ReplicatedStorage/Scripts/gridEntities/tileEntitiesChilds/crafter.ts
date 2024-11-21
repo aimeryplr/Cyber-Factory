@@ -4,6 +4,7 @@ import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encode
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Efficiency, EncodedEfficiency } from "../Utils/efficiency";
+import { setRandomPitch } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 // Settings
 const MAX_INPUTS = 1;
@@ -30,8 +31,8 @@ class Crafter extends TileEntity {
     private craftingCoroutine: thread | undefined;
     private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
     tick(progress: number): void {
@@ -99,7 +100,7 @@ class Crafter extends TileEntity {
         this.size = new Vector2(this.size.Y, this.size.X);
         this.direction = new Vector2(-this.direction.Y, this.direction.X);
 
-        const currentPart = this.findThisPartInWorld(gridBase);
+        const currentPart = this.findThisPartInWorld();
         const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
         const isUp = (this.getOrientation() + 90) % 180 === 0
 
@@ -150,6 +151,7 @@ class Crafter extends TileEntity {
         this.isCrafting = true;
         this.craftingCoroutine = coroutine.create(() => {
             wait(60 / this.currentCraft!.speed - 0.05);
+            this.makeNoise();
             this.craftedComponent += this.currentCraft!.amount;
             this.isCrafting = false;
         });
@@ -160,6 +162,12 @@ class Crafter extends TileEntity {
     getCraftingProgress(progress: number): number {
         if (!this.currentCraft) return 0;
         return (progress * (this.currentCraft.speed / 60)) % 1;
+    }
+
+    makeNoise(): void {
+        const sound = this.findThisPartInWorld()!.FindFirstChild("craftingSound") as Sound;
+        setRandomPitch(sound, 0.98, 1.02);
+        sound.Play();
     }
 }
 

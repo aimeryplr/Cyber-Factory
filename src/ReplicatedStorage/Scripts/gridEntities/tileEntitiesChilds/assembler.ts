@@ -30,8 +30,8 @@ class Assembler extends TileEntity {
     private craftingCoroutine: thread | undefined;
     private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE)
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
     initResources() {

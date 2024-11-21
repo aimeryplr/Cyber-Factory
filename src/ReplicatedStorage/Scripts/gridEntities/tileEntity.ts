@@ -25,8 +25,8 @@ abstract class TileEntity extends Tile {
 
     lastProgress: number = 0;
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number) {
-        super(name, position, size, direction);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number, gridBase?: BasePart) {
+        super(name, position, size, direction, gridBase);
         this.category = category;
         this.speed = speed;
 
@@ -56,7 +56,7 @@ abstract class TileEntity extends Tile {
 
     abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
     updateShape(gridBase: BasePart): void {
-        const currentBasePart = this.findThisPartInWorld(gridBase);
+        const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;
 
         currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
@@ -164,7 +164,7 @@ abstract class TileEntity extends Tile {
 
         if (this.size.X === this.size.Y || (this.size.X % 2 !== 0 && this.size.Y % 2 !== 0)) return;
 
-        const currentPart = this.findThisPartInWorld(gridBase);
+        const currentPart = this.findThisPartInWorld();
         const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
         const isUp = (this.getOrientation() + 90) % 180 === 0
 

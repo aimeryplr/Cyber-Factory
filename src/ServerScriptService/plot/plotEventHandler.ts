@@ -50,7 +50,7 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     const localPos = getLocalPosition(pos as Vector3, gridBase as BasePart);
     const tileObject = findBasepartByName(tileName as string);
     const tileInformation = getTileEntityInformation(tileName as string);
-    const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number);
+    const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number, gridBase as BasePart);
     const placementPrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGenerator(plot.getGridTiles())) : tileInformation.price;
 
     //check if player owns a plot and if the tile exists
