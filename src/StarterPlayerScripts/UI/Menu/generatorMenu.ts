@@ -1,12 +1,12 @@
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
-import { getImage } from "./imageUtils";
+import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
+import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { getImage } from "../Utils/imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
-import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
-import { getUnlockedEntities } from "ReplicatedStorage/Scripts/quest/questList";
+import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quest/questList";
 import { EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
-import { areSameQuests } from "ReplicatedStorage/Scripts/quest/questUtils";
+import { areSameQuests } from "ReplicatedStorage/Scripts/Quest/questUtils";
 import { Menu } from "./menu";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
@@ -159,7 +159,7 @@ class GeneratorMenu implements Menu {
             this.updateAmount();
         })
     }
-    
+
     public isVisible(): boolean {
         return this.menu.Visible;
     }

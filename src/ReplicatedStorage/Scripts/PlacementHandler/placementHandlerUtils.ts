@@ -1,4 +1,4 @@
-import { playSoundEffectAtRandomTime, setRandomPitch } from "./Utils/playSound";
+import { playSoundEffectAtRandomTime, setRandomPitch } from "../Utils/playSound";
 
 /**
  * Setup the object in the grid

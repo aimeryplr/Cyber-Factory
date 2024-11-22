@@ -1,20 +1,20 @@
 import { HttpService, Players, ReplicatedStorage, RunService, UserInputService } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
-import { decodeTile } from "ReplicatedStorage/Scripts/gridTileUtils";
-import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/placementHandler";
-import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import GeneratorMenu from "./generatorMenu";
-import { getLocalPosition } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
-import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
-import CrafterMenu from "./crafterMenu";
-import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
-import AssemblerMenu from "./assemblerMenu";
-import { QuestBoard } from "./questsBord";
-import { Hotbar } from "./hotbar";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile Entities/tileEntityProvider";
+import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
+import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
+import GeneratorMenu from "./Menu/generatorMenu";
+import { getLocalPosition } from "ReplicatedStorage/Scripts/Tile Entities/Utils/tileEntityUtils";
+import Crafter from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/crafter";
+import CrafterMenu from "./Menu/crafterMenu";
+import Assembler from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/assembler";
+import AssemblerMenu from "./Menu/assemblerMenu";
+import { QuestBoard } from "./Menu/questsBord";
+import { Hotbar } from "./Menu/hotbar";
 import { DEFAULT_HOTBAR, DESTROY_MODE_KEY, ROTATE_KEY, TERMINATE_KEY } from "ReplicatedStorage/parameters";
-import { isMouseInMenu, Menu } from "./menu";
-import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
-import CounterUpdater from "./counterUpdater";
+import { isMouseInMenu, Menu } from "./Menu/menu";
+import { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
+import CounterUpdater from "./Menu/counterUpdater";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
@@ -59,8 +59,8 @@ class InteractionHandler {
 
     setUnlockedTiles(tiles: string[]): any {
         for (const tile of tiles) {
-            if(!DEFAULT_HOTBAR.get(tile)) continue;
-            
+            if (!DEFAULT_HOTBAR.get(tile)) continue;
+
             this.hotbar.setSlotFromName(DEFAULT_HOTBAR.get(tile)!, tile);
         }
     }
@@ -80,7 +80,7 @@ class InteractionHandler {
 
         if (input && input.UserInputType === TERMINATE_KEY) {
             this.placementHandler.isClicking = false;
-            if (this.placementHandler.placementStatus === placementType.INTERACTING)  this.interact();
+            if (this.placementHandler.placementStatus === placementType.INTERACTING) this.interact();
         } else if (UserInputService.GetMouseButtonsPressed()[0] && UserInputService.GetMouseButtonsPressed()[0].UserInputType === TERMINATE_KEY && this.placementHandler.placementStatus !== placementType.INTERACTING) {
             if (isMouseInMenu(screenGui.FindFirstChild("hotbar") as Frame)) return;
             this.placementHandler.destroyObject();

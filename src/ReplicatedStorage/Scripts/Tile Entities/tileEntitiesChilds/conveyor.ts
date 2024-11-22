@@ -2,7 +2,7 @@ import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray } from "../Utils/conveyerUtils";
 import { findBasepartByName } from "../Utils/tileEntityUtils";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
+import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
@@ -99,7 +99,7 @@ class Conveyor extends TileEntity {
     getIsTurning() {
         if (this.inputTiles.isEmpty()) return false;
 
-        const neighbourDirection = this.position.sub(this.inputTiles[0].position) 
+        const neighbourDirection = this.position.sub(this.inputTiles[0].position)
         if (this.inputTiles[0].category === "splitter") return this.direction !== new Vector2(neighbourDirection.X, neighbourDirection.Z).Unit;
         return math.abs(this.direction.X) !== math.abs(this.inputTiles[0].direction.X);
     }
@@ -114,10 +114,6 @@ class Conveyor extends TileEntity {
         newConveyer.content = this.content;
         newConveyer.isTurning = this.isTurning;
         return newConveyer;
-    }
-
-    getMaxContentSize(): number {
-        return CONTENT_SIZE;
     }
 
     encode(): {} {

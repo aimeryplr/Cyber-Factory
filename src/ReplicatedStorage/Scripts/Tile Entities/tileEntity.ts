@@ -1,4 +1,4 @@
-import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
+import type { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import Tile, { encodedTile } from "./tile";
 import { getGlobalPosition } from "./Utils/tileEntityUtils";
@@ -10,8 +10,8 @@ const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0),
 export interface EncodedTileEntity extends encodedTile {
     direction: { x: number, y: number },
     speed: number,
-    inputTiles: Array<{x: number, y: number, z: number}>,
-    outputTiles: Array<{x: number, y: number, z: number}>,
+    inputTiles: Array<{ x: number, y: number, z: number }>,
+    outputTiles: Array<{ x: number, y: number, z: number }>,
 }
 
 abstract class TileEntity extends Tile {
@@ -45,16 +45,17 @@ abstract class TileEntity extends Tile {
     /**
      * send an entity to the next GridEntity
      * @param entity the entities to send
-     * @returns the entities that could not be added to the next GridEntity
+     * @returns the entity that could not be added to the next GridEntity
      * @example 
-     * const entities = [entity1, entity2, entity3]
-     * const entitiesNotAdded = addEntity(entities)
-     * print(entitiesNotAdded) // [entity1, entity2, entity3]
-     * // no entities were send here
      */
     abstract addEntity(entity: Entity): Entity | undefined;
 
+    /**
+     * return the basepart that represent the tileEntity
+     * @example Conveyer turn to right -> getNewShape return this new Basepart
+     */
     abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
+
     updateShape(gridBase: BasePart): void {
         const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;

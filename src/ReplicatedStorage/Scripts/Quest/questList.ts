@@ -1,5 +1,5 @@
 import { getEntitiesListName } from "../Entities/entityUtils";
-import { getAllTilesNames } from "../gridEntities/tileEntityProvider";
+import { getAllTilesNames } from "../Tile Entities/tileEntityProvider";
 import { CraftReward, Quest, Reward, RewardType, TileReward } from "./quest";
 import { QuestNode } from "./questNode";
 import { QuestTree } from "./questTree";
@@ -96,7 +96,7 @@ for (let i = 0; i < tierList.size(); i++) {
     const questTree = new QuestTree([]);
     questTreeArray.push(questTree);
     for (const questName of tier.nextQuests) {
-        questTree.addRoot(questListNode[i+1].find(questNode => questNode.quest.name === questName)!);
+        questTree.addRoot(questListNode[i + 1].find(questNode => questNode.quest.name === questName)!);
     }
 }
 

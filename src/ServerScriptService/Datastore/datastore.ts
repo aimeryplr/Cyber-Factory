@@ -1,5 +1,5 @@
 import { DataStoreService } from "@rbxts/services";
-import { Quest } from "ReplicatedStorage/Scripts/quest/quest";
+import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
 
 const dataStore = DataStoreService.GetDataStore("SaveData");
 
@@ -11,7 +11,7 @@ export interface playerData {
 }
 
 function getPlayerData(playerId: number): playerData | undefined {
-    const data = retry(() => {return dataStore.GetAsync(tostring(playerId));}, 5);
+    const data = retry(() => { return dataStore.GetAsync(tostring(playerId)); }, 5);
 
     if (data) {
         return data as playerData;
@@ -21,7 +21,7 @@ function getPlayerData(playerId: number): playerData | undefined {
 }
 
 function savePlayerData(playerId: number, playerData: playerData): boolean {
-    return retry(() => {return dataStore.SetAsync(tostring(playerId), playerData);}, 5) !== undefined;
+    return retry(() => { return dataStore.SetAsync(tostring(playerId), playerData); }, 5) !== undefined;
 }
 
 function saveTier(playerId: number, tier: number): boolean {

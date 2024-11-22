@@ -2,7 +2,7 @@ import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { positionToVector2 } from "ReplicatedStorage/Scripts/Utils/vectorUtils";
-import { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
+import { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
 
 const MAX_DISTANCE = 5;
@@ -53,23 +53,23 @@ export class SubConveyer extends TileEntity {
         if (neighbourTile.category === "subConveyer") {
             const thisToNeighbour = positionToVector2(neighbourTile.position).sub(positionToVector2(this.position))
             return (this.inputTiles.isEmpty() || this.inputTiles[0].category !== "subConveyer") &&
-            neighbourTile.direction === this.direction && 
-            (thisToNeighbour).Magnitude <= MAX_DISTANCE * GRID_SIZE;
+                neighbourTile.direction === this.direction &&
+                (thisToNeighbour).Magnitude <= MAX_DISTANCE * GRID_SIZE;
         } else {
             return neighbourTile.direction !== this.direction.mul(-1) &&
-            (this.inputTiles.isEmpty() || this.inputTiles[0].category === "subConveyer");
+                (this.inputTiles.isEmpty() || this.inputTiles[0].category === "subConveyer");
         }
     }
-    
+
     canConnectInput(neighbourTile: TileEntity, neighbourTileDirection: Vector2): boolean {
         if (neighbourTile.category === "subConveyer") {
             const thisToNeighbour = positionToVector2(neighbourTile.position).sub(positionToVector2(this.position))
             return (this.outputTiles.isEmpty() || this.outputTiles[0].category !== "subConveyer") &&
-            neighbourTile.direction === this.direction && 
-            (thisToNeighbour).Magnitude <= MAX_DISTANCE * GRID_SIZE;
+                neighbourTile.direction === this.direction &&
+                (thisToNeighbour).Magnitude <= MAX_DISTANCE * GRID_SIZE;
         } else {
             return neighbourTile.direction !== this.direction.mul(-1) &&
-            (this.outputTiles.isEmpty() || this.outputTiles[0].category === "subConveyer");
+                (this.outputTiles.isEmpty() || this.outputTiles[0].category === "subConveyer");
         }
     }
 

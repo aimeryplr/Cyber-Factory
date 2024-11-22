@@ -1,14 +1,14 @@
-import Generator from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/generator";
-import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
-import Splitter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/splitter";
-import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
-import Crafter from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/crafter";
-import Merger from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/merger";
-import Assembler from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/assembler";
-import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
-import type { TileGrid } from "./gridTile";
+import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
+import Conveyor from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/conveyor";
+import Splitter from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/splitter";
+import Seller from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/seller";
+import Crafter from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/crafter";
+import Merger from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/merger";
+import Assembler from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/assembler";
+import Tile from "ReplicatedStorage/Scripts/Tile Entities/tile";
+import type { TileGrid } from "./tileGrid";
 import { GRID_SIZE } from "ReplicatedStorage/parameters";
-import { SubConveyer } from "./gridEntities/tileEntitiesChilds/subConveyer";
+import { SubConveyer } from "../Tile Entities/tileEntitiesChilds/subConveyer";
 
 function decodeTile(decoded: unknown) {
     const data = decoded as { category: string }

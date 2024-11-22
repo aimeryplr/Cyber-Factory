@@ -1,7 +1,7 @@
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray, shiftOrder } from "../Utils/conveyerUtils";
 import Conveyor from "./conveyor";
-import type { TileGrid } from "ReplicatedStorage/Scripts/gridTile";
+import type { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
@@ -27,10 +27,10 @@ class Splitter extends TileEntity {
             // send the item to the next gridEntity
             if (this.content[0]) {
                 for (const outputTile of this.outputTiles) {
-                    const canOutpoutEntity = outputTile instanceof Conveyor && outputTile.content[outputTile.getMaxContentSize() - 1] === undefined && this.content[0] !== undefined;
+                    const canOutpoutEntity = outputTile instanceof Conveyor && outputTile.content[CONTENT_SIZE - 1] === undefined && this.content[0] !== undefined;
                     if (!canOutpoutEntity) continue;
                     shiftOrder(this.outputTiles);
-    
+
                     this.content[0] = this.outputTiles[0].addEntity(this.content[0]);
                     break;
                 }

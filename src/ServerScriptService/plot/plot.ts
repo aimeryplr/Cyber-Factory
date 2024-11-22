@@ -1,18 +1,18 @@
-import { appendInputTiles } from "ReplicatedStorage/Scripts/gridEntities/Utils/conveyerUtils";
-import { TileEntity } from "ReplicatedStorage/Scripts/gridEntities/tileEntity";
-import Tile from "ReplicatedStorage/Scripts/gridEntities/tile";
-import Seller from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/seller";
-import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
+import { appendInputTiles } from "ReplicatedStorage/Scripts/Tile Entities/Utils/conveyerUtils";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile Entities/tileEntity";
+import Tile from "ReplicatedStorage/Scripts/Tile Entities/tile";
+import Seller from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/seller";
+import { TileGrid } from "../../ReplicatedStorage/Scripts/Tile Grid/tileGrid";
 import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
-import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/gridEntities/Utils/tileEntityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
+import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/Tile Entities/Utils/tileEntityUtils";
+import Conveyor from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/conveyor";
 import { ReplicatedStorage } from "@rbxts/services";
-import { setupObject } from "ReplicatedStorage/Scripts/placementHandlerUtils";
-import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/quest/quest";
-import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/quest/questUtils";
-import { getUnlockedTile, isQuestCompleted, questList, questTreeArray, tierList } from "ReplicatedStorage/Scripts/quest/questList";
-import { concat, getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/quest/questTreeUtils";
-import { localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/gridTileUtils";
+import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
+import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/Quest/quest";
+import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/Quest/questUtils";
+import { getUnlockedTile, isQuestCompleted, questList, questTreeArray, tierList } from "ReplicatedStorage/Scripts/Quest/questList";
+import { concat, getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/Quest/questTreeUtils";
+import { localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
 
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
 const setPlayerPlot = ReplicatedStorage.WaitForChild("Events").WaitForChild("setPlayerPlot") as RemoteEvent;
@@ -216,7 +216,7 @@ class Plot {
 		this.tileGrid.tileGrid = tileGrid.tileGrid;
 
 		this.loadGridBaseparts();
-		
+
 		coroutine.wrap(() => {
 			for (let i = 0; i < 10; i++) {
 				wait(1);

@@ -1,8 +1,8 @@
-import { getPlayerData } from "ServerScriptService/datastore";
-import { TileGrid } from "../../ReplicatedStorage/Scripts/gridTile";
+import { getPlayerData } from "ServerScriptService/Datastore/datastore";
+import { TileGrid } from "../../ReplicatedStorage/Scripts/Tile Grid/tileGrid";
 import Plot from "./plot";
 import { HttpService, Players, ReplicatedStorage, RunService } from "@rbxts/services";
-import { getUnlockedTile } from "ReplicatedStorage/Scripts/quest/questList";
+import { getUnlockedTile } from "ReplicatedStorage/Scripts/Quest/questList";
 import { sendPlayerMessage } from "ServerScriptService/webhookMessageService";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
@@ -83,8 +83,8 @@ class PlotManager {
 
                 if (playerData) {
                     plot.setQuests(playerData.quests);
-                    unlockedTileListEvent.FireClient(player, getUnlockedTile(playerData.quests));   
-                    
+                    unlockedTileListEvent.FireClient(player, getUnlockedTile(playerData.quests));
+
                     // load the grid
                     const encodedGrid = getPlayerData(player.UserId)?.grid;
                     if (encodedGrid) {

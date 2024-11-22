@@ -1,11 +1,11 @@
 // Services
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
-import { TileGrid } from "./gridTile";
-import { TileEntity } from "./gridEntities/tileEntity";
-import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "./gridEntities/Utils/tileEntityUtils";
-import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "./gridEntities/tileEntityProvider";
+import { TileGrid } from "../Tile Grid/tileGrid";
+import { TileEntity } from "../Tile Entities/tileEntity";
+import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "../Tile Entities/Utils/tileEntityUtils";
+import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "../Tile Entities/tileEntityProvider";
 import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
-import { getSoundEffect, setRandomPitch, playSoundEffectWithoutStopping, playSoundEffectDuplicated } from "./Utils/playSound";
+import { getSoundEffect, setRandomPitch, playSoundEffectWithoutStopping, playSoundEffectDuplicated } from "../Utils/playSound";
 
 //Event
 const placeTileCheck = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;

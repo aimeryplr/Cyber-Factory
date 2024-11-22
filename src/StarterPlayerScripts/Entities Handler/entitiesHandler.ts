@@ -1,10 +1,12 @@
 import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
+import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getEntityModel } from "ReplicatedStorage/Scripts/Entities/entityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/gridEntities/tileEntitiesChilds/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/conveyor";
 
 const offset = 0.5;
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
+const LAST_INDEX = CONTENT_SIZE - 1
 
 class EntitiesHandler {
     // Vector3 is in local position
@@ -28,31 +30,33 @@ class EntitiesHandler {
      * @param prevTileEntity local position of the previous conveyer
      */
     updateConveyerEntities(conveyer: string) {
-        const decoded = HttpService.JSONDecode(conveyer);
-        const newConveyer = Conveyor.decode(decoded);
-        for (let i = 0; i < newConveyer.getMaxContentSize(); i++) {
+        const newConveyer = Conveyor.decode(HttpService.JSONDecode(conveyer));
+
+        for (let i = 0; i < CONTENT_SIZE; i++) {
             this.moveEntity(newConveyer, i);
         }
         this.conveyers.set(newConveyer.position, newConveyer);
     }
 
+    setupNewConveyer(conveyer: Conveyor) {
+        const oldConveyer = conveyer.copy();
+        oldConveyer.content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
+        this.conveyers.set(conveyer.position, oldConveyer);
+        this.entitiesBaseparts.set(oldConveyer.position, new Array<BasePart | undefined>(CONTENT_SIZE, undefined));
+    }
+
     moveEntity(conveyer: Conveyor, i: number) {
         let oldConveyer = this.conveyers.get(conveyer.position);
-        const lastIndex = conveyer.getMaxContentSize() - 1;
 
         // setup the oldConveyer with an empty content
         if (!oldConveyer) {
-            oldConveyer = conveyer.copy();
-            oldConveyer.content = new Array<Entity | undefined>(lastIndex + 1, undefined);
-            this.conveyers.set(conveyer.position, oldConveyer);
-            this.entitiesBaseparts.set(oldConveyer.position, new Array<BasePart | undefined>(lastIndex + 1, undefined));
+            this.setupNewConveyer(conveyer)
         }
 
         if (oldConveyer) {
-            let previousConveyerPos
             if (i === 0) {
                 this.moveEntityToNextConveyer(conveyer, oldConveyer);
-            } else if (i === lastIndex) {
+            } else if (i === LAST_INDEX) {
                 this.spawnEntity(conveyer, oldConveyer);
             } else {
                 this.moveEntityInConveyer(i, conveyer, oldConveyer);
@@ -60,43 +64,52 @@ class EntitiesHandler {
         }
     }
 
+    setupEntity(entity: BasePart, conveyer: Conveyor) {
+        entity.Orientation = new Vector3(0, conveyer.getOrientation(), 0);
+        entity.Anchored = true;
+        entity.Position = getNewEntityPostion(conveyer, this.gridBase, LAST_INDEX + 1, entity.Size.Y / 2);
+        entity.Parent = this.gridBase.FindFirstChild("Entities");
+    }
+
     spawnEntity(conveyer: Conveyor, oldConveyer: Conveyor) {
-        const lastIndex = conveyer.getMaxContentSize() - 1;
         const entitiesBaseparts = this.entitiesBaseparts.get(conveyer.position)
         if (!entitiesBaseparts) error("conveyerEntitiesBaseparts is undefined");
-        if (oldConveyer.content[lastIndex]?.id === conveyer.content[lastIndex]?.id || !conveyer.content[lastIndex]) return;
+        if (oldConveyer.content[LAST_INDEX]?.id === conveyer.content[LAST_INDEX]?.id || !conveyer.content[LAST_INDEX]) return;
         let entity: BasePart | undefined;
 
         const prevTileEntityPosition = conveyer.inputTiles[0] as unknown;
 
         if (!prevTileEntityPosition || !this.entitiesBaseparts.get(prevTileEntityPosition as Vector3)) {
-            entity = getEntityModel(conveyer.content[lastIndex]!);
-            if (!entity) error(`entity ${conveyer.content[lastIndex]!.name} is undefined`);
-            entity.Orientation = new Vector3(0, conveyer.getOrientation(), 0);
-            entity.Anchored = true;
-            entity.Parent = this.gridBase.WaitForChild("Entities");
+            entity = getEntityModel(conveyer.content[LAST_INDEX]!);
+            if (!entity) error(`entity ${conveyer.content[LAST_INDEX]!.name} is undefined`);
+            this.setupEntity(entity, conveyer)
         } else {
             const previousEntities = this.entitiesBaseparts.get(prevTileEntityPosition as Vector3);
             if (!previousEntities) error("previousEntity is undefined");
             entity = previousEntities[0];
             previousEntities[0] = undefined
         }
-        entitiesBaseparts[lastIndex] = entity;
+        entitiesBaseparts[LAST_INDEX] = entity;
 
         if (!entity) error("entity is undefined");
+        
+        this.moveEntityInConveyer(LAST_INDEX, conveyer, oldConveyer)
+
+        /*
         const entityHeightPos = entity.Size.Y / 2;
         if (conveyer.isTurning && prevTileEntityPosition) {
-            entity.Position = getEntityPositionInTurningConveyer(conveyer, prevTileEntityPosition as Vector3, this.gridBase, lastIndex + 1, entityHeightPos);
-            this.lerpEntity(entity, lastIndex, conveyer, getEntityPositionInTurningConveyer(conveyer, prevTileEntityPosition as Vector3, this.gridBase, lastIndex, entityHeightPos));
+            entity.Position = getEntityPositionInTurningConveyer(conveyer, prevTileEntityPosition as Vector3, this.gridBase, LAST_INDEX + 1, entityHeightPos);
+            this.lerpEntity(entity, LAST_INDEX, conveyer, getEntityPositionInTurningConveyer(conveyer, prevTileEntityPosition as Vector3, this.gridBase, LAST_INDEX, entityHeightPos));
         } else {
-            entity.Position = getNewEntityPostion(conveyer, this.gridBase, lastIndex + 1, entityHeightPos);
-            this.lerpEntity(entity, lastIndex, conveyer);
+            entity.Position = getNewEntityPostion(conveyer, this.gridBase, LAST_INDEX + 1, entityHeightPos);
+            this.lerpEntity(entity, LAST_INDEX, conveyer);
         }
+        */
     }
 
     moveEntityInConveyer(i: number, conveyer: Conveyor, oldConveyer: Conveyor) {
-        const conveyerEntitiesBaseparts = this.entitiesBaseparts.get(conveyer.position);
-        const currentBasePart: BasePart | undefined = conveyerEntitiesBaseparts ? conveyerEntitiesBaseparts[i + 1] : undefined;
+        const conveyerEntitiesBaseparts = this.entitiesBaseparts.get(conveyer.position)!;
+        const currentBasePart = conveyerEntitiesBaseparts[i + 1];
         if (!conveyerEntitiesBaseparts || !currentBasePart) return;
         const prevTileEntityPosition = conveyer.inputTiles[0] as unknown;
         const shouldMove = shouldMoveEntityInConveyer(conveyer, oldConveyer, i);
@@ -163,14 +176,14 @@ function getNewEntityPostion(conveyer: Conveyor, gridBase: BasePart, index: numb
 }
 
 function getEntityPositionInTurningConveyer(conveyer: Conveyor, previousConveyerPos: Vector3, gridBase: BasePart, index: number, partHeight: number): Vector3 {
-    const lastIndex = conveyer.getMaxContentSize();
-    const middleIndex = math.round(conveyer.getMaxContentSize() / 2);
+    const LAST_INDEX = CONTENT_SIZE;
+    const middleIndex = math.round(CONTENT_SIZE / 2);
     const offset = 1.5 / middleIndex;
     const previousConveyerDirection = new Vector3(conveyer.position.X - previousConveyerPos.X, 0, conveyer.position.Z - previousConveyerPos.Z).Unit;
     const departPos = conveyer.getGlobalPosition(gridBase).add(previousConveyerDirection.mul(-1.5));
 
     if (index >= middleIndex) {
-        return departPos.add(new Vector3(previousConveyerDirection.X * offset * (lastIndex - index), 0.15 + partHeight / 2, previousConveyerDirection.Z * offset * (lastIndex - index)));
+        return departPos.add(new Vector3(previousConveyerDirection.X * offset * (LAST_INDEX - index), 0.15 + partHeight / 2, previousConveyerDirection.Z * offset * (LAST_INDEX - index)));
     } else {
         return getNewEntityPostion(conveyer, gridBase, index, partHeight);
     }

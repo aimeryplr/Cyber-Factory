@@ -1,9 +1,9 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
-import { CraftReward, MoneyReward, Quest, Reward, RewardType, TileReward } from "ReplicatedStorage/Scripts/quest/quest";
-import { questList } from "ReplicatedStorage/Scripts/quest/questList";
-import { getImage } from "./imageUtils";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/gridEntities/tileEntityProvider";
+import { CraftReward, MoneyReward, Quest, Reward, RewardType, TileReward } from "ReplicatedStorage/Scripts/Quest/quest";
+import { questList } from "ReplicatedStorage/Scripts/Quest/questList";
+import { getImage } from "../Utils/imageUtils";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile Entities/tileEntityProvider";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
@@ -61,7 +61,7 @@ export class QuestBoard {
         }
     }
 
-    private addItemReward(reward: CraftReward | TileReward , rewardFrame: Frame) {
+    private addItemReward(reward: CraftReward | TileReward, rewardFrame: Frame) {
         const itemPrefab = questboardPrefab.FindFirstChild("item") as itemPrefab;
         if (reward.type === RewardType.CRAFT) {
             for (const craft of reward.craft) {
