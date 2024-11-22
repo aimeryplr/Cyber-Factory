@@ -1,10 +1,10 @@
 // Services
 import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/services";
-import { TileGrid } from "../Tile Grid/tileGrid";
-import { TileEntity } from "../Tile Entities/tileEntity";
-import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "../Tile Entities/Utils/tileEntityUtils";
-import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "../Tile Entities/tileEntityProvider";
-import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/parameters";
+import { TileGrid } from "../TileGrid/tileGrid";
+import { TileEntity } from "../TileEntities/tileEntity";
+import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "../TileEntities/Utils/tileEntityUtils";
+import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "../TileEntities/tileEntityProvider";
+import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/constants";
 import { getSoundEffect, setRandomPitch, playSoundEffectWithoutStopping, playSoundEffectDuplicated } from "../Utils/playSound";
 
 //Event

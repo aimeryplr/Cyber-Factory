@@ -1,82 +1,72 @@
 import { Component, Entity, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
-import { decodeMap, decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { GRID_SIZE } from "ReplicatedStorage/constants";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Efficiency, EncodedEfficiency } from "../Utils/efficiency";
+import { setRandomPitch } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 // Settings
-const MAX_INPUTS = 2;
+const MAX_INPUTS = 1;
 const MAX_OUTPUTS = 1;
 const MAX_CAPACITY = 20;
-const category: string = "assembler";
+const category: string = "crafter";
 const EFFICIENCY_HISTORY_SIZE = 10;
 
-export interface EncodedAssembler extends EncodedTileEntity {
+export interface EncodedCrafter extends EncodedTileEntity {
     isCrafting: boolean,
-    resource: Map<string, number>,
+    resource: number,
     craftedComponent: number,
     currentCraft: string,
     lastProgress: number,
     efficiency: EncodedEfficiency
 }
 
-class Assembler extends TileEntity {
+class Crafter extends TileEntity {
     currentCraft: Component | undefined;
-    resource = new Map<string, number>();
+    resource = 0;
     craftedComponent = 0;
     isCrafting = false;
     lastCraftingProgress = 0;
-    
     private craftingCoroutine: thread | undefined;
-    private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE)
+    private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
-    }
-
-    initResources() {
-        if (!this.currentCraft) return
-
-        for (const [comp, quantity] of this.currentCraft.buildRessources) {
-            this.resource.set(string.lower(comp), 0);
-        }
     }
 
     tick(progress: number): void {
         if (this.getCraftingProgress(progress) < this.lastCraftingProgress) {
-            this.craft();
+            this.efficiency.addSuccess(this.craft());
         }
         if (this.getProgress(progress) < this.lastProgress) {
             if (!this.currentCraft) return;
-            this.efficiency.addSuccess(this.sendItemCrafted());
+            this.sendItemCrafted();
         };
 
-        this.lastProgress = this.getProgress(progress);
         this.lastCraftingProgress = this.getCraftingProgress(progress);
+        this.lastProgress = this.getProgress(progress);
     }
 
     private sendItemCrafted(): boolean {
         if (this.outputTiles.isEmpty()) return false;
-
         if (this.craftedComponent === 0) return false;
+
         this.craftedComponent--;
-        
         const addedEntity = this.outputTiles[0].addEntity(table.clone(this.currentCraft!))
         if (addedEntity) {
             this.craftedComponent++;
             return false
         }
-        return true
+
+        return true;
     }
 
     addEntity(entity: Entity): Entity | undefined {
-        if (!this.resource || !this.resource.has(string.lower(entity.name))) return entity;
-
-        if (this.resource.get(string.lower(entity.name))! >= MAX_CAPACITY) return entity;
+        if (this.resource >= MAX_CAPACITY) return entity;
         if (!this.isRessourceNeeded(entity)) return entity;
 
-        this.resource.set(string.lower(entity.name), this.resource.get(string.lower(entity.name))! + 1);
-        return;
+        this.resource++;
     }
 
     encode(): {} {
@@ -91,11 +81,12 @@ class Assembler extends TileEntity {
         }
     }
 
-    static decode(decoded: unknown): Assembler {
-        const data = decoded as EncodedAssembler;
-        const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+
+    static decode(decoded: unknown, gridBase: BasePart): Crafter {
+        const data = decoded as EncodedCrafter;
+        const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
-        crafter.resource = decodeMap(data.resource) as Map<string, number>;
+        crafter.resource = data.resource;
         crafter.isCrafting = data.isCrafting;
         crafter.craftedComponent = data.craftedComponent;
         crafter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
@@ -105,16 +96,34 @@ class Assembler extends TileEntity {
         return crafter;
     }
 
+    rotate(gridBase: BasePart): void {
+        this.size = new Vector2(this.size.Y, this.size.X);
+        this.direction = new Vector2(-this.direction.Y, this.direction.X);
+
+        const currentPart = this.findThisPartInWorld();
+        const offestPosition = new Vector3(-GRID_SIZE / 2, 0, GRID_SIZE / 2)
+        const isUp = (this.getOrientation() + 90) % 180 === 0
+
+        this.position = isUp ? this.position.sub(offestPosition) : this.position.add(offestPosition);
+        currentPart!.Position = this.getGlobalPosition(gridBase);
+    }
+
     getNewShape(): BasePart | undefined {
         return;
     }
 
-    public setCraft(craft: Component) {
-        assert(craft.type === EntityType.MODULE, "The entity is not a module");
+    public getEfficiency(): number {
+        return this.efficiency.getEfficiency();
+    }
 
+    public setCraft(craft: Component) {
+        assert(craft.type === EntityType.COMPONENT, "The entity is not a component");
+
+        if (this.craftingCoroutine) coroutine.close(this.craftingCoroutine);
+        this.isCrafting = false;
         this.currentCraft = craft;
         this.craftedComponent = 0;
-        this.initResources();
+        this.resource = 0;
     }
 
     private isRessourceNeeded(ressource: Entity): boolean {
@@ -126,30 +135,28 @@ class Assembler extends TileEntity {
     }
 
     private canCraft(): boolean {
-        if (this.craftingCoroutine && coroutine.status(this.craftingCoroutine) === "running") return false; // because we use this.isCrafting to send the status
+        if (this.craftingCoroutine && coroutine.status(this.craftingCoroutine) === "running") return false;
         if (!this.currentCraft) return false;
-        if (!this.currentCraft) return false;
-        for (const [resource, quantity] of this.currentCraft.buildRessources) {
-            if (this.resource.get(string.lower(resource))! < quantity) return false;
-        }
-        return true;
+        const [ressource] = this.currentCraft.buildRessources
+        return this.resource >= ressource[1]
     }
 
-    private craft() {
-        if (!this.currentCraft) return;
-        if (this.craftedComponent >= MAX_CAPACITY) return;
-        if (!this.canCraft()) return;
+    private craft(): boolean {
+        if (!this.currentCraft) return false;
+        if (this.craftedComponent >= MAX_CAPACITY) return false;
+        if (!this.canCraft()) return false;
 
-        for (const [resource, quantity] of this.currentCraft.buildRessources) {
-            this.resource.set(string.lower(resource), this.resource.get(string.lower(resource))! - quantity);
-        }
+        const [resource] = this.currentCraft.buildRessources
+        this.resource -= resource[1];
         this.isCrafting = true;
         this.craftingCoroutine = coroutine.create(() => {
             wait(60 / this.currentCraft!.speed - 0.05);
+            this.makeNoise();
             this.craftedComponent += this.currentCraft!.amount;
             this.isCrafting = false;
         });
         coroutine.resume(this.craftingCoroutine);
+        return true
     }
 
     getCraftingProgress(progress: number): number {
@@ -157,9 +164,11 @@ class Assembler extends TileEntity {
         return (progress * (this.currentCraft.speed / 60)) % 1;
     }
 
-    getEfficiency(): number {
-        return this.efficiency.getEfficiency();
+    makeNoise(): void {
+        const sound = this.findThisPartInWorld()!.FindFirstChild("craftingSound") as Sound;
+        setRandomPitch(sound, 0.98, 1.02);
+        sound.Play();
     }
 }
 
-export default Assembler;
+export default Crafter;

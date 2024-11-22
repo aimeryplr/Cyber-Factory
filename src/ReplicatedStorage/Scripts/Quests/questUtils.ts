@@ -1,4 +1,4 @@
-import { CraftReward, Quest, Reward, RewardType, TileReward } from "./quest";
+import { CraftReward, Quest, RewardType, TileReward } from "./quest";
 import { Tier } from "./tier";
 
 export function resetQuestGoals(quest: Quest): Quest {

@@ -1,8 +1,8 @@
-import Tile from "ReplicatedStorage/Scripts/Tile Entities/tile";
+import Tile from "ReplicatedStorage/Scripts/TileEntities/tile";
 import { HttpService } from "@rbxts/services";
 import { decodeVector2, encodeVector2 } from "ReplicatedStorage/Scripts/Utils/encoding";
-import { TileEntity } from "ReplicatedStorage/Scripts/Tile Entities/tileEntity";
-import { decodeTiles, localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
+import { decodeTiles, localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 
 
 class TileGrid {

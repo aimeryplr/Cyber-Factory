@@ -5,7 +5,7 @@ import { findBasepartByName } from "../Utils/tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
-import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 
 //Setings
 const MAX_INPUTS = 1; // help to upgrade to merger or splitter
@@ -24,7 +24,7 @@ class Conveyor extends TileEntity {
     isTurning = false;
     count = 0
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
@@ -110,7 +110,7 @@ class Conveyor extends TileEntity {
     }
 
     copy(): Conveyor {
-        const newConveyer = new Conveyor(this.name, this.position, this.size, this.direction, this.speed);
+        const newConveyer = new Conveyor(this.name, this.position, this.size, this.direction, this.speed, this.gridBase);
         newConveyer.content = this.content;
         newConveyer.isTurning = this.isTurning;
         return newConveyer;
@@ -125,9 +125,9 @@ class Conveyor extends TileEntity {
         return copy;
     }
 
-    static decode(decoded: unknown): Conveyor {
+    static decode(decoded: unknown, gridBase: BasePart): Conveyor {
         const data = decoded as EncodedConveyor;
-        const conveyer = new Conveyor(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        const conveyer = new Conveyor(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
         conveyer.content = decodeArray(data.content);
         conveyer.isTurning = data.isTurning;
         conveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[];

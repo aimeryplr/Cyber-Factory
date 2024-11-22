@@ -1,9 +1,9 @@
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray, shiftOrder } from "../Utils/conveyerUtils";
 import Conveyor from "./conveyor";
-import type { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
+import type { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
-import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
 // Settings
@@ -18,7 +18,7 @@ export interface EncodedSplitter extends EncodedTileEntity {
 class Splitter extends TileEntity {
     content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
@@ -55,9 +55,9 @@ class Splitter extends TileEntity {
         }
     }
 
-    static decode(decoded: unknown): Splitter {
+    static decode(decoded: unknown, gridBase: BasePart): Splitter {
         const data = decoded as EncodedSplitter;
-        const splitter = new Splitter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        const splitter = new Splitter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
         splitter.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         splitter.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         return splitter;

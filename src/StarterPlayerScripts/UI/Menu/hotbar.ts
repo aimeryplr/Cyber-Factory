@@ -1,12 +1,12 @@
 import { Players, TweenService, Workspace } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile Entities/tileEntityProvider";
-import { findBasepartByName } from "ReplicatedStorage/Scripts/Tile Entities/Utils/tileEntityUtils";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
+import { findBasepartByName } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
 import { getImage } from "../Utils/imageUtils";
-import { BLUE, GRAY } from "ReplicatedStorage/parameters";
-import { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
-import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
-import { getPlacedGenerator } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { BLUE, GRAY } from "ReplicatedStorage/constants";
+import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import { getPlacedGenerator } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;

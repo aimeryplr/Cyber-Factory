@@ -77,6 +77,15 @@
 				},
 				"unlockedTileList": {
 					"$className": "RemoteEvent"
+				},
+				"saveSettings" : {
+					"$className": "RemoteEvent"
+				},
+				"loadSettings" : {
+					"$className": "RemoteEvent"
+				},
+				"questCompleted" : {
+					"$className": "RemoteEvent"
 				}
 			}
 		},

@@ -1,12 +1,12 @@
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
-import Assembler from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/assembler";
+import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
+import Assembler from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/assembler";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getImage } from "../Utils/imageUtils";
-import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
-import { areSameQuests } from "ReplicatedStorage/Scripts/Quest/questUtils";
-import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quest/questList";
+import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
+import { areSameQuests } from "ReplicatedStorage/Scripts/Quests/questUtils";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList";
 import { Menu } from "./menu";
 import { FormatCompact } from "@rbxts/format-number";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
@@ -20,12 +20,14 @@ class AssemblerMenu implements Menu {
     tileEntity: Assembler | undefined;
     quests = new Array<Quest>();
     menu: assemblerMenu;
+    gridBase: BasePart;
     wasCrafting = false;
 
     private barTween: Tween | undefined;
 
-    constructor(player: Player) {
+    constructor(player: Player, gridBase: BasePart) {
         this.player = player;
+        this.gridBase = gridBase;
         this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("assemblerMenu") as assemblerMenu;
         playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => this.setupQuests(quests));
     }
@@ -100,7 +102,7 @@ class AssemblerMenu implements Menu {
 
         changeCrafterOrAssemblerCraft.FireServer(this.tileEntity!.position, component.name);
         while (this.tileEntity?.currentCraft?.name !== component.name) {
-            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position))) as Assembler;
+            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position)), this.gridBase) as Assembler;
             wait(0.1);
         }
 
@@ -153,7 +155,7 @@ class AssemblerMenu implements Menu {
         RunService.BindToRenderStep("crafterMenu", 1, () => {
             if (!this.tileEntity) return;
             this.wasCrafting = this.tileEntity.isCrafting;
-            this.tileEntity = Assembler.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.tileEntity = Assembler.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)), this.gridBase);
             this.updateAmount();
             this.setupProgressBar();
         });

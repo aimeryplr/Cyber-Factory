@@ -1,6 +1,7 @@
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
 import { onChangingCrafterOrAssemblerCraft, onChangingGeneratorRessource, onGettingTileEvent, onPlacingTile, onPlayerRemoving, onRemoveTileEvent, resetPlot, resetQuests, rotateTile } from "./plotEventHandler";
+import { setBaseVolumeValue } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 // EVENTS
 const placeTileCallback = ReplicatedStorage.WaitForChild("Events").WaitForChild("placeTileCheck") as RemoteFunction;
@@ -25,3 +26,5 @@ changeCrafterOrAssemblerCraft.OnServerEvent.Connect((player, position, component
 rotateTileEvent.OnServerEvent.Connect((player, position) => { rotateTile(plotsManager, player, position) });
 resetPlotEvent.Event.Connect((player) => { resetPlot(plotsManager, player) });
 resetQuestsEvent.Event.Connect((player) => { resetQuests(plotsManager, player) });
+
+setBaseVolumeValue();

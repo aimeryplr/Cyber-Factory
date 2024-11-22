@@ -1,12 +1,12 @@
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
-import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
-import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
-import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quest/questList";
+import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList";
 import { EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
-import { areSameQuests } from "ReplicatedStorage/Scripts/Quest/questUtils";
+import { areSameQuests } from "ReplicatedStorage/Scripts/Quests/questUtils";
 import { Menu } from "./menu";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
@@ -16,14 +16,16 @@ const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("
 class GeneratorMenu implements Menu {
     player: Player;
     menu: generatorMenu;
+    gridBase: BasePart
     quests = new Array<Quest>();
     tileEntity: Generator | undefined;
     private timeGeneratorAdded: number | undefined;
 
     private barTween: Tween | undefined;
 
-    constructor(player: Player) {
+    constructor(player: Player, gridBase: BasePart) {
         this.player = player;
+        this.gridBase = gridBase;
         this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("generatorMenu") as generatorMenu;
         playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => this.setupQuests(quests));
     }
@@ -112,7 +114,7 @@ class GeneratorMenu implements Menu {
 
                 changeGeneratorRessourceEvent.FireServer(this.tileEntity.position, resource.Name);
                 while (this.tileEntity?.ressource?.name !== resource.Name) {
-                    this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position))) as Generator;
+                    this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)), this.gridBase) as Generator;
                     wait(0.1);
                 }
                 this.timeGeneratorAdded = tick();
@@ -155,7 +157,7 @@ class GeneratorMenu implements Menu {
         this.menu.Visible = true;
         RunService.BindToRenderStep("generatorMenu", 1, () => {
             if (!this.tileEntity) return;
-            this.tileEntity = Generator.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.tileEntity = Generator.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)), this.gridBase);
             this.updateAmount();
         })
     }

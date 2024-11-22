@@ -1,6 +1,6 @@
 import { FormatInt } from "@rbxts/format-number";
 import { ReplicatedStorage } from "@rbxts/services";
-import { EARNING_MEAN_TIME } from "ReplicatedStorage/parameters";
+import { EARNING_MEAN_TIME } from "ReplicatedStorage/constants";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const player = game.GetService("Players").LocalPlayer;
@@ -32,7 +32,7 @@ export default class CounterUpdater {
                 moneyText.Text = formatCompact(newMoney);
             }
         });
-        
+
         earnMoneyEvent.OnClientEvent.Connect((moneyEarned: number) => {
             this.addEarnings(moneyEarned);
         });
@@ -47,7 +47,7 @@ export default class CounterUpdater {
     calculateMean(): [number, number] {
         const timeNow = tick();
         let mean = 0;
-        
+
         while (this.earningsLog.size() > 0 && timeNow - this.earningsLog[0].time > EARNING_MEAN_TIME) {
             const oldEntry = this.earningsLog.shift();
             if (oldEntry) {

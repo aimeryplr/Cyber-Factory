@@ -1,13 +1,40 @@
-import { DataStoreService } from "@rbxts/services";
-import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
+import { DataStoreService, ReplicatedStorage } from "@rbxts/services";
+import { Settings, settingsData } from "ReplicatedStorage/settings";
+import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
+
+const saveSettingsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("saveSettings") as RemoteEvent;
+
+saveSettingsEvent.OnServerEvent.Connect((player: Player, settings: unknown) => {
+    saveSettings(player.UserId, settings as settingsData);
+})
 
 const dataStore = DataStoreService.GetDataStore("SaveData");
+const settingsStore = DataStoreService.GetDataStore("Settings");
 
 export interface playerData {
     tier: number;
     money: number;
     grid: string; // JSON
     quests: Quest[];
+}
+
+export interface playerSettings {
+    settings: settingsData;
+}
+
+export function getPlayerSettings(playerId: number): playerSettings {
+    const data = retry(() => { return settingsStore.GetAsync(tostring(playerId)); }, 5);
+
+    if (data) {
+        return data as playerSettings;
+    } else {
+        return { settings: Settings.getInstance().getSettings() };
+    }
+
+}
+
+function saveSettings(playerId: number, settings: settingsData): boolean {
+    return retry(() => { return settingsStore.SetAsync(tostring(playerId), { settings: settings }); }, 5) !== undefined;
 }
 
 function getPlayerData(playerId: number): playerData | undefined {

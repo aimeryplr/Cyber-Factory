@@ -1,14 +1,13 @@
-import Crafter from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/crafter";
+import Crafter from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/crafter";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
-import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quest/questList";
-import { Quest } from "ReplicatedStorage/Scripts/Quest/quest";
-import { areSameQuests } from "ReplicatedStorage/Scripts/Quest/questUtils";
+import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList";
+import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
+import { areSameQuests } from "ReplicatedStorage/Scripts/Quests/questUtils";
 import { Menu } from "./menu";
-import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -19,12 +18,14 @@ class CrafterMenu implements Menu {
     tileEntity: Crafter | undefined;
     quests = new Array<Quest>();
     wasCrafting = false;
+    gridBase: BasePart;
     menu: crafterMenu;
 
     private barTween: Tween | undefined;
 
-    constructor(player: Player) {
+    constructor(player: Player, gridBase: BasePart) {
         this.player = player;
+        this.gridBase = gridBase;
         this.menu = player.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("crafterMenu") as crafterMenu;
         playerQuestEvent.OnClientEvent.Connect((quests: Quest[]) => this.setupQuests(quests));
     }
@@ -99,7 +100,7 @@ class CrafterMenu implements Menu {
 
         changeCrafterOrAssemblerCraft.FireServer(this.tileEntity!.position, component.name);
         while (this.tileEntity?.currentCraft?.name !== component.name) {
-            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position))) as Crafter;
+            this.tileEntity = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity!.position)), this.gridBase) as Crafter;
             wait(0.1);
         }
 
@@ -145,7 +146,7 @@ class CrafterMenu implements Menu {
         RunService.BindToRenderStep("crafterMenu", 1, () => {
             if (!this.tileEntity) return;
             this.wasCrafting = this.tileEntity.isCrafting;
-            this.tileEntity = Crafter.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)));
+            this.tileEntity = Crafter.decode(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(this.tileEntity.position)), this.gridBase);
             this.updateAmount();
             this.setupProgressBar();
         });

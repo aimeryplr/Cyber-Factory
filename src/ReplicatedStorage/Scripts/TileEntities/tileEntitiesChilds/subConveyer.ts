@@ -2,8 +2,8 @@ import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { decodeVector2, decodeVector3, decodeVector3Array } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { positionToVector2 } from "ReplicatedStorage/Scripts/Utils/vectorUtils";
-import { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
-import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
+import { GRID_SIZE } from "ReplicatedStorage/constants";
 
 const MAX_DISTANCE = 5;
 const MAX_INPUTS = 1;
@@ -12,7 +12,7 @@ const category = "subConveyer";
 
 
 export class SubConveyer extends TileEntity {
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
@@ -73,9 +73,9 @@ export class SubConveyer extends TileEntity {
         }
     }
 
-    static decode(decoded: unknown): SubConveyer {
+    static decode(decoded: unknown, gridBase: BasePart): SubConveyer {
         const data = decoded as EncodedTileEntity;
-        const subConveyer = new SubConveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        const subConveyer = new SubConveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
         subConveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         subConveyer.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         return subConveyer;

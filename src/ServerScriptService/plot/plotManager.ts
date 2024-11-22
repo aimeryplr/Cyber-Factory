@@ -1,13 +1,14 @@
-import { getPlayerData } from "ServerScriptService/Datastore/datastore";
-import { TileGrid } from "../../ReplicatedStorage/Scripts/Tile Grid/tileGrid";
+import { getPlayerData, getPlayerSettings } from "ServerScriptService/Datastore/datastore";
+import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import Plot from "./plot";
 import { HttpService, Players, ReplicatedStorage, RunService } from "@rbxts/services";
-import { getUnlockedTile } from "ReplicatedStorage/Scripts/Quest/questList";
+import { getUnlockedTile } from "ReplicatedStorage/Scripts/Quests/questList";
 import { sendPlayerMessage } from "ServerScriptService/webhookMessageService";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 const playerQuest = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
+const loadSettingsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("loadSettings") as RemoteEvent;
 
 /**
  * holds every plot in the game with a owner or not
@@ -78,13 +79,13 @@ class PlotManager {
                 const player = Players.GetPlayerFromCharacter(part.Parent);
                 if (!player || this.hasPlayerClaimedPlot(player.UserId)) return;
                 const playerData = getPlayerData(player.UserId);
-
+                
                 plot.addOwner(player);
-
+                
                 if (playerData) {
                     plot.setQuests(playerData.quests);
                     unlockedTileListEvent.FireClient(player, getUnlockedTile(playerData.quests));
-
+                    
                     // load the grid
                     const encodedGrid = getPlayerData(player.UserId)?.grid;
                     if (encodedGrid) {
@@ -93,8 +94,8 @@ class PlotManager {
                     }
                 };
                 this.sendGridTile(player, plot)
-
-                wait(0.5);
+                
+                loadSettingsEvent.FireClient(player, getPlayerSettings(player.UserId).settings);
                 playerQuest.FireClient(player, plot.getQuests());
                 sendPlayerMessage(player, `Player ${player.Name} has claimed a plot`);
             });

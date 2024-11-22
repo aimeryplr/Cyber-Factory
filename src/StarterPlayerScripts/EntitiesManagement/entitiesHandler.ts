@@ -1,8 +1,8 @@
 import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
-import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getEntityModel } from "ReplicatedStorage/Scripts/Entities/entityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/conveyor";
 
 const offset = 0.5;
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;
@@ -30,7 +30,7 @@ class EntitiesHandler {
      * @param prevTileEntity local position of the previous conveyer
      */
     updateConveyerEntities(conveyer: string) {
-        const newConveyer = Conveyor.decode(HttpService.JSONDecode(conveyer));
+        const newConveyer = Conveyor.decode(HttpService.JSONDecode(conveyer), this.gridBase);
 
         for (let i = 0; i < CONTENT_SIZE; i++) {
             this.moveEntity(newConveyer, i);
@@ -92,7 +92,7 @@ class EntitiesHandler {
         entitiesBaseparts[LAST_INDEX] = entity;
 
         if (!entity) error("entity is undefined");
-        
+
         this.moveEntityInConveyer(LAST_INDEX, conveyer, oldConveyer)
 
         /*

@@ -14,7 +14,7 @@ class Seller extends TileEntity {
     playerMoney: NumberValue | undefined;
     sellingCallBack: (entitySoldName: string) => void = () => { };
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
@@ -53,9 +53,9 @@ class Seller extends TileEntity {
         return;
     }
 
-    static decode(decoded: unknown): Seller {
+    static decode(decoded: unknown, gridBase: BasePart): Seller {
         const data = decoded as EncodedTileEntity;
-        const seller = new Seller("seller", new Vector3(data.position.x, data.position.y, data.position.z), decodeVector2(data.size), new Vector2(1, 0), 0);
+        const seller = new Seller("seller", new Vector3(data.position.x, data.position.y, data.position.z), decodeVector2(data.size), new Vector2(1, 0), 0, gridBase);
         seller.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         return seller;
     }

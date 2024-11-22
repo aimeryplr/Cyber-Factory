@@ -1,24 +1,27 @@
 import { HttpService, Players, ReplicatedStorage, RunService, UserInputService } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile Entities/tileEntityProvider";
-import { decodeTile } from "ReplicatedStorage/Scripts/Tile Grid/tileGridUtils";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
+import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
-import Generator from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/generator";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
 import GeneratorMenu from "./Menu/generatorMenu";
-import { getLocalPosition } from "ReplicatedStorage/Scripts/Tile Entities/Utils/tileEntityUtils";
-import Crafter from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/crafter";
+import { getLocalPosition } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
+import Crafter from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/crafter";
 import CrafterMenu from "./Menu/crafterMenu";
-import Assembler from "ReplicatedStorage/Scripts/Tile Entities/tileEntitiesChilds/assembler";
+import Assembler from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/assembler";
 import AssemblerMenu from "./Menu/assemblerMenu";
 import { QuestBoard } from "./Menu/questsBord";
 import { Hotbar } from "./Menu/hotbar";
-import { DEFAULT_HOTBAR, DESTROY_MODE_KEY, ROTATE_KEY, TERMINATE_KEY } from "ReplicatedStorage/parameters";
+import { DEFAULT_HOTBAR, DESTROY_MODE_KEY, ROTATE_KEY, TERMINATE_KEY } from "ReplicatedStorage/constants";
 import { isMouseInMenu, Menu } from "./Menu/menu";
-import { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
+import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import CounterUpdater from "./Menu/counterUpdater";
+import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
+import { playSoundEffectWithoutStopping } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
 const unlockedTileListEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("unlockedTileList") as RemoteEvent;
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
+const questCompletedEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("questCompleted") as RemoteEvent;
 
 const hotBarKeyBinds = [Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four, Enum.KeyCode.Five, Enum.KeyCode.Six, Enum.KeyCode.Seven, Enum.KeyCode.Eight, Enum.KeyCode.Nine];
 
@@ -30,9 +33,9 @@ class InteractionHandler {
 
     private questBoard = new QuestBoard(Players.LocalPlayer);
     private counterUpdater = new CounterUpdater();
-    private generatorMenu = new GeneratorMenu(Players.LocalPlayer);
-    private crafterMenu = new CrafterMenu(Players.LocalPlayer);
-    private assemblerMenu = new AssemblerMenu(Players.LocalPlayer);
+    private generatorMenu;
+    private crafterMenu;
+    private assemblerMenu;
     private hotbar: Hotbar;
 
     private tileGrid: TileGrid | undefined;
@@ -41,6 +44,9 @@ class InteractionHandler {
 
     constructor(gridBase: BasePart) {
         this.gridBase = gridBase;
+        this.generatorMenu = new GeneratorMenu(Players.LocalPlayer, gridBase);
+        this.crafterMenu = new CrafterMenu(Players.LocalPlayer, gridBase);
+        this.assemblerMenu = new AssemblerMenu(Players.LocalPlayer, gridBase);
         this.placementHandler = new PlacementHandler(gridBase);
         this.hotbar = new Hotbar(this.placementHandler);
         this.setupHotbar();
@@ -139,7 +145,7 @@ class InteractionHandler {
     }
 
     public interactWithCrafter(crafterPart: BasePart) {
-        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(crafterPart.Position, this.gridBase))) as Crafter);
+        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(crafterPart.Position, this.gridBase))) as Crafter, this.gridBase);
         this.crafterMenu.setTileEntity(tile as Crafter);
 
         this.crafterMenu.show();
@@ -147,7 +153,7 @@ class InteractionHandler {
     }
 
     public interactWithAssembler(assemblerPart: BasePart) {
-        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(assemblerPart.Position, this.gridBase)))) as Assembler;
+        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(assemblerPart.Position, this.gridBase))), this.gridBase) as Assembler;
         this.assemblerMenu.setTileEntity(tile);
 
         this.assemblerMenu.show();
@@ -155,12 +161,17 @@ class InteractionHandler {
     }
 
     public interarctWithGenerator(generatorPart: BasePart): void {
-        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(generatorPart.Position, this.gridBase))) as Generator);
+        const tile = decodeTile(HttpService.JSONDecode(getTileRemoteFunction.InvokeServer(getLocalPosition(generatorPart.Position, this.gridBase))) as Generator, this.gridBase);
         this.generatorMenu.setTileEntity(tile as Generator);
 
         this.generatorMenu.show();
         this.lastMenu = this.generatorMenu;
     }
 }
+
+questCompletedEvent.OnClientEvent.Connect((quest: Quest) => {
+    const questCompletedSound = ReplicatedStorage.WaitForChild("Sounds").WaitForChild("SFX").WaitForChild("questCompleted") as Sound;
+    playSoundEffectWithoutStopping(questCompletedSound);
+})
 
 export default InteractionHandler;

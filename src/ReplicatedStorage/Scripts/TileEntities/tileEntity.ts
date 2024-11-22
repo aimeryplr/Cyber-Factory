@@ -1,8 +1,8 @@
-import type { TileGrid } from "ReplicatedStorage/Scripts/Tile Grid/tileGrid";
+import type { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import Tile, { encodedTile } from "./tile";
 import { getGlobalPosition } from "./Utils/tileEntityUtils";
-import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { GRID_SIZE } from "ReplicatedStorage/constants";
 import { encodeVector2, encodeVector3 } from "../Utils/encoding";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
@@ -25,7 +25,7 @@ abstract class TileEntity extends Tile {
 
     lastProgress: number = 0;
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number, gridBase: BasePart) {
         super(name, position, size, direction, gridBase);
         this.category = category;
         this.speed = speed;

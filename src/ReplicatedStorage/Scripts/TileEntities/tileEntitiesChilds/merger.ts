@@ -1,7 +1,7 @@
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray, shiftOrder, transferItemToArray } from "../Utils/conveyerUtils";
 import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
-import { CONTENT_SIZE } from "ReplicatedStorage/parameters";
+import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
 //Setings
@@ -17,7 +17,7 @@ class Merger extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
         super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
     }
 
@@ -54,9 +54,9 @@ class Merger extends TileEntity {
         }
     }
 
-    static decode(decoded: unknown): Merger {
+    static decode(decoded: unknown, gridBase: BasePart): Merger {
         const data = decoded as EncodedMerger;
-        const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed);
+        const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
         merger.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         merger.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         return merger;

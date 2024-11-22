@@ -13,9 +13,9 @@ class Tile {
     name: string;
     size: Vector2;
     direction: Vector2;
-    gridBase: BasePart | undefined;
+    gridBase: BasePart;
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase?: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart) {
         this.position = position;
         this.name = name;
         this.size = size;
@@ -57,9 +57,9 @@ class Tile {
         }
     }
 
-    static decode(decoded: unknown): Tile {
+    static decode(decoded: unknown, gridBase: BasePart): Tile {
         const data = decoded as { name: string, position: { x: number, y: number, z: number }, size: { x: number, y: number }, direction: { x: number, y: number } };
-        return new Tile(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction));
+        return new Tile(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase);
     }
 }
 

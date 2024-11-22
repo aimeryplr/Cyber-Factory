@@ -1,6 +1,6 @@
 import { ReplicatedStorage } from "@rbxts/services";
 import { TileEntity } from "../tileEntity";
-import { GRID_SIZE } from "ReplicatedStorage/parameters";
+import { GRID_SIZE } from "ReplicatedStorage/constants";
 
 /**
  * find the part in the entities folder in the replicated storage
@@ -10,7 +10,7 @@ import { GRID_SIZE } from "ReplicatedStorage/parameters";
 function findBasepartByName(name: string): BasePart {
     const tileObj = ReplicatedStorage.FindFirstChild("GridEntities")?.FindFirstChild(name) as BasePart;
     assert(tileObj, `gridEntity ${name} not found`);
-    
+
     return tileObj;
 }
 

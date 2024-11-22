@@ -3,7 +3,7 @@ import { getPlayerData } from "./datastore";
 
 
 Players.PlayerAdded.Connect((player) => {
-    setupLeaderStats(player)    
+    setupLeaderStats(player)
 
     // Variables
     const moneyValue = player.WaitForChild("leaderstats")?.FindFirstChild("Money") as IntValue;
