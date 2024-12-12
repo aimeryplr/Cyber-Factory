@@ -62,12 +62,8 @@ class Merger extends TileEntity {
         return merger;
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
-    }
-
-    private getBasepartName(): string {
-        return "merger_" + (this.name as string).split("_")[1];
     }
 }
 

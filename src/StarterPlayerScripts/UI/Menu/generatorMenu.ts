@@ -1,5 +1,5 @@
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
@@ -8,6 +8,7 @@ import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList"
 import { EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { areSameQuests } from "ReplicatedStorage/Scripts/Quests/questUtils";
 import { Menu } from "./menu";
+import { setRandomPitch } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 const changeGeneratorRessourceEvent = game.GetService("ReplicatedStorage").WaitForChild("Events").WaitForChild("changeGeneratorRessource") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -120,6 +121,10 @@ class GeneratorMenu implements Menu {
                 this.timeGeneratorAdded = tick();
                 this.setupCurrentRessource(this.tileEntity);
                 this.setupProgressBar();
+
+                const selectRecipeSound = ReplicatedStorage.WaitForChild("Sounds").WaitForChild("SFX").WaitForChild("selectRecipe") as Sound;
+                setRandomPitch(selectRecipeSound, 0.98, 1.02);
+                selectRecipeSound.Play();
             });
         }
     }

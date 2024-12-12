@@ -62,7 +62,7 @@ class Conveyor extends TileEntity {
     /**
      * change the basepart depending if the conveyer is turning
      */
-    getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
+    getNewMesh(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
         const conveyerBasepart = tilePart ?? this.findThisPartInWorld();
 
         if (!this.inputTiles.isEmpty() && this.inputTiles[0] instanceof TileEntity) {
@@ -83,8 +83,8 @@ class Conveyor extends TileEntity {
         this.isTurning = this.getIsTurning();
     }
 
-    updateShape(gridBase: BasePart): void {
-        const newShape = this.getNewShape(gridBase);
+    updateModel(gridBase: BasePart): void {
+        const newShape = this.getNewMesh(gridBase);
         const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;
 

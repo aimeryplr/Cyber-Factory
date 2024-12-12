@@ -60,7 +60,7 @@ class Seller extends TileEntity {
         return seller;
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
     }
 }

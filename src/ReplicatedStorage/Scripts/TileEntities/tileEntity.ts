@@ -15,7 +15,7 @@ export interface EncodedTileEntity extends encodedTile {
 }
 
 abstract class TileEntity extends Tile {
-    category: string;
+    readonly category: string;
     speed: number // the speed in object per second produced
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
@@ -54,9 +54,9 @@ abstract class TileEntity extends Tile {
      * return the basepart that represent the tileEntity
      * @example Conveyer turn to right -> getNewShape return this new Basepart
      */
-    abstract getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
+    abstract getNewMesh(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
 
-    updateShape(gridBase: BasePart): void {
+    updateMesh(gridBase: BasePart): void {
         const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;
 

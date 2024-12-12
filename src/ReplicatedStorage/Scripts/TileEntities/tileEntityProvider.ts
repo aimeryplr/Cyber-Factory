@@ -1,13 +1,13 @@
-import Assembler from "./tileEntitiesChilds/assembler";
-import Conveyor from "./tileEntitiesChilds/conveyor";
-import Crafter from "./tileEntitiesChilds/crafter";
+import Assembler from "./Machines/assembler";
+import Conveyor from "./Machines/conveyor";
+import Crafter from "./Machines/crafter";
 import tileEntitiesList from "./tileEntitiesList";
-import Splitter from "./tileEntitiesChilds/splitter";
-import Generator from "./tileEntitiesChilds/generator";
-import Seller from "./tileEntitiesChilds/seller";
+import Splitter from "./Machines/splitter";
+import Generator from "./Machines/generator";
+import Seller from "./Machines/seller";
 import { TileEntity } from "./tileEntity";
-import Merger from "./tileEntitiesChilds/merger";
-import { SubConveyer } from "./tileEntitiesChilds/subConveyer";
+import Merger from "./Machines/merger";
+import { SubConveyer } from "./Machines/subConveyer";
 
 
 const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {

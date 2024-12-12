@@ -1,17 +1,17 @@
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
 import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
 import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
 import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/Datastore/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/crafter";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
+import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
 import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Component } from "ReplicatedStorage/Scripts/Entities/entity";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/assembler";
+import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
 import { questTreeArray } from "ReplicatedStorage/Scripts/Quests/questList";
 import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/Quests/questTreeUtils";
 import { getPlacedGenerator } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
@@ -121,7 +121,7 @@ export const rotateTile = (plotManager: PlotManager, player: Player, position: u
         }
         tileGrid.addTile(tile);
         tile.setAllConnectedNeighboursTileEntity(tileGrid);
-        tile.updateShape(plot.getGridBase());
+        tile.updateMesh(plot.getGridBase());
         sendTileGrid.FireClient(player, HttpService.JSONEncode(plot.encode()));
     }
 

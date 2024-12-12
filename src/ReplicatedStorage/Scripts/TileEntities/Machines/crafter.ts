@@ -108,7 +108,7 @@ class Crafter extends TileEntity {
         currentPart!.Position = this.getGlobalPosition(gridBase);
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
     }
 

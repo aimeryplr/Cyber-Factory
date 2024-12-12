@@ -179,7 +179,7 @@ class PlacementHandler {
         // check the new shape
         this.tileGrid.addTile(tile);
         tile.setAllConnectedNeighboursTileEntity(this.tileGrid);
-        const newShape = tile.getNewShape(this.gridBase, this.currentTile);
+        const newShape = tile.getNewMesh(this.gridBase, this.currentTile);
         removeAllTileFromAllConnectedTiles(tile);
         this.tileGrid.removeTile(tile);
         if (newShape) {

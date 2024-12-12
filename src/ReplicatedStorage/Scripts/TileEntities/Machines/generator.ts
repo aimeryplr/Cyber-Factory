@@ -50,7 +50,7 @@ class Generator extends TileEntity {
         this.speed = ressource.speed;
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
     }
 

@@ -1,7 +1,7 @@
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/assembler";
+import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getImage } from "../Utils/imageUtils";
 import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
@@ -10,6 +10,7 @@ import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList"
 import { Menu } from "./menu";
 import { FormatCompact } from "@rbxts/format-number";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
+import { playSoundEffectAtRandomTime, setRandomPitch } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -88,6 +89,9 @@ class AssemblerMenu implements Menu {
                 if (!this.tileEntity) return;
                 if (this.tileEntity.currentCraft && this.tileEntity.currentCraft.name === componentName) return;
 
+                const selectRecipeSound = ReplicatedStorage.WaitForChild("Sounds").WaitForChild("SFX").WaitForChild("selectRecipe") as Sound;
+                setRandomPitch(selectRecipeSound, 0.98, 1.02);
+                selectRecipeSound.Play();
                 this.setupCurrentComponent(entitiesList.get(componentName) as Component);
             });
         }

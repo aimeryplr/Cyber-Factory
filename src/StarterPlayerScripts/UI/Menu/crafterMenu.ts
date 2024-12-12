@@ -1,4 +1,4 @@
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/crafter";
+import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";
@@ -8,6 +8,7 @@ import { getUnlockedEntities } from "ReplicatedStorage/Scripts/Quests/questList"
 import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";
 import { areSameQuests } from "ReplicatedStorage/Scripts/Quests/questUtils";
 import { Menu } from "./menu";
+import { setRandomPitch } from "ReplicatedStorage/Scripts/Utils/playSound";
 
 const changeCrafterOrAssemblerCraft = ReplicatedStorage.WaitForChild("Events").WaitForChild("changeCrafterOrAssemblerCraft") as RemoteEvent;
 const getTileRemoteFunction = ReplicatedStorage.WaitForChild("Events").WaitForChild("getTile") as RemoteFunction;
@@ -86,6 +87,9 @@ class CrafterMenu implements Menu {
                 if (!this.tileEntity) return;
                 if (this.tileEntity.currentCraft && this.tileEntity.currentCraft.name === componentName) return;
 
+                const selectRecipeSound = ReplicatedStorage.WaitForChild("Sounds").WaitForChild("SFX").WaitForChild("selectRecipe") as Sound;
+                setRandomPitch(selectRecipeSound, 0.98, 1.02);
+                selectRecipeSound.Play();
                 this.setupCurrentComponent(entitiesList.get(componentName) as Component);
             });
         }

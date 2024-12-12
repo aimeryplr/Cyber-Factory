@@ -1,16 +1,16 @@
 import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/TileGrid/tileGrid";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
 import Plot from "./plot";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 
 function changeShapes(tile: TileEntity, gridBase: BasePart, tileGrid: TileGrid): void {
-    tile.updateShape(gridBase);
+    tile.updateMesh(gridBase);
     for (const neighbour of tile.getAllNeighbours(tileGrid)) {
-        neighbour[0].updateShape(gridBase);
+        neighbour[0].updateMesh(gridBase);
     }
 }
 

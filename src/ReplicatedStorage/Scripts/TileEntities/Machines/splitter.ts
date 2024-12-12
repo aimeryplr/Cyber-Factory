@@ -77,7 +77,7 @@ class Splitter extends TileEntity {
         return neighbourTile.direction !== this.direction.mul(-1)
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
     }
 

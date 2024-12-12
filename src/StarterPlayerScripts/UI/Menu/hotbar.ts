@@ -5,7 +5,7 @@ import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/Place
 import { getImage } from "../Utils/imageUtils";
 import { BLUE, GRAY } from "ReplicatedStorage/constants";
 import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
 import { getPlacedGenerator } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 

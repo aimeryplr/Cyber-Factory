@@ -2,11 +2,11 @@ import { ReplicatedStorage } from "@rbxts/services";
 import { appendInputTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/conveyerUtils";
 import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
 import Tile from "ReplicatedStorage/Scripts/TileEntities/tile";
-import Seller from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/seller";
+import Seller from "ReplicatedStorage/Scripts/TileEntities/Machines/seller";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
 import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/Quests/quest";
 import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/Quests/questUtils";
@@ -236,7 +236,7 @@ class Plot {
 
 			const basepart = findBasepartByName(tile.name);
 			setupObject(basepart, tile.getGlobalPosition(this.gridBase), tile.getOrientation(), this.gridBase);
-			if (tile instanceof TileEntity) tile.updateShape(this.gridBase)
+			if (tile instanceof TileEntity) tile.updateMesh(this.gridBase)
 
 			if (tile instanceof Seller) {
 				tile.setOwner(this.owner as number)

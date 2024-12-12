@@ -26,7 +26,7 @@ class Assembler extends TileEntity {
     craftedComponent = 0;
     isCrafting = false;
     lastCraftingProgress = 0;
-    
+
     private craftingCoroutine: thread | undefined;
     private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE)
 
@@ -60,7 +60,7 @@ class Assembler extends TileEntity {
 
         if (this.craftedComponent === 0) return false;
         this.craftedComponent--;
-        
+
         const addedEntity = this.outputTiles[0].addEntity(table.clone(this.currentCraft!))
         if (addedEntity) {
             this.craftedComponent++;
@@ -105,7 +105,7 @@ class Assembler extends TileEntity {
         return crafter;
     }
 
-    getNewShape(): BasePart | undefined {
+    getNewMesh(): BasePart | undefined {
         return;
     }
 

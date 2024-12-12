@@ -2,12 +2,12 @@ import { HttpService, Players, ReplicatedStorage, RunService, UserInputService }
 import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/generator";
+import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
 import GeneratorMenu from "./Menu/generatorMenu";
 import { getLocalPosition } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/crafter";
+import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
 import CrafterMenu from "./Menu/crafterMenu";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/tileEntitiesChilds/assembler";
+import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
 import AssemblerMenu from "./Menu/assemblerMenu";
 import { QuestBoard } from "./Menu/questsBord";
 import { Hotbar } from "./Menu/hotbar";

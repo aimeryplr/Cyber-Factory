@@ -45,7 +45,7 @@ export class SubConveyer extends TileEntity {
         return this.outputTiles[0].addEntity(entity);
     }
 
-    getNewShape(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
+    getNewMesh(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined {
         return;
     }
 
