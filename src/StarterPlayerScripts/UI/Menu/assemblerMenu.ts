@@ -1,7 +1,7 @@
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
+import Assembler from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/assembler";
 import { Component, EntityType } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getImage } from "../Utils/imageUtils";
 import { Quest } from "ReplicatedStorage/Scripts/Quests/quest";

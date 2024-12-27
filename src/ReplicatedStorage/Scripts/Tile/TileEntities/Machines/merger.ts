@@ -1,6 +1,6 @@
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray, shiftOrder, transferItemToArray } from "../Utils/conveyerUtils";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, EncodedArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
@@ -10,7 +10,7 @@ const MAX_OUTPUTS = 1;
 const category: string = "merger";
 
 export interface EncodedMerger extends EncodedTileEntity {
-    content: Array<Entity | undefined>
+    content: EncodedArray<Entity>,
 }
 
 class Merger extends TileEntity {
@@ -47,7 +47,7 @@ class Merger extends TileEntity {
         shiftOrder(this.inputTiles)
     }
 
-    encode(): {} {
+    encode(): EncodedMerger {
         return {
             ...super.encode(),
             "content": encodeArray(this.content, CONTENT_SIZE)

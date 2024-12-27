@@ -8,9 +8,10 @@ import Seller from "./Machines/seller";
 import { TileEntity } from "./tileEntity";
 import Merger from "./Machines/merger";
 import { SubConveyer } from "./Machines/subConveyer";
+import { ElectricPole } from "./Electricity/ElectricPole";
 
 
-const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
+const tileRegistry: { [key: string]: new (...args: any[]) => any } = {
     "conveyor": Conveyor,
     "splitter": Splitter,
     "crafter": Crafter,
@@ -18,7 +19,8 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "generator": Generator,
     "seller": Seller,
     "merger": Merger,
-    "subConveyer": SubConveyer
+    "subConveyer": SubConveyer,
+    "electricPole": ElectricPole,
 };
 
 /**
@@ -28,7 +30,7 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
  * @returns the class created
  */
 function getTileEntityByCategory(className: string, name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart): TileEntity {
-    const ClassConstructor = tileEntityRegistry[className];
+    const ClassConstructor = tileRegistry[className];
     if (ClassConstructor) {
         return new ClassConstructor(name, position, size, direction, speed, gridBase);
     } else {

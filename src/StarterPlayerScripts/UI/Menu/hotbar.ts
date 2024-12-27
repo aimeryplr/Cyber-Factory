@@ -1,12 +1,12 @@
 import { Players, TweenService, Workspace } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
-import { findBasepartByName } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
+import { findBasepartByName } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
 import { getImage } from "../Utils/imageUtils";
 import { BLUE, GRAY } from "ReplicatedStorage/constants";
 import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
-import { getPlacedGenerator } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
+import { getPlacedGeneratorCount } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
@@ -208,7 +208,7 @@ class HotbarSlot {
         if (!tileGrid) return this.info!.price;
         if (!this.info) return 0;
 
-        return this.info!.category === "generator" ? Generator.getPrice(getPlacedGenerator(tileGrid)) : this.info!.price;
+        return this.info!.category === "generator" ? Generator.getPrice(getPlacedGeneratorCount(tileGrid)) : this.info!.price;
     }
 
     public getSlotFrame(): Frame {

@@ -1,13 +1,13 @@
 import { HttpService, Players, ReplicatedStorage, RunService, UserInputService } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
 import GeneratorMenu from "./Menu/generatorMenu";
-import { getLocalPosition } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
+import { getLocalPosition } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
+import Crafter from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/crafter";
 import CrafterMenu from "./Menu/crafterMenu";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
+import Assembler from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/assembler";
 import AssemblerMenu from "./Menu/assemblerMenu";
 import { QuestBoard } from "./Menu/questsBord";
 import { Hotbar } from "./Menu/hotbar";
@@ -78,6 +78,7 @@ class InteractionHandler {
         this.hotbar.setSlotFromName(3, "splitter");
         this.hotbar.setSlotFromName(4, "merger");
         this.hotbar.setSlotFromName(7, "underground conveyer");
+        this.hotbar.setSlotFromName(8, "electric pole");
     }
 
     handleInputs(input: InputObject | undefined, gameProcessed: boolean) {

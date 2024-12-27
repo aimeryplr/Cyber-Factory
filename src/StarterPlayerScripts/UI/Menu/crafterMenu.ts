@@ -1,4 +1,4 @@
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
+import Crafter from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/crafter";
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";

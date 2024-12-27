@@ -1,4 +1,7 @@
-function encodeVector3(v: Vector3): {x: number, y: number, z: number} {
+export type EncodedVector3 = { x: number, y: number, z: number };
+export type EncodedVector2 = { x: number, y: number };
+
+function encodeVector3(v: Vector3): EncodedVector3 {
     const encodedVector = {
         x: v.X,
         y: v.Y,
@@ -7,7 +10,7 @@ function encodeVector3(v: Vector3): {x: number, y: number, z: number} {
     return encodedVector;
 }
 
-function encodeVector2(v: Vector2): {x: number, y: number} {
+function encodeVector2(v: Vector2): EncodedVector2 {
     const encodedVector = {
         x: v.X,
         y: v.Y,
@@ -15,8 +18,10 @@ function encodeVector2(v: Vector2): {x: number, y: number} {
     return encodedVector;
 }
 
-function encodeArray(array: Array<unknown | undefined>, maxSize: number): { [key: number]: any } {
-    const serialized = new Array(maxSize);
+export type EncodedArray<T> = Array<T | "n">;
+
+function encodeArray<T>(array: Array<T | undefined>, maxSize: number): EncodedArray<T> {
+    const serialized = new Array<T | "n">(maxSize);
 
     for (let i = 0; i < maxSize; i++) {
         const value = array[i];
@@ -29,29 +34,29 @@ function encodeArray(array: Array<unknown | undefined>, maxSize: number): { [key
     return serialized;
 }
 
-function decodeArray(array: Array<unknown>): Array<any> {
-    const result: Array<unknown> = new Array(array.size());
+function decodeArray<T>(array: EncodedArray<T>): Array<T | undefined> {
+    const result: Array<T | undefined> = [];
 
     for (let i = 0; i < array.size(); i++) {
         if (array[i] === "n") {
             result[i] = undefined; // Restore undefined/null values
         } else {
-            result[i] = array[i];
+            result[i] = array[i] as T;
         }
     };
 
     return result;
 }
 
-function decodeVector3(v: {x: number, y: number, z: number}): Vector3 {
+function decodeVector3(v: EncodedVector3): Vector3 {
     return new Vector3(v.x, v.y, v.z);
 }
 
-function decodeVector2(v: {x: number, y: number}): Vector2 {
+function decodeVector2(v: EncodedVector2): Vector2 {
     return new Vector2(v.x, v.y);
 }
 
-function decodeVector3Array(a: Array<{x: number, y: number, z: number}>): Array<unknown> {
+function decodeVector3Array(a: Array<EncodedVector3>): Array<unknown> {
     const result = new Array<Vector3>(a.size());
     for (let i = 0; i < a.size(); i++) {
         result[i] = decodeVector3(a[i]);

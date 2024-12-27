@@ -54,7 +54,7 @@ class Generator extends TileEntity {
         return;
     }
 
-    public encode(): {} {
+    public encode(): EncodedGenerator {
         return {
             ...super.encode(),
             "ressource": this.ressource?.name,

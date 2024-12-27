@@ -1,6 +1,6 @@
 import { decodeVector2, decodeVector3, encodeVector2, encodeVector3 } from "../Utils/encoding";
 
-export interface encodedTile {
+export interface EncodedTile {
     name: string,
     position: { x: number, y: number, z: number },
     size: { x: number, y: number },
@@ -25,7 +25,7 @@ class Tile {
 
     findThisPartInWorld(): BasePart | undefined {
         if (!this.gridBase) error("gridBase not defined");
-        
+
         const gridPart = this.gridBase.FindFirstChild("PlacedObjects")?.GetChildren() as Array<BasePart>;
         const gridBasePosition = this.gridBase.Position;
 
@@ -48,7 +48,7 @@ class Tile {
         return -math.deg(math.atan2(this.direction.Y, this.direction.X))
     }
 
-    encode(): {} {
+    encode(): EncodedTile {
         return {
             "name": this.name,
             "position": encodeVector3(this.position),

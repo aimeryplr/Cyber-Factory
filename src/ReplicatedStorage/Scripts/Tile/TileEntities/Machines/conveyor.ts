@@ -4,7 +4,7 @@ import { moveItemsInArray } from "../Utils/conveyerUtils";
 import { findBasepartByName } from "../Utils/tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, EncodedArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 
 //Setings
@@ -14,7 +14,7 @@ const category: string = "conveyor";
 const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;
 
 export interface EncodedConveyor extends EncodedTileEntity {
-    content: Array<Entity | undefined>,
+    content: EncodedArray<Entity>,
     isTurning: boolean,
 }
 
@@ -116,13 +116,12 @@ class Conveyor extends TileEntity {
         return newConveyer;
     }
 
-    encode(): {} {
-        const copy = {
+    encode(): EncodedConveyor {
+        return {
             ...super.encode(),
-            "content": encodeArray(this.content, CONTENT_SIZE),
-            "isTurning": this.getIsTurning()
+            content: encodeArray(this.content, CONTENT_SIZE),
+            isTurning: this.getIsTurning()
         }
-        return copy;
     }
 
     static decode(decoded: unknown, gridBase: BasePart): Conveyor {

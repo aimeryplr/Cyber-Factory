@@ -1,13 +1,15 @@
 import type { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
-import Tile, { encodedTile } from "./tile";
+import Tile, { EncodedTile } from "../tile";
 import { getGlobalPosition } from "./Utils/tileEntityUtils";
 import { GRID_SIZE } from "ReplicatedStorage/constants";
-import { encodeVector2, encodeVector3 } from "../Utils/encoding";
+import { encodeVector2, encodeVector3 } from "../../Utils/encoding";
+import { EnergyComponent } from "../../Energy/energyComponent";
 
 const allDirections = [new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 0), new Vector2(0, -1)]
 
-export interface EncodedTileEntity extends encodedTile {
+export interface EncodedTileEntity extends EncodedTile {
+    category: string,
     direction: { x: number, y: number },
     speed: number,
     inputTiles: Array<{ x: number, y: number, z: number }>,
@@ -16,9 +18,10 @@ export interface EncodedTileEntity extends encodedTile {
 
 abstract class TileEntity extends Tile {
     readonly category: string;
-    speed: number // the speed in object per second produced
+    speed: number // the speed in object per minutes produced
     inputTiles: Array<TileEntity>;
     outputTiles: Array<TileEntity>;
+    protected energyComponent: EnergyComponent | undefined;
 
     maxInputs: number;
     maxOutputs: number;
@@ -56,25 +59,23 @@ abstract class TileEntity extends Tile {
      */
     abstract getNewMesh(gridBase: BasePart, tilePart?: BasePart): BasePart | undefined;
 
+    hasEnergyComponent(): boolean {
+        return this.energyComponent !== undefined;
+    }
+
+    getEnergyComponent(): EnergyComponent {
+        if (!this.energyComponent)
+            error("EnergyComponent not defined");
+
+        return this.energyComponent;
+    }
+
     updateMesh(gridBase: BasePart): void {
         const currentBasePart = this.findThisPartInWorld();
         if (!currentBasePart) return;
 
         currentBasePart.Orientation = new Vector3(0, this.getOrientation(), 0);
         currentBasePart.Position = getGlobalPosition(this.position, gridBase);
-    };
-
-    encode(): {} {
-        return {
-            name: this.name,
-            category: this.category,
-            position: encodeVector3(this.position),
-            size: encodeVector2(this.size),
-            direction: encodeVector2(this.direction),
-            speed: this.speed,
-            inputTiles: this.inputTiles.map((tile) => encodeVector3(tile.position)),
-            outputTiles: this.outputTiles.map((tile) => encodeVector3(tile.position)),
-        };
     };
 
     addInput(previousTileEntity: TileEntity): void {
@@ -95,7 +96,6 @@ abstract class TileEntity extends Tile {
             } else {
                 this.connectInput(neighbourTile, direction);
             }
-
         }
     };
 
@@ -179,6 +179,19 @@ abstract class TileEntity extends Tile {
     getProgress(progress: number): number {
         return (progress * (this.speed / 60)) % 1;
     }
+
+    encode(): EncodedTileEntity {
+        return {
+            name: this.name,
+            category: this.category,
+            position: encodeVector3(this.position),
+            size: encodeVector2(this.size),
+            direction: encodeVector2(this.direction),
+            speed: this.speed,
+            inputTiles: this.inputTiles.map((tile) => encodeVector3(tile.position)),
+            outputTiles: this.outputTiles.map((tile) => encodeVector3(tile.position)),
+        };
+    };
 }
 
 export { TileEntity };

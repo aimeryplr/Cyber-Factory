@@ -1,5 +1,5 @@
 import { GuiService, Players, UserInputService } from "@rbxts/services";
-import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntity";
 
 /**
  * this interface should be used for every menu of interaction with a tileEntity

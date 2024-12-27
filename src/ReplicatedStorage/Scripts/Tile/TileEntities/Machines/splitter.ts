@@ -2,7 +2,7 @@ import { EncodedTileEntity, TileEntity } from "../tileEntity";
 import { moveItemsInArray, shiftOrder } from "../Utils/conveyerUtils";
 import Conveyor from "./conveyor";
 import type { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
-import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeArray, EncodedArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { type Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 
@@ -12,7 +12,7 @@ const MAX_OUTPUTS = 3;
 const category: string = "splitter";
 
 export interface EncodedSplitter extends EncodedTileEntity {
-    content: Array<Entity | undefined>
+    content: EncodedArray<Entity>,
 }
 
 class Splitter extends TileEntity {
@@ -48,10 +48,10 @@ class Splitter extends TileEntity {
         return
     }
 
-    encode(): {} {
+    encode(): EncodedSplitter {
         return {
             ...super.encode(),
-            "content": encodeArray(this.content, CONTENT_SIZE)
+            content: encodeArray(this.content, CONTENT_SIZE)
         }
     }
 

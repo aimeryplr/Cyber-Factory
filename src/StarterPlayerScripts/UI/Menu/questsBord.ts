@@ -3,7 +3,7 @@ import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { CraftReward, MoneyReward, Quest, Reward, RewardType, TileReward } from "ReplicatedStorage/Scripts/Quests/quest";
 import { questList } from "ReplicatedStorage/Scripts/Quests/questList";
 import { getImage } from "../Utils/imageUtils";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
+import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
 
 const playerQuestEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
