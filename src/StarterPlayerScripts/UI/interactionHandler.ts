@@ -1,5 +1,5 @@
 import { HttpService, Players, ReplicatedStorage, RunService, UserInputService } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
+import { getTileInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getTileFromRay, PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
 import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
@@ -130,7 +130,7 @@ class InteractionHandler {
         }
 
 
-        const partInfo = getTileEntityInformation(tilePart.Name);
+        const partInfo = getTileInformation(tilePart.Name);
 
         switch (partInfo.category) {
             case "generator":

@@ -32,8 +32,8 @@ class Assembler extends TileEntity {
     private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE)
     private isActive = true
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
         this.energyComponent = new AssemblerEnergyComponent(this);
     }
 
@@ -163,7 +163,7 @@ class Assembler extends TileEntity {
 
     static decode(decoded: unknown, gridBase: unknown): Assembler {
         const data = decoded as EncodedAssembler;
-        const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase as BasePart);
+        const crafter = new Assembler(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = decodeMap(data.resource) as Map<string, number>;
         crafter.isCrafting = data.isCrafting;

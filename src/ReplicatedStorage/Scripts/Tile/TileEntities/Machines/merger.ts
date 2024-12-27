@@ -17,8 +17,8 @@ class Merger extends TileEntity {
     //new array fill with undifined
     content = new Array<Entity | undefined>(CONTENT_SIZE, undefined);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     /**
@@ -56,7 +56,8 @@ class Merger extends TileEntity {
 
     static decode(decoded: unknown, gridBase: BasePart): Merger {
         const data = decoded as EncodedMerger;
-        const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
+        const merger = new Merger(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
+
         merger.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         merger.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         return merger;

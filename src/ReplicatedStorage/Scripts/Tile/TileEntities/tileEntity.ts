@@ -28,7 +28,7 @@ abstract class TileEntity extends Tile {
 
     lastProgress: number = 0;
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, category: string, maxInputs: number, maxOutputs: number, gridBase: BasePart) {
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number, category: string, maxInputs: number, maxOutputs: number) {
         super(name, position, size, direction, gridBase);
         this.category = category;
         this.speed = speed;

@@ -1,5 +1,5 @@
 import { Players, TweenService, Workspace } from "@rbxts/services";
-import { getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
+import { getTileInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { findBasepartByName } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
 import { PlacementHandler, placementType } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandler";
 import { getImage } from "../Utils/imageUtils";
@@ -8,6 +8,7 @@ import { TileGrid } from "ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
 import { getPlacedGeneratorCount } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { formatCompact } from "ReplicatedStorage/Scripts/Utils/numberFormat";
+import { TileTemplate } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntitiesList";
 
 const hotbarFrame = Players.LocalPlayer!.WaitForChild("PlayerGui")!.WaitForChild("ScreenGui")!.WaitForChild("hotbar") as Frame;
 
@@ -100,7 +101,7 @@ export class Hotbar {
         if (this.currentSlot === undefined) return;
         if (this.placementHandler.placementStatus !== placementType.PLACING) return
 
-        if (getTileEntityInformation(this.getSlot(this.currentSlot).getPart()!.Name).category === "generator") this.showItemName(this.currentSlot);
+        if (getTileInformation(this.getSlot(this.currentSlot).getPart()!.Name).category === "generator") this.showItemName(this.currentSlot);
     }
 
     showItemName(index: number) {
@@ -140,21 +141,14 @@ export class Hotbar {
 class HotbarSlot {
     private slotFrame: Frame;
 
-    private info: {
-        name: string;
-        category: string;
-        tier: number;
-        price: number;
-        speed: number;
-        image: string;
-    } | undefined;
+    private info: TileTemplate | undefined;
 
     private part: BasePart | undefined;
 
     constructor(index: number, tileName?: string) {
         this.slotFrame = hotbarFrame.WaitForChild("slots")!.WaitForChild(index)! as Frame;
         if (tileName) {
-            this.info = getTileEntityInformation(tileName);
+            this.info = getTileInformation(tileName);
             this.part = findBasepartByName(this.info.name);
         }
 
@@ -162,7 +156,7 @@ class HotbarSlot {
     }
 
     setSlot(tileName: string) {
-        this.info = getTileEntityInformation(tileName);
+        this.info = getTileInformation(tileName);
         this.part = findBasepartByName(this.info.name);
         this.setupSlot();
     }

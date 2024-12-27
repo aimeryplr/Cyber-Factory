@@ -3,7 +3,7 @@ import PlotManager from "./plotManager";
 import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
 import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
 import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
-import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
+import { getTileByCategory, getTileInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/Datastore/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
@@ -34,7 +34,7 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
     const removedTile = plot.removeGridTile(tile as BasePart);
     if (removedTile instanceof Conveyor) sellConveyerContent((player as Player), removedTile);
     if (removedTile) {
-        const tileInformation = getTileEntityInformation(removedTile.name);
+        const tileInformation = getTileInformation(removedTile.name);
         const tilePrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGeneratorCount(plot.getGridTiles())) : tileInformation.price;;
         addMoney(player as Player, tilePrice);
         sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
@@ -49,8 +49,8 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
     const localPos = getLocalPosition(pos as Vector3, gridBase as BasePart);
     const tileObject = findBasepartByName(tileName as string);
-    const tileInformation = getTileEntityInformation(tileName as string);
-    const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number, gridBase as BasePart);
+    const tileInformation = getTileInformation(tileName as string);
+    const tileEntity = getTileByCategory(tileInformation, localPos as Vector3, size as Vector2, direction, gridBase as BasePart);
     const placementPrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGeneratorCount(plot.getGridTiles())) : tileInformation.price;
 
     //check if player owns a plot and if the tile exists

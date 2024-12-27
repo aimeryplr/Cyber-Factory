@@ -31,8 +31,8 @@ class Crafter extends TileEntity {
     private craftingCoroutine: thread | undefined;
     private efficiency = new Efficiency(EFFICIENCY_HISTORY_SIZE);
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     tick(progress: number): void {
@@ -84,7 +84,8 @@ class Crafter extends TileEntity {
 
     static decode(decoded: unknown, gridBase: BasePart): Crafter {
         const data = decoded as EncodedCrafter;
-        const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
+        const crafter = new Crafter(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
+
         if (data.currentCraft) crafter.setCraft(entitiesList.get(data.currentCraft) as Component);
         crafter.resource = data.resource;
         crafter.isCrafting = data.isCrafting;

@@ -3,7 +3,7 @@ import { Players, ReplicatedStorage, RunService, Workspace } from "@rbxts/servic
 import { TileGrid } from "../TileGrid/tileGrid";
 import { TileEntity } from "../Tile/TileEntities/tileEntity";
 import { getLocalPosition, removeAllTileFromAllConnectedTiles } from "../Tile/TileEntities/Utils/tileEntityUtils";
-import { getTileEntityByCategory, getTileEntityInformation, isInteractable } from "../Tile/TileEntities/tileEntityProvider";
+import { getTileByCategory, getTileInformation, isInteractable } from "../Tile/TileEntities/tileEntityProvider";
 import { BLUE, GRID_SIZE, LERP_SPEED, PLACEMENT_RANGE, PLACING_TRANSPARENCY } from "ReplicatedStorage/constants";
 import { getSoundEffect, setRandomPitch, playSoundEffectWithoutStopping, playSoundEffectDuplicated } from "../Utils/playSound";
 
@@ -196,8 +196,8 @@ class PlacementHandler {
 
         const direction = new Vector2(math.round(math.cos(this.rotation as number)), math.round(math.sin(this.rotation as number)));
         const localPos = getLocalPosition(this.targetPos as Vector3, this.gridBase as BasePart);
-        const tileInformation = getTileEntityInformation(obj.Name as string);
-        const tileEntity = getTileEntityByCategory(tileInformation.category, tileInformation.name, localPos as Vector3, this.size as Vector2, direction, tileInformation.speed as number, this.gridBase);
+        const tileInformation = getTileInformation(obj.Name as string);
+        const tileEntity = getTileByCategory(tileInformation, localPos, this.size as Vector2, direction, this.gridBase) as TileEntity;
         this.tileName = tileInformation.name;
 
         return tileEntity;
@@ -241,7 +241,7 @@ class PlacementHandler {
 
     setupArrows() {
         if (!this.currentTile) return;
-        const tileEntity = getTileEntityByCategory(getTileEntityInformation(this.currentTile.Name).category, "test", new Vector3(0, 0, 0), new Vector2(1, 1), new Vector2(1, 0), 1, this.gridBase);
+        const tileEntity = getTileByCategory(getTileInformation(this.currentTile.Name), new Vector3(0, 0, 0), new Vector2(1, 1), new Vector2(1, 0), this.gridBase) as TileEntity;
         if (!tileEntity) return;
 
         if (["assembler"].includes(tileEntity.category)) {
@@ -401,7 +401,7 @@ class PlacementHandler {
         this.selectionTile.Color3 = BLUE;
         this.selectionTile.Transparency = 0.5;
 
-        const tileInfo = getTileEntityInformation(this.currentTile!.Name);
+        const tileInfo = getTileInformation(this.currentTile!.Name);
         if (!tileInfo) return;
         if (isInteractable(tileInfo.category)) {
             this.selectionTile.Transparency = 0.2

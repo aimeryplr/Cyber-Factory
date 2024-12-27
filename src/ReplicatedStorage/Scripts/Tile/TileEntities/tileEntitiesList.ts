@@ -1,4 +1,14 @@
-const tileEntitiesList: Map<string, { name: string, category: string, tier: number, speed: number, price: number, image: string }> = new Map([
+export interface TileTemplate {
+    name: string;
+    category: string;
+    tier: number;
+    price: number;
+    speed?: number;
+    parameters?: unknown[];
+    image: string;
+}
+
+const tileEntitiesList: Map<string, TileTemplate> = new Map([
     ["conveyor", {
         name: "conveyor",
         category: "conveyor",
@@ -62,7 +72,16 @@ const tileEntitiesList: Map<string, { name: string, category: string, tier: numb
         tier: 1,
         price: 2000,
         image: "",
-    }]
+    }],
+    ["electric pole", {
+        name: "electric pole",
+        category: "electricPole",
+        tier: 1,
+        price: 100,
+        // poleConnectionRange, machineConnectionRange
+        parameters: [5, 15],
+        image: "",
+    }],
 ]);
 
 export default tileEntitiesList;
