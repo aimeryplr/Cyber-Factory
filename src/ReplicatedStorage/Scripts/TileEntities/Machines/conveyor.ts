@@ -4,7 +4,7 @@ import { moveItemsInArray } from "../Utils/conveyerUtils";
 import { findBasepartByName } from "../Utils/tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 
 //Setings
