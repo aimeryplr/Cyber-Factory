@@ -1,12 +1,12 @@
 import { ReplicatedStorage } from "@rbxts/services";
-import { appendInputTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/conveyerUtils";
-import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
-import Tile from "ReplicatedStorage/Scripts/TileEntities/tile";
-import Seller from "ReplicatedStorage/Scripts/TileEntities/Machines/seller";
+import { appendInputTiles } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/conveyerUtils";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntity";
+import Tile from "ReplicatedStorage/Scripts/Tile/tile";
+import Seller from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/seller";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/TileGrid/tileGrid";
 import { changeShapes, getMoneyReward, getPlayerFromUserId, resetBeamsOffset } from "./plotsUtils";
-import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
+import { findBasepartByName, removeConectedTiles } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
+import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { Quest, Reward, RewardType } from "ReplicatedStorage/Scripts/Quests/quest";
 import { cloneQuest, resetQuestGoals, updateGoals } from "ReplicatedStorage/Scripts/Quests/questUtils";

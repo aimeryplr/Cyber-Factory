@@ -1,14 +1,14 @@
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
-import Splitter from "ReplicatedStorage/Scripts/TileEntities/Machines/splitter";
-import Seller from "ReplicatedStorage/Scripts/TileEntities/Machines/seller";
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
-import Merger from "ReplicatedStorage/Scripts/TileEntities/Machines/merger";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
-import Tile from "ReplicatedStorage/Scripts/TileEntities/tile";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
+import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
+import Splitter from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/splitter";
+import Seller from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/seller";
+import Crafter from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/crafter";
+import Merger from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/merger";
+import Assembler from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/assembler";
+import Tile from "ReplicatedStorage/Scripts/Tile/tile";
 import type { TileGrid } from "./tileGrid";
 import { GRID_SIZE } from "ReplicatedStorage/constants";
-import { SubConveyer } from "../TileEntities/Machines/subConveyer";
+import { SubConveyer } from "../Tile/TileEntities/Machines/subConveyer";
 
 function decodeTile(decoded: unknown, gridBase: BasePart) {
     const data = decoded as { category: string }
@@ -45,12 +45,13 @@ function decodeTiles(decodedTiles: Array<unknown>, tileGrid: TileGrid, gridBase:
     }
 }
 
-export function getPlacedGenerator(tileGrid: TileGrid): number {
-    let generatorCount = 0;
-    tileGrid.getTiles().forEach((tile) => {
-        if (tile instanceof Generator) generatorCount++;
-    });
-    return generatorCount;
+export function getPlacedTilesOfType<T extends Tile>(tileGrid: TileGrid, tileType: new (...args: any[]) => T): T[] {
+    const tiles = tileGrid.getTiles().filter((tile) => tile instanceof tileType) as T[];
+    return tiles;
+}
+
+export function getPlacedGeneratorCount(tileGrid: TileGrid): number {
+    return getPlacedTilesOfType(tileGrid, Generator).size();
 }
 
 /**
@@ -59,6 +60,10 @@ export function getPlacedGenerator(tileGrid: TileGrid): number {
     */
 export function localPositionToGridTilePosition(position: Vector3): Vector2 {
     return new Vector2(math.floor(position.X / GRID_SIZE), math.floor(position.Z / GRID_SIZE));
+}
+
+export function getDistanceBetweenTiles(tile1: Tile, tile2: Tile): number {
+    return tile1.position.sub(tile2.position).Magnitude / GRID_SIZE;
 }
 
 export { decodeTiles, decodeTile };

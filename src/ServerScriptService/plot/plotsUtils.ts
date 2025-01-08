@@ -1,9 +1,9 @@
-import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntity";
 import { Players, ReplicatedStorage } from "@rbxts/services";
 import { TileGrid } from "../../ReplicatedStorage/Scripts/TileGrid/tileGrid";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
 import Plot from "./plot";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
 
 const setConveyerBeamsEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("setConveyerBeams") as RemoteEvent;
 

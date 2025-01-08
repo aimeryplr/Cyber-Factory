@@ -1,4 +1,4 @@
-import Tile from "../tile";
+import Tile from "../../tile";
 
 function appendInputTiles(inputTiles: Array<Tile>, tileToAdd: Array<Tile>) {
     for (const tile of tileToAdd) {
@@ -7,7 +7,7 @@ function appendInputTiles(inputTiles: Array<Tile>, tileToAdd: Array<Tile>) {
     }
 }
 
-function moveItemsInArray(contentArray: Array<unknown | undefined>, maxSize: number): void{
+function moveItemsInArray(contentArray: Array<unknown | undefined>, maxSize: number): void {
     for (let i = 1; i < maxSize; i++) {
         if (contentArray[i - 1] === undefined) {
             contentArray[i - 1] = contentArray[i];

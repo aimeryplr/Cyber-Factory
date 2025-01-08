@@ -12,8 +12,8 @@ const category = "subConveyer";
 
 
 export class SubConveyer extends TileEntity {
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     tick(progression: number): void {
@@ -75,7 +75,8 @@ export class SubConveyer extends TileEntity {
 
     static decode(decoded: unknown, gridBase: BasePart): SubConveyer {
         const data = decoded as EncodedTileEntity;
-        const subConveyer = new SubConveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
+        const subConveyer = new SubConveyer(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
+        
         subConveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         subConveyer.outputTiles = decodeVector3Array(data.outputTiles) as TileEntity[];
         return subConveyer;

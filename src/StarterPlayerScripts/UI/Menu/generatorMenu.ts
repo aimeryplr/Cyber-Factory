@@ -1,5 +1,5 @@
 import { HttpService, ReplicatedStorage, RunService, TweenService } from "@rbxts/services";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
 import { decodeTile } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 import { getImage } from "../Utils/imageUtils";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";

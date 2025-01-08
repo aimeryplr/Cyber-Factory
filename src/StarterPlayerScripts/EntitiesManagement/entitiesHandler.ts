@@ -2,7 +2,7 @@ import { HttpService, ReplicatedStorage, TweenService } from "@rbxts/services";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { getEntityModel } from "ReplicatedStorage/Scripts/Entities/entityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
+import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
 
 const offset = 0.5;
 const destroyConveyerEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("destroyConveyer") as RemoteEvent;

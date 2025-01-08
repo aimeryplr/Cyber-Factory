@@ -1,5 +1,5 @@
 import { getEntitiesListName } from "../Entities/entityUtils";
-import { getAllTilesNames } from "../TileEntities/tileEntityProvider";
+import { getAllTilesNames } from "../Tile/TileEntities/tileEntityProvider";
 import { CraftReward, Quest, Reward, RewardType, TileReward } from "./quest";
 import { QuestNode } from "./questNode";
 import { QuestTree } from "./questTree";

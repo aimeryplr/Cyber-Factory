@@ -1,16 +1,18 @@
 import Assembler from "./Machines/assembler";
 import Conveyor from "./Machines/conveyor";
 import Crafter from "./Machines/crafter";
-import tileEntitiesList from "./tileEntitiesList";
+import tileEntitiesList, { TileTemplate } from "./tileEntitiesList";
 import Splitter from "./Machines/splitter";
 import Generator from "./Machines/generator";
 import Seller from "./Machines/seller";
 import { TileEntity } from "./tileEntity";
 import Merger from "./Machines/merger";
 import { SubConveyer } from "./Machines/subConveyer";
+import { ElectricPole } from "./Electricity/ElectricPole";
+import Tile from "../tile";
 
 
-const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
+const tileRegistry: { [key: string]: new (...args: any[]) => any } = {
     "conveyor": Conveyor,
     "splitter": Splitter,
     "crafter": Crafter,
@@ -18,7 +20,8 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
     "generator": Generator,
     "seller": Seller,
     "merger": Merger,
-    "subConveyer": SubConveyer
+    "subConveyer": SubConveyer,
+    "electricPole": ElectricPole,
 };
 
 /**
@@ -27,12 +30,16 @@ const tileEntityRegistry: { [key: string]: new (...args: any[]) => any } = {
  * @param args argument of the constructor
  * @returns the class created
  */
-function getTileEntityByCategory(className: string, name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart): TileEntity {
-    const ClassConstructor = tileEntityRegistry[className];
+export function getTileByCategory<T extends Tile>(tileTemplate: TileTemplate, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart): T {
+    const ClassConstructor = tileRegistry[tileTemplate.category];
     if (ClassConstructor) {
-        return new ClassConstructor(name, position, size, direction, speed, gridBase);
+        if (tileTemplate.speed) {
+            return new ClassConstructor(tileTemplate.name, position, size, direction, gridBase, tileTemplate.speed, ...tileTemplate.parameters ?? [] );
+        } else {
+            return new ClassConstructor(tileTemplate.name, position, size, direction, gridBase, ...tileTemplate.parameters ?? [] );
+        }
     } else {
-        error(`Class ${className} not found`);
+        error(`Class ${tileTemplate.category} not found`);
     }
 }
 
@@ -41,7 +48,7 @@ function getTileEntityByCategory(className: string, name: string, position: Vect
  * @param name gridEntity name like generator_t1
  * @returns all the information of the gridEntity
  */
-function getTileEntityInformation(name: string): { name: string, category: string, tier: number, price: number, speed: number, image: string } {
+export function getTileInformation(name: string): TileTemplate {
     const tileEntity = tileEntitiesList.get(name);
     if (tileEntity) return tileEntity;
 
@@ -63,5 +70,3 @@ export function getAllTilesNames(): string[] {
     }
     return tilesNames;
 }
-
-export { getTileEntityByCategory, getTileEntityInformation };

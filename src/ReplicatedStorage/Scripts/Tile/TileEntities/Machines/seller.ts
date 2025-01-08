@@ -1,6 +1,6 @@
 import { Entity } from "ReplicatedStorage/Scripts/Entities/entity";
 import { EncodedTileEntity, TileEntity } from "../tileEntity";
-import { decodeVector2, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeVector2, decodeVector3, decodeVector3Array, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 
 // Settings
 const MAX_INPUTS = 4;
@@ -14,8 +14,8 @@ class Seller extends TileEntity {
     playerMoney: NumberValue | undefined;
     sellingCallBack: (entitySoldName: string) => void = () => { };
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     setOwner(playerId: number) {
@@ -55,7 +55,8 @@ class Seller extends TileEntity {
 
     static decode(decoded: unknown, gridBase: BasePart): Seller {
         const data = decoded as EncodedTileEntity;
-        const seller = new Seller("seller", new Vector3(data.position.x, data.position.y, data.position.z), decodeVector2(data.size), new Vector2(1, 0), 0, gridBase);
+        const seller = new Seller(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
+
         seller.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[]
         return seller;
     }

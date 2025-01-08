@@ -1,7 +1,7 @@
-import Tile from "ReplicatedStorage/Scripts/TileEntities/tile";
+import Tile from "ReplicatedStorage/Scripts/Tile/tile";
 import { HttpService } from "@rbxts/services";
 import { decodeVector2, encodeVector2 } from "ReplicatedStorage/Scripts/Utils/encoding";
-import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntity";
 import { decodeTiles, localPositionToGridTilePosition } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 
 
@@ -93,6 +93,31 @@ class TileGrid {
                 if (this.isInBounds(x, y)) this.tileGrid[y][x] = undefined;
             }
         }
+    }
+
+    getNeighbours(tile: Tile, range: number): Map<Tile, Vector2> {
+        assert(range > 0, "Range must be greater than 0");
+        assert(math.floor(range) === range, "Range must be an integer");
+
+        const neighbours = new Map<TileEntity, Vector2>();
+
+        const tileGridPosition = localPositionToGridTilePosition(tile.position);
+        const tileTopLeftOffset = new Vector2(-math.floor(tile.size.X / 2) + math.ceil(-tile.size.X / 2), -math.floor(tile.size.Y / 2) + math.ceil(-tile.size.Y / 2));
+        const tileTopLeftPosition = tileGridPosition.add(tileTopLeftOffset);
+
+        for (let row = tileTopLeftPosition.Y - range; row < tileTopLeftPosition.Y + tile.size.Y + range; row++) {
+            for (let column = tileTopLeftPosition.X - range; column < tileTopLeftPosition.X + tile.size.X + range; column++) {
+                const neighbourTile = this.getTile(column, row);
+
+                const isNeighbourTile = neighbourTile && neighbourTile !== tile && neighbourTile instanceof TileEntity
+                if (isNeighbourTile) {
+                    const direction = new Vector2(column - tileGridPosition.X, row - tileGridPosition.Y);
+                    neighbours.set(neighbourTile, new Vector2(direction.X, direction.Y));
+                } 
+            }
+        }
+
+        return neighbours;
     }
 
     /**

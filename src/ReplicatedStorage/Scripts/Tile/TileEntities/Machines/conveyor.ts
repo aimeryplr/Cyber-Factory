@@ -4,7 +4,7 @@ import { moveItemsInArray } from "../Utils/conveyerUtils";
 import { findBasepartByName } from "../Utils/tileEntityUtils";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
-import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray } from "ReplicatedStorage/Scripts/Utils/encoding";
+import { decodeArray, decodeVector2, decodeVector3, decodeVector3Array, encodeArray, EncodedArray, encodeVector2, encodeVector3 } from "ReplicatedStorage/Scripts/Utils/encoding";
 import { CONTENT_SIZE } from "ReplicatedStorage/constants";
 
 //Setings
@@ -14,7 +14,7 @@ const category: string = "conveyor";
 const updateContentEvent = ReplicatedStorage.WaitForChild("Events").WaitForChild("conveyerContentUpdate") as RemoteEvent;
 
 export interface EncodedConveyor extends EncodedTileEntity {
-    content: Array<Entity | undefined>,
+    content: EncodedArray<Entity>,
     isTurning: boolean,
 }
 
@@ -24,8 +24,8 @@ class Conveyor extends TileEntity {
     isTurning = false;
     count = 0
 
-    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, speed: number, gridBase: BasePart) {
-        super(name, position, size, direction, speed, category, MAX_INPUTS, MAX_OUTPUTS, gridBase);
+    constructor(name: string, position: Vector3, size: Vector2, direction: Vector2, gridBase: BasePart, speed: number) {
+        super(name, position, size, direction, gridBase, speed, category, MAX_INPUTS, MAX_OUTPUTS);
     }
 
     /**
@@ -110,24 +110,23 @@ class Conveyor extends TileEntity {
     }
 
     copy(): Conveyor {
-        const newConveyer = new Conveyor(this.name, this.position, this.size, this.direction, this.speed, this.gridBase);
+        const newConveyer = new Conveyor(this.name, this.position, this.size, this.direction, this.gridBase, this.speed);
         newConveyer.content = this.content;
         newConveyer.isTurning = this.isTurning;
         return newConveyer;
     }
 
-    encode(): {} {
-        const copy = {
+    encode(): EncodedConveyor {
+        return {
             ...super.encode(),
-            "content": encodeArray(this.content, CONTENT_SIZE),
-            "isTurning": this.getIsTurning()
+            content: encodeArray(this.content, CONTENT_SIZE),
+            isTurning: this.getIsTurning()
         }
-        return copy;
     }
 
     static decode(decoded: unknown, gridBase: BasePart): Conveyor {
         const data = decoded as EncodedConveyor;
-        const conveyer = new Conveyor(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), data.speed, gridBase);
+        const conveyer = new Conveyor(data.name, decodeVector3(data.position), decodeVector2(data.size), decodeVector2(data.direction), gridBase as BasePart, data.speed);
         conveyer.content = decodeArray(data.content);
         conveyer.isTurning = data.isTurning;
         conveyer.inputTiles = decodeVector3Array(data.inputTiles) as TileEntity[];

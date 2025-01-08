@@ -1,20 +1,20 @@
 import { HttpService, ReplicatedStorage } from "@rbxts/services";
 import PlotManager from "./plotManager";
-import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/TileEntities/Utils/tileEntityUtils";
-import Conveyor from "ReplicatedStorage/Scripts/TileEntities/Machines/conveyor";
+import { findBasepartByName, getLocalPosition, removeConectedTiles } from "ReplicatedStorage/Scripts/Tile/TileEntities/Utils/tileEntityUtils";
+import Conveyor from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/conveyor";
 import { addMoney, hasEnoughMoney, removeMoney, resetBeamsOffset, sellConveyerContent } from "./plotsUtils";
-import { getTileEntityByCategory, getTileEntityInformation } from "ReplicatedStorage/Scripts/TileEntities/tileEntityProvider";
+import { getTileByCategory, getTileInformation } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntityProvider";
 import { savePlayerData } from "ServerScriptService/Datastore/datastore";
 import { setupObject } from "ReplicatedStorage/Scripts/PlacementHandler/placementHandlerUtils";
-import Generator from "ReplicatedStorage/Scripts/TileEntities/Machines/generator";
-import Crafter from "ReplicatedStorage/Scripts/TileEntities/Machines/crafter";
-import { TileEntity } from "ReplicatedStorage/Scripts/TileEntities/tileEntity";
+import Generator from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/generator";
+import Crafter from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/crafter";
+import { TileEntity } from "ReplicatedStorage/Scripts/Tile/TileEntities/tileEntity";
 import { entitiesList } from "ReplicatedStorage/Scripts/Entities/EntitiesList";
 import { Component } from "ReplicatedStorage/Scripts/Entities/entity";
-import Assembler from "ReplicatedStorage/Scripts/TileEntities/Machines/assembler";
+import Assembler from "ReplicatedStorage/Scripts/Tile/TileEntities/Machines/assembler";
 import { questTreeArray } from "ReplicatedStorage/Scripts/Quests/questList";
 import { getQuestFromQuestNodes } from "ReplicatedStorage/Scripts/Quests/questTreeUtils";
-import { getPlacedGenerator } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
+import { getPlacedGeneratorCount } from "ReplicatedStorage/Scripts/TileGrid/tileGridUtils";
 
 const sendTileGrid = ReplicatedStorage.WaitForChild("Events").WaitForChild("sendTileGrid") as RemoteEvent;
 const playerQuests = ReplicatedStorage.WaitForChild("Events").WaitForChild("playerQuests") as RemoteEvent;
@@ -34,8 +34,8 @@ export const onRemoveTileEvent = (plotManager: PlotManager, player: unknown, til
     const removedTile = plot.removeGridTile(tile as BasePart);
     if (removedTile instanceof Conveyor) sellConveyerContent((player as Player), removedTile);
     if (removedTile) {
-        const tileInformation = getTileEntityInformation(removedTile.name);
-        const tilePrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGenerator(plot.getGridTiles())) : tileInformation.price;;
+        const tileInformation = getTileInformation(removedTile.name);
+        const tilePrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGeneratorCount(plot.getGridTiles())) : tileInformation.price;;
         addMoney(player as Player, tilePrice);
         sendTileGrid.FireClient(player as Player, HttpService.JSONEncode(plot.encode()));
     }
@@ -49,9 +49,9 @@ export const onPlacingTile = (plotManager: PlotManager, player: Player, tileName
     const direction = new Vector2(math.round(math.cos(orientation as number)), math.round(math.sin(orientation as number)));
     const localPos = getLocalPosition(pos as Vector3, gridBase as BasePart);
     const tileObject = findBasepartByName(tileName as string);
-    const tileInformation = getTileEntityInformation(tileName as string);
-    const tileEntity = getTileEntityByCategory(tileInformation.category, tileName as string, localPos as Vector3, size as Vector2, direction, tileInformation.speed as number, gridBase as BasePart);
-    const placementPrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGenerator(plot.getGridTiles())) : tileInformation.price;
+    const tileInformation = getTileInformation(tileName as string);
+    const tileEntity = getTileByCategory(tileInformation, localPos as Vector3, size as Vector2, direction, gridBase as BasePart);
+    const placementPrice = tileInformation.category === "generator" ? Generator.getPrice(getPlacedGeneratorCount(plot.getGridTiles())) : tileInformation.price;
 
     //check if player owns a plot and if the tile exists
     if (!tileObject || !plot || !tileEntity) {
